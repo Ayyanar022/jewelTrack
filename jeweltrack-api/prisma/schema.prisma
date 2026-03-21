@@ -1,0 +1,245 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+
+}
+
+// db start
+
+enum subscriptionPlan{
+  BASIC 
+  PRO
+  PREMIUM
+}
+
+enum subscriptionStatus{
+  TRIAL
+  ACTIVE
+  EXPIRED
+}
+
+enum PartyType{
+  SMALL_SHOP 
+  KARIGAR
+  INDIVIDUAL
+}
+
+enum Purity{
+  K22
+  K18
+  K24
+  }
+
+  enum Metal{
+    GOLD 
+    SILVER
+  }
+
+  enum LoanStatus{
+    ACTIVE
+    CLOSED
+  }
+
+
+
+model Shop{
+  id   String @id @default(uuid())
+  name  String
+  owner_name  String
+  phone  String?
+  hallmark_rate  Float @default(0.005)
+  subscription_plan subscriptionPlan @default(BASIC)
+  subscription_status  subscriptionStatus @default(TRIAL)
+  created_at  DateTime @default(now())
+  
+  customer Customer[] 
+  party Party[]
+  rate Rate[]
+  bill Bill[]
+  jewelleryCategory JewelleryCategory[]
+  stockTransaction StockTransaction[]
+   metalPayment MetalPayment[]
+  goldLoan JewelLoan[]
+}
+
+
+model Customer  {
+  id  String  @id @default(uuid())
+  shop_id  String 
+  shop  Shop  @relation(fields : [shop_id] ,references:[id])
+  name  String 
+  phone  String?
+  village String?
+  address String?
+  created_at DateTime @default(now())
+
+  bill Bill[]
+  goldLoan JewelLoan[]
+}
+
+
+model Party{
+  id  String  @id @default(uuid())
+  shop_id String 
+  shop Shop @relation(fields:[shop_id] , references:[id])
+  name String 
+  phone String?
+  address String?
+  type PartyType  @default(SMALL_SHOP)
+  contact_person String?
+  created_at DateTime  @default(now())
+
+   stockTransaction StockTransaction[]
+   metalPayment MetalPayment[]
+}
+
+
+model Rate{
+  id  String @id @default(uuid())
+  shop_id String 
+  shop Shop @relation(fields:[shop_id] ,references:[id])
+  rate_22k Float 
+  rate_18k Float
+  rate_999 Float?
+  rate_silver Float
+  created_at DateTime  @default(now())
+
+}
+
+model Bill{
+  id  String @id @default(uuid())
+  shop_id String 
+  shop Shop @relation(fields:[shop_id] , references:[id])
+  customer_id String
+  customer Customer @relation(fields:[customer_id] ,references:[id])
+  bill_number String
+  is_gst_bill Boolean  @default(false)
+  total_amount Float 
+  discount Float @default(0)
+  notes  String?
+  created_at DateTime @default(now())
+
+  billItem BillItem[]
+
+}
+
+model BillItem{
+  id String @id @default(uuid())
+  bill_id String 
+  bill Bill @relation(fields:[bill_id],references:[id])
+  item_name String 
+  purity Purity? @default(K22)
+  metal Metal @default(GOLD)
+  weight Float 
+  wastage Float?
+  rate Float
+  making_charge Float
+  amount Float 
+
+}
+
+model JewelleryCategory{
+  id String @id @default(uuid())
+  shop_id String
+  shop Shop @relation(fields:[shop_id] ,references:[id])
+  name String
+  metal Metal @default(GOLD)
+  default_wastage Float?
+  default_making_charge Float?
+  touch_22k Float?
+  touch_18k Float?
+  touch_24k Float?
+  created_at DateTime @default(now())
+
+  stockTransaction StockTransaction[]
+}
+
+model StockTransaction {
+  id String  @id @default(uuid())
+  shop_id  String 
+  shop Shop @relation(fields:[shop_id],references:[id])
+  party_id  String 
+  party  Party  @relation(fields:[party_id],references:[id])
+  category_id String
+  category  JewelleryCategory  @relation(fields:[category_id] ,references:[id])
+  piece_weight  Float
+  purity  Purity  @default(K18)
+  given_pieces  Int   @default(0)
+  given_weight  Float  @default(0)
+  returned_pieces  Int   @default(0)
+  returned_weight  Float @default(0)
+  fixed_touch Float 
+  actual_touch  Float
+  hallmark_rate Float
+  give_at  DateTime?
+  returned_at DateTime?
+  is_locked Boolean @default(false)
+  created_at  DateTime      @default(now())
+  
+}
+
+
+
+model MetalPayment {
+  id String @id @default(uuid())
+  shop_id String 
+  shop Shop @relation(fields:[shop_id], references:[id])
+  party_id String 
+  party Party  @relation(fields:[party_id],references:[id])
+  weight Float
+  purity Float
+  pure_metal Float
+  notes String?
+  payment_date DateTime 
+  created_at DateTime @default(now())
+  }
+
+
+  // gold lean 
+
+  model JewelLoan {
+    id String @id @default(uuid())
+     shop_id String 
+     shop Shop @relation(fields:[shop_id], references:[id])
+     customer_id String 
+     customer Customer @relation(fields:[customer_id], references:[id])
+     loan_number String
+     loan_amount  Int
+     interest_rate Float
+     gross_weight Float 
+     net_weight Float
+     jewellery_photo_url  String?
+     customer_photo_url String?
+     status LoanStatus @default(ACTIVE)
+     loan_date DateTime @default(now())
+     notes String?
+     created_at DateTime @default(now())
+
+  loanCollateralItem LoanCollateralItem[]
+  loanRepayment LoanRepayment[]
+  }
+
+
+  model LoanCollateralItem {
+    id String  @id @default(uuid())
+    loan_id String 
+    loan JewelLoan @relation(fields:[loan_id] , references:[id]) 
+    description  String 
+    purity  Purity?   
+    pieces  Int
+  }
+
+
+  model LoanRepayment{
+    id String @id @default(uuid())
+    loan_id String 
+    loan JewelLoan @relation(fields:[loan_id] , references:[id]) 
+    principal_paid Int
+    interest_paid Int 
+    payment_date DateTime
+    notes String?
+    created_at DateTime @default(now())
+  }

@@ -73,8 +73,8 @@ model Customer  {
   shop_id  String 
   shop  Shop  @relation(fields : [shop_id] ,references:[id])
   name  String 
-  phone  String?
-  village String?
+  phone  String
+  village String
   address String?
   created_at DateTime @default(now())
 
@@ -103,10 +103,10 @@ model Rate{
   id  String @id @default(uuid())
   shop_id String 
   shop Shop @relation(fields:[shop_id] ,references:[id])
-  rate_22k Float 
-  rate_18k Float
-  rate_999 Float?
-  rate_silver Float
+  rate_22k Int 
+  rate_18k Int
+  rate_999 Int?
+  rate_silver Int
   created_at DateTime  @default(now())
 
 }

@@ -5,3 +5,44 @@ prisma.modelName.action({
   select: {},  // pick specific fields
   include: {}, // join related tables
 })
+
+
+
+flow of token 
+
+auth/
+├── auth.controller.ts  
+│   → receives HTTP requests
+│   → calls service
+│   → returns response
+│
+├── auth.service.ts     
+│   → business logic
+│   → talks to DB via PrismaService
+│   → hashes passwords
+│   → generates JWT token
+│
+├── jwt.strategy.ts     
+│   → tells Passport HOW to verify token
+│   → extracts token from header
+│   → validates token with secret
+│   → finds shop from DB
+│   → attaches to req.user
+│
+├── dto/
+│   ├── register.dto.ts → validates register request body
+│   └── login.dto.ts    → validates login request body
+│
+common/
+├── guards/
+│   └── jwt.guard.ts    
+│       → protects routes
+│       → triggers JwtStrategy
+│       → use with @UseGuards(JwtAuthGuard)
+│
+└── prisma/
+    ├── prisma.service.ts  → DB connection and queries
+    └── prisma.module.ts   → makes PrismaService global
+
+
+

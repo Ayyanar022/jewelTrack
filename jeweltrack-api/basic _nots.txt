@@ -1,0 +1,7 @@
+
+prisma.modelName.action({
+  where: {},   // filter condition
+  data: {},    // for create/update
+  select: {},  // pick specific fields
+  include: {}, // join related tables
+})

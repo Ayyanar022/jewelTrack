@@ -4,8 +4,9 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-
+  url      = env("DATABASE_URL")
 }
+
 
 // db start
 
@@ -50,6 +51,7 @@ model Shop{
   name  String
   owner_name  String
   phone  String?
+  password   String
   hallmark_rate  Float @default(0.005)
   subscription_plan subscriptionPlan @default(BASIC)
   subscription_status  subscriptionStatus @default(TRIAL)

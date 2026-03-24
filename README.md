@@ -5,7 +5,7 @@ A SaaS application for individual jewellery shop owners in India to manage billi
 ## Tech Stack
 
 - **Frontend:** Next.js 14, Tailwind CSS, Shadcn UI
-- **Backend:** NestJS, Prisma ORM
+- **Backend:** NestJS, Prisma ORM (v5)
 - **Database:** PostgreSQL
 - **Auth:** JWT
 - **Payments:** Razorpay (planned)
@@ -48,3 +48,17 @@ Amount = (Gold Rate × (Weight + Wastage)) + Making Charge
 
 **Stock distribution (touch calculation):**
 Metal Owed = Weight × (Purity + Touch + Hallmark Rate)
+
+
+22-03-2026 what we build so far 
+
+- NestJS project setup
+- Prisma 5 + PostgreSQL — 13 tables migrated
+- PrismaModule — global, available everywhere
+- JWT auth — register and login working
+- ValidationPipe — global DTO validation
+- bcrypt — password hashing
+
+
+
+

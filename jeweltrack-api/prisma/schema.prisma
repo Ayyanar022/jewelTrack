@@ -120,7 +120,7 @@ model Bill{
   bill_number String
   is_gst_bill Boolean  @default(false)
   total_amount Float 
-  discount Float @default(0)
+  discount Float? @default(0)
   notes  String?
   created_at DateTime @default(now())
 

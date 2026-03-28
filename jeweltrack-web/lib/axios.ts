@@ -1,13 +1,21 @@
 import axios from 'axios';
 
 
+// helper to get cookie vale (token) )
+function getCookie(name:string):string|null{
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if(parts.length===2) return parts.pop()?.split(';').shift()|| null ;
+    return null
+}
+
 const api = axios.create({
-    baseURL:'http://localhost:3000',
+    baseURL:'http://localhost:4000',
 })
 
 // automatically added token in every request 
 api.interceptors.request.use((config)=>{
-    const token = localStorage.getItem('token');
+    const token = getCookie('token')
     if(token){
         config.headers.Authorization = `Bearer ${token}`
     }
@@ -19,8 +27,8 @@ api.interceptors.request.use((config)=>{
 api.interceptors.response.use(
     (Response)=>Response,
     (error)=>{
-        if(error.response?.this.status === 401 ){
-            localStorage.removeItem('token');
+        if(error.response?.status === 401 ){
+           document.cookie = `token=; path=/; max-age=0`;
             window.location.href = '/login' ;
         }
         return Promise.reject(error)

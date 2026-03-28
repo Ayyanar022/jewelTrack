@@ -1,5 +1,5 @@
 import { Shop } from "@/types";
-import { skipToken } from "@tanstack/react-query";
+import { create } from "zustand";
 
 
 
@@ -18,14 +18,16 @@ export const useAuthStore = create<AuthState>((set,get)=>({
     shop:null,
 
     setToken: (token:string)=>{
-        localStorage.setItem('token',token);
+        // localStorage.setItem('token',token);
+        document.cookie = `token=${token}; path=/; max-age=${60* 60 * 24}` ;
         set({token});
     },
     setShop:(shop:Shop)=>{
         set({shop})
     },
     logout:()=>{
-        localStorage.removeItem('token');
+        // localStorage.removeItem('token');
+        document.cookie = `token=; path=/; max-age=0` ;
         set({token:null, shop:null});
     },
 

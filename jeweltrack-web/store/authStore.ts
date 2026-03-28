@@ -1,7 +1,14 @@
 import { Shop } from "@/types";
 import { create } from "zustand";
 
-
+// helper to read cookies 
+function getCookie(name:string):string |null{
+    if(typeof document === 'undefined') return null ;
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if(parts.length ===2) return parts.pop()?.split(';').shift() || null;
+    return null
+}
 
 interface AuthState{
     token :string |null;
@@ -14,7 +21,7 @@ interface AuthState{
 
 
 export const useAuthStore = create<AuthState>((set,get)=>({
-    token:null,
+    token:getCookie('token'),
     shop:null,
 
     setToken: (token:string)=>{

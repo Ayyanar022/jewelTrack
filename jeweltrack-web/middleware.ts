@@ -9,7 +9,7 @@ export function middleware(request:NextRequest){
     const isAuthPage = pathname.startsWith('/login') ||
                         pathname.startsWith('/register');
     
-    const isDashboardPage = pathname.startsWith('/dashboard') || pathname === '/';
+    const isDashboardPage = pathname.startsWith('/dashboard') 
 
     // no token + trying to  access dashboard - redirect to login
     if(!token && isDashboardPage){

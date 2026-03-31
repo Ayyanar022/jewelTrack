@@ -9,15 +9,25 @@ import { useState } from "react";
 
 
 
+// const navItems = [
+//   { label: 'Dashboard', href: '/dashboard', icon: '📊' },
+//   { label: 'Gold Rate', href: '/dashboard/rate', icon: '📈' },
+//   { label: 'Customers', href: '/dashboard/customers', icon: '👥' },
+//   { label: 'Billing', href: '/dashboard/billing', icon: '📄' },
+//   { label: 'Loans', href: '/dashboard/loan', icon: '💍' },
+//   { label: 'Stock', href: '/dashboard/stock', icon: '📦' },
+// ];
+
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: '📊' },
   { label: 'Gold Rate', href: '/dashboard/rate', icon: '📈' },
   { label: 'Customers', href: '/dashboard/customers', icon: '👥' },
-  { label: 'Billing', href: '/dashboard/billing', icon: '📄' },
+  { label: 'Estimate Bill', href: '/dashboard/billing', icon: '📄' },
+  { label: 'New Bill', href: '/dashboard/billing/new', icon: '➕' },
+  { label: 'Bill History', href: '/dashboard/billing/history', icon: '🗂️' },
   { label: 'Loans', href: '/dashboard/loan', icon: '💍' },
   { label: 'Stock', href: '/dashboard/stock', icon: '📦' },
 ];
-
 
 export default function DashboardLayout({children} : {children:React.ReactNode}){
 
@@ -95,7 +105,7 @@ return(
             </div>
             </header>
 
-            <main className="flex-1 p-6 overflow-auto">
+            <main className="flex-1 p-3 overflow-auto">
                 {children}
             </main>
 

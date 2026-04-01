@@ -7,24 +7,12 @@ import { useState } from "react";
 
 
 
-
-
-// const navItems = [
-//   { label: 'Dashboard', href: '/dashboard', icon: '📊' },
-//   { label: 'Gold Rate', href: '/dashboard/rate', icon: '📈' },
-//   { label: 'Customers', href: '/dashboard/customers', icon: '👥' },
-//   { label: 'Billing', href: '/dashboard/billing', icon: '📄' },
-//   { label: 'Loans', href: '/dashboard/loan', icon: '💍' },
-//   { label: 'Stock', href: '/dashboard/stock', icon: '📦' },
-// ];
-
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: '📊' },
   { label: 'Gold Rate', href: '/dashboard/rate', icon: '📈' },
-  { label: 'Customers', href: '/dashboard/customers', icon: '👥' },
   { label: 'Estimate Bill', href: '/dashboard/billing', icon: '📄' },
   { label: 'New Bill', href: '/dashboard/billing/new', icon: '➕' },
-  { label: 'Bill History', href: '/dashboard/billing/history', icon: '🗂️' },
+  { label: 'Customers', href: '/dashboard/customers', icon: '👥' },
   { label: 'Loans', href: '/dashboard/loan', icon: '💍' },
   { label: 'Stock', href: '/dashboard/stock', icon: '📦' },
 ];

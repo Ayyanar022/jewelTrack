@@ -54,16 +54,21 @@ export default function EstimatePage() {
 
   const { data: rate } = useQuery({
     queryKey: ['recent-rate'],
-    queryFn: () => api.get('/rate/recent-rate').then(r => r.data),
-    onSuccess: (data) => {
-      if (!initialized) { setItem(defaultItem(data?.rate_22k ?? 0)); setInitialized(true); }
-    },
+    queryFn: () => api.get('/rate/recent-rate').then(r => r.data)
   });
+
+  useEffect(()=>{
+    setItem(defaultItem(rate?.rate_22k ?? 0));
+    setInitialized(true)
+  },[rate,initialized])
 
   const { data: categories } = useQuery({
     queryKey: ['categories'],
     queryFn: () => api.get('/jewellery-category').then(r => r.data),
   });
+
+  console.log("item",item)
+  console.log("initialized",initialized)
 
   const total = Math.max(item.amount - discount, 0);
 
@@ -123,8 +128,8 @@ export default function EstimatePage() {
           width: 100%;
           border: 1.5px solid rgba(180,140,60,0.25);
           border-radius: 8px;
-          padding: 7px 10px;
-          font-size: 14px;
+          padding: 5px 12px;
+          font-size: 18px;
           background: transparent;
           color: var(--foreground);
           transition: border-color 0.15s, box-shadow 0.15s;
@@ -134,7 +139,7 @@ export default function EstimatePage() {
           border-color: var(--gold, #b48c3c);
           box-shadow: 0 0 0 3px rgba(180,140,60,0.12);
         }
-        .ef::placeholder { opacity: 0.35; }
+        .ef::placeholder { opacity: 0.45; }
         .drawer-enter { animation: slideIn 0.22s ease; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         .backdrop-enter { animation: fadeIn 0.2s ease; }
@@ -142,7 +147,7 @@ export default function EstimatePage() {
       `}</style>
 
       {/* Full viewport, no scroll */}
-      <div className="h-[calc(100vh-80px)] flex flex-col px-4 pb-3 max-w-5xl mx-auto overflow-hidden ">
+      <div className="h-[calc(100vh-85px)] flex flex-col px-4 pb-3 max-w-5xl mx-auto overflow-hidden ">
 
         {/* ── TOP BAR (minimal) ── */}
         <div className="flex items-center justify-between mb-3 flex-shrink-0">
@@ -187,8 +192,9 @@ export default function EstimatePage() {
                         const cat = categories.find((c: any) => c.id === e.target.value);
                         if (!cat) return;
                         const ww = cat.default_wastage ?? 0;
-                        const u = { ...item, item_name: cat.name, wastage_weight: ww, wastage_pct: item.weight > 0 ? parseFloat(((ww / item.weight) * 100).toFixed(2)) : 0, making_charge: cat.default_making_charge ?? 0 };
-                        u.amount = calcAmount(u); setItem(u);
+                        const u = { ...item, item_name: cat.name, wastage_weight: ww, wastage_pct: item.weight > 0 ? parseFloat(((ww / item.weight) * 100).toFixed(3)) : 0, making_charge: cat.default_making_charge ?? 0 };
+                        u.amount = calcAmount(u); 
+                        setItem(u);
                       }}
                       className="ef"
                     >
@@ -198,7 +204,7 @@ export default function EstimatePage() {
                   </div>
                 )}
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs text-muted-foreground">Item name</label>
+                  <label className="text-sm text-gold tracking-wide">Item name</label>
                   <input type="text" value={item.item_name} onChange={(e) => updateItem('item_name', e.target.value)}
                     placeholder="e.g. Necklace, Ring" className="ef" />
                 </div>
@@ -207,16 +213,16 @@ export default function EstimatePage() {
               {/* Metal + Purity + Rate */}
               <div className="grid grid-cols-3 gap-3">
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs text-muted-foreground">Metal</label>
-                  <select value={item.metal} onChange={(e) => updateItem('metal', e.target.value)} className="ef">
-                    <option value="GOLD">Gold</option>
+                  <label className="text-sm text-gold tracking-wide">Metal</label>
+                  <select value={item.metal} onChange={(e) => updateItem('metal', e.target.value)} className="ef h-10 ">
+                    <option  value="GOLD">Gold</option>
                     <option value="SILVER">Silver</option>
                   </select>
                 </div>
                 {item.metal === 'GOLD' && (
                   <div className="flex flex-col gap-1">
-                    <label className="text-xs text-muted-foreground">Purity</label>
-                    <select value={item.purity} onChange={(e) => updateItem('purity', e.target.value)} className="ef">
+                    <label className="text-sm text-gold tracking-wide">Purity</label>
+                    <select value={item.purity} onChange={(e) => updateItem('purity', e.target.value)} className="ef h-10">
                       <option value="K22">22K</option>
                       <option value="K18">18K</option>
                       <option value="K24">24K</option>
@@ -224,7 +230,7 @@ export default function EstimatePage() {
                   </div>
                 )}
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs text-muted-foreground">Rate (₹/g)</label>
+                  <label className="text-sm text-gold tracking-wide">Rate (₹/g)</label>
                   <input type="number" value={item.rate || ''} onChange={(e) => updateItem('rate', Number(e.target.value))}
                     placeholder="0" className="ef" />
                 </div>
@@ -233,24 +239,24 @@ export default function EstimatePage() {
               {/* Weight + Wastage % + Wastage g */}
               <div className="grid grid-cols-3 gap-3">
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs text-muted-foreground">Weight (g)</label>
+                  <label className="text-sm text-gold tracking-wide">Weight (g)</label>
                   <input type="number" value={item.weight || ''} onChange={(e) => updateItem('weight', Number(e.target.value))}
                     placeholder="0.000" className="ef" />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs text-muted-foreground">Wastage %</label>
+                  <label className="text-sm text-gold tracking-wide">Wastage %</label>
                   <div className="relative">
                     <input type="number" value={item.wastage_pct || ''} onChange={(e) => updateItem('wastage_pct', Number(e.target.value))}
                       placeholder="0.00" className="ef pr-6" />
-                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">%</span>
+                    <span className="absolute right-8 top-1/2 -translate-y-1/2 text-sm text-gold tracking-wide pointer-events-none">%</span>
                   </div>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs text-muted-foreground">Wastage (g)</label>
+                  <label className="text-sm text-gold tracking-wide">Wastage (g)</label>
                   <div className="relative">
                     <input type="number" value={item.wastage_weight || ''} onChange={(e) => updateItem('wastage_weight', Number(e.target.value))}
                       placeholder="0.000" className="ef pr-5" />
-                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">g</span>
+                    <span className="absolute right-8 top-1/2 -translate-y-1/2 text-sm text-gold tracking-wide pointer-events-none">g</span>
                   </div>
                 </div>
               </div>
@@ -258,12 +264,12 @@ export default function EstimatePage() {
               {/* Making charge + Discount */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs text-muted-foreground">Making charge (₹)</label>
+                  <label className="text-sm text-gold tracking-wide">Making charge (₹)</label>
                   <input type="number" value={item.making_charge || ''} onChange={(e) => updateItem('making_charge', Number(e.target.value))}
                     placeholder="0" className="ef" />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs text-muted-foreground">Discount (₹)</label>
+                  <label className="text-sm text-gold tracking-wide">Discount (₹)</label>
                   <input type="number" value={discount || ''} onChange={(e) => { setDiscount(Number(e.target.value)); setPrintError(''); }}
                     placeholder="0" className="ef" />
                 </div>
@@ -271,11 +277,20 @@ export default function EstimatePage() {
 
               {/* Error */}
               {printError && (
-                <p className="text-xs text-red-500 bg-red-50 border border-red-200 px-3 py-2 rounded-lg">⚠ {printError}</p>
+                // <p className="text-xs text-red-500 bg-red-50 border border-red-200 px-3 py-2 rounded-lg">⚠ {printError}</p>
+                <p className="text-sm text-red-500 bg-red-50 border border-red-200 px-5 py-0.5 rounded-lg">⚠ {printError}</p>
               )}
 
+            <div className='  mt-auto'>
+
+              <button onClick={handlePrint}
+                className="w-full bg-gold text-white py-2.5 rounded-lg text-sm font-medium hover:bg-gold/90 transition-colors">
+                Print
+              </button>
+            </div>
+
               {/* Hint */}
-              <p className="text-xs text-muted-foreground/60 mt-auto">
+              <p className="text-sm text-muted-foreground/60 mt-auto">
                 Press <kbd className="bg-gold/10 text-gold px-1.5 py-0.5 rounded text-xs font-mono">Enter</kbd> to print
               </p>
 
@@ -283,25 +298,25 @@ export default function EstimatePage() {
           </div>
 
           {/* ── BILL PREVIEW (right, 2/5) ── */}
-          <div className="flex-[2] bg-white border border-gold/25 rounded-xl flex flex-col overflow-hidden">
+          <div className="flex-[1.25] bg-white border border-gold/25 rounded-xl flex flex-col overflow-hidden">
 
             <div className="h-0.5 bg-gradient-to-r from-gold/60 via-gold to-gold/60 flex-shrink-0" />
 
             {/* Bill rows */}
-            <div className="flex-1 px-4 py-4 flex flex-col gap-0 overflow-hidden">
-              <p className="text-xs font-semibold uppercase tracking-widest text-gold mb-3">Bill</p>
+            <div className="flex-1 px-6 py-4 flex flex-col gap-0 overflow-hidden">
+              <p className="text-sm font-semibold uppercase tracking-widest text-gold mb-3">Bill</p>
 
               {[
                 { label: 'Item', value: item.item_name || '—' },
                 { label: 'Metal', value: item.metal === 'GOLD' ? `Gold · ${item.purity}` : 'Silver' },
-                { label: 'Rate', value: `₹${fmt(item.rate)}/g` },
+                { label: 'Rate', value: `₹ ${fmt(item.rate)}` },
                 { label: 'Weight', value: `${item.weight} g` },
-                { label: 'Wastage', value: `${item.wastage_weight}g (${item.wastage_pct}%)` },
+                { label: 'Wastage', value: `${item.wastage_weight} g ` },
                 { label: 'Making', value: `₹${fmt(item.making_charge)}` },
               ].map(({ label, value }) => (
-                <div key={label} className="flex justify-between items-center py-2 border-b border-dashed border-gold/15 last:border-0">
-                  <span className="text-xs text-muted-foreground">{label}</span>
-                  <span className="text-xs text-foreground font-medium">{value}</span>
+                <div key={label} className="flex justify-between items-center py-1.5 border-b border-dashed border-gold/20 last:border-0">
+                  <span className="text-sm text-slate-600">{label}</span>
+                  <span className="text-[16px] text-foreground font-medium">{value}</span>
                 </div>
               ))}
 
@@ -315,7 +330,7 @@ export default function EstimatePage() {
                     <span>Discount</span><span>− ₹{fmt(discount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between items-center mt-1">
+                <div className="flex justify-between items-center mt-2">
                   <span className="text-sm font-semibold text-foreground">Total</span>
                   <span className="text-xl font-bold text-gold">₹{fmt(total)}</span>
                 </div>
@@ -324,10 +339,10 @@ export default function EstimatePage() {
 
             {/* Actions */}
             <div className="px-4 pb-4 flex flex-col gap-2 flex-shrink-0">
-              <button onClick={handlePrint}
+              {/* <button onClick={handlePrint}
                 className="w-full bg-gold text-white py-2.5 rounded-lg text-sm font-medium hover:bg-gold/90 transition-colors">
                 Print
-              </button>
+              </button> */}
               <a href="/dashboard/billing/new"
                 className="w-full border border-gold/30 text-gold py-2 rounded-lg text-xs font-medium hover:bg-gold/5 transition-colors text-center block">
                 Convert to actual bill →

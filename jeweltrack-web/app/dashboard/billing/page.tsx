@@ -184,10 +184,10 @@ export default function EstimatePage() {
             <div className="flex-1 px-5 py-4 flex flex-col gap-3 overflow-hidden">
 
               {/* Category + Item name */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 {categories?.length > 0 && (
                   <div className="flex flex-col gap-1">
-                    <label className="text-xs text-muted-foreground">Category</label>
+                    <label className="text-sm text-gold">Category</label>
                     <select
                       value=""
                       onChange={(e) => {
@@ -198,9 +198,9 @@ export default function EstimatePage() {
                         u.amount = calcAmount(u); 
                         setItem(u);
                       }}
-                      className="ef"
+                      className="ef h-10"
                     >
-                      <option value="">Quick fill...</option>
+                      <option value="" >Quick fill...</option>
                       {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
                   </div>

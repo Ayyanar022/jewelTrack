@@ -67,8 +67,7 @@ export default function EstimatePage() {
     queryFn: () => api.get('/jewellery-category').then(r => r.data),
   });
 
-  console.log("item",item)
-  console.log("initialized",initialized)
+
 
   const total = Math.max(item.amount - discount, 0);
 
@@ -95,6 +94,9 @@ export default function EstimatePage() {
     setPrintError('');
   };
 
+  const handleReset = () => { setItem(defaultItem(rate?.rate_22k ?? 0)); setDiscount(0); setPrintError(''); };
+
+
   const handlePrint = useCallback(() => {
     if (item.weight <= 0) { setPrintError('Enter weight first'); return; }
     if (total <= 0) { setPrintError('Total is ₹0 — check values'); return; }
@@ -102,6 +104,7 @@ export default function EstimatePage() {
     saveToHistory(entry);
     setHistory(getHistory());
     window.print();
+    handleReset()
   }, [item, discount, total]);
 
   useEffect(() => {
@@ -114,7 +117,6 @@ export default function EstimatePage() {
 
   useEffect(() => { setHistory(getHistory()); }, []);
 
-  const handleReset = () => { setItem(defaultItem(rate?.rate_22k ?? 0)); setDiscount(0); setPrintError(''); };
 
   return (
     <>
@@ -153,8 +155,8 @@ export default function EstimatePage() {
         <div className="flex items-center justify-between mb-3 flex-shrink-0">
           <div className="flex items-center gap-3">
             <h1 className="text-base font-semibold text-foreground">Estimate</h1>
-            <span className="text-xs text-muted-foreground">
-              {rate ? `22K ₹${fmt(rate.rate_22k)} · 18K ₹${fmt(rate.rate_18k)} · Silver ₹${fmt(rate.rate_silver)}` : '...'}
+            <span className="text-sm text-muted-foreground">
+              {rate ? `22K -  ₹${fmt(rate.rate_22k)} ·  18K - ₹${fmt(rate.rate_18k)} · Silver ₹${fmt(rate.rate_silver)}` : '...'}
             </span>
           </div>
           <div className="flex items-center gap-3">
@@ -281,11 +283,16 @@ export default function EstimatePage() {
                 <p className="text-sm text-red-500 bg-red-50 border border-red-200 px-5 py-0.5 rounded-lg">⚠ {printError}</p>
               )}
 
-            <div className='  mt-auto'>
+            <div className='  mt-auto flex  gap-5'>
 
-              <button onClick={handlePrint}
-                className="w-full bg-gold text-white py-2.5 rounded-lg text-sm font-medium hover:bg-gold/90 transition-colors">
+              <button  onClick={handlePrint}
+                className="w-full flex-3 bg-gold text-white py-2 rounded-lg text-base font-medium hover:bg-gold/90 transition-colors">
                 Print
+              </button>
+
+              <button onClick={handleReset}
+                className="w-full flex-1 bg-white  text-red-600 border border-red-600  py-2 rounded-lg text-base font-medium     duration-200 cursor-pointer  hover:shadow-red-300 transition-colors">
+                Clear
               </button>
             </div>
 
@@ -312,7 +319,7 @@ export default function EstimatePage() {
                 { label: 'Rate', value: `₹ ${fmt(item.rate)}` },
                 { label: 'Weight', value: `${item.weight} g` },
                 { label: 'Wastage', value: `${item.wastage_weight} g ` },
-                { label: 'Making', value: `₹${fmt(item.making_charge)}` },
+                { label: 'MC', value: `₹${fmt(item.making_charge)}` },
               ].map(({ label, value }) => (
                 <div key={label} className="flex justify-between items-center py-1.5 border-b border-dashed border-gold/20 last:border-0">
                   <span className="text-sm text-slate-600">{label}</span>
@@ -331,7 +338,7 @@ export default function EstimatePage() {
                   </div>
                 )}
                 <div className="flex justify-between items-center mt-2">
-                  <span className="text-sm font-semibold text-foreground">Total</span>
+                  <span className="text-base font-semibold text-foreground">Total</span>
                   <span className="text-xl font-bold text-gold">₹{fmt(total)}</span>
                 </div>
               </div>

@@ -19,4 +19,17 @@ export class JewelleryCategoryService {
             where:{shop_id:shopId}
         })
     }
+
+    async update(dto:CreateJewelleryCatdto,catID:string, shopID:string){
+        return this.prisma.jewelleryCategory.update({
+            where:{shop_id:shopID, id:catID},
+            data:dto,
+        })
+    }
+
+    async delete(catID:string , shopID:string){
+        return this.prisma.jewelleryCategory.delete({
+            where:{shop_id:shopID , id:catID}
+        })
+    }
 }

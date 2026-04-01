@@ -13,6 +13,7 @@ const navItems = [
   { label: 'Estimate Bill', href: '/dashboard/billing', icon: '📄' },
   { label: 'New Bill', href: '/dashboard/billing/new', icon: '➕' },
   { label: 'Customers', href: '/dashboard/customers', icon: '👥' },
+  { label: 'Category', href: '/dashboard/category', icon: '👥' },
   { label: 'Loans', href: '/dashboard/loan', icon: '💍' },
   { label: 'Stock', href: '/dashboard/stock', icon: '📦' },
 ];

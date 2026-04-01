@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Request, UseGuards } from '@nestjs/common';
 import { JewelleryCategoryService } from './jewellery-category.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
@@ -20,5 +20,15 @@ export class JewelleryCategoryController {
     @Get()
     fetchAll(@Request() req){
         return this.jwellerycategoryService.getAll(req.user.id);
+    }
+
+    @Patch(':id')
+    update(@Body() dto:CreateJewelleryCatdto , @Param('id') catId:string,   @Request() req){
+        return this.jwellerycategoryService.update(dto,catId, req.user.id)
+    }
+
+    @Delete(':id')
+    delete(@Param('id') catId:string , @Request() req){
+        return this.jwellerycategoryService.delete(catId,req.user.id)
     }
 }

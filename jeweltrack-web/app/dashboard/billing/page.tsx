@@ -77,8 +77,9 @@ export default function EstimatePage() {
       u.rate = value === 'K22' ? (rate?.rate_22k ?? 0) : value === 'K18' ? (rate?.rate_18k ?? 0) : (rate?.rate_999 ?? 0);
     }
     if (field === 'metal') {
-      u.rate = value === 'SILVER' ? (rate?.rate_silver ?? 0) : (rate?.rate_22k ?? 0);
+      u.rate = value === 'SILVER' ? (rate?.rate_silver ?? 0   ) : (rate?.rate_22k ?? 0);
       u.purity = 'K22';
+      
     }
     if (field === 'wastage_pct') {
       u.wastage_weight = u.weight > 0 ? parseFloat(((value / 100) * u.weight).toFixed(3)) : 0;
@@ -194,7 +195,8 @@ export default function EstimatePage() {
                         const cat = categories.find((c: any) => c.id === e.target.value);
                         if (!cat) return;
                         const ww = cat.default_wastage ?? 0;
-                        const u = { ...item, item_name: cat.name, wastage_weight: ww, wastage_pct: item.weight > 0 ? parseFloat(((ww / item.weight) * 100).toFixed(3)) : 0, making_charge: cat.default_making_charge ?? 0 };
+                        // const u = { ...item, item_name: cat.name, wastage_weight: ww, wastage_pct: item.weight > 0 ? parseFloat(((ww / item.weight) * 100).toFixed(3)) : 0, making_charge: cat.default_making_charge ?? 0 };
+                        const u = { ...item,metal:cat.metal , item_name: cat.name, wastage_pct: ww, wastage_weight: item.weight > 0 ? parseFloat(((ww / 100) * item.weight).toFixed(3)) : 0, making_charge: cat.default_making_charge ?? 0 };
                         u.amount = calcAmount(u); 
                         setItem(u);
                       }}
@@ -216,7 +218,7 @@ export default function EstimatePage() {
               <div className="grid grid-cols-3 gap-3">
                 <div className="flex flex-col gap-1">
                   <label className="text-sm text-gold tracking-wide">Metal</label>
-                  <select value={item.metal} onChange={(e) => updateItem('metal', e.target.value)} className="ef h-10 ">
+                  <select value={item.metal} onChange={(e) => {updateItem('metal', e.target.value) ; setItem((prev)=>({...prev , wastage_pct:0 ,wastage_weight:0}))}} className="ef h-10 ">
                     <option  value="GOLD">Gold</option>
                     <option value="SILVER">Silver</option>
                   </select>

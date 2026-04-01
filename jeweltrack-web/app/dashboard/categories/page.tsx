@@ -155,8 +155,8 @@ export default function CategoriesPage (){
                     </p>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1.5">
-                        <Label>Default wastage (g)</Label>
-                        <Input type="number" placeholder="e.g. 0.5"
+                        <Label>Default wastage (%)</Label>
+                        <Input type="number" placeholder="e.g.  12 "
                             value={form.default_wastage}
                             onChange={(e) => setForm({ ...form, default_wastage: e.target.value })} />
                         </div>
@@ -178,13 +178,13 @@ export default function CategoriesPage (){
                 <div className="grid grid-cols-3 gap-4">
                   <div className="flex flex-col gap-1.5">
                     <Label>Touch 22K</Label>
-                    <Input type="number" placeholder="e.g. 0.04"
+                    <Input type="number" placeholder="e.g. 6"
                       value={form.touch_22k}
                       onChange={(e) => setForm({ ...form, touch_22k: e.target.value })} />
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <Label>Touch 18K</Label>
-                    <Input type="number" placeholder="e.g. 0.03"
+                    <Input type="number" placeholder="e.g. 7"
                       value={form.touch_18k}
                       onChange={(e) => setForm({ ...form, touch_18k: e.target.value })} />
                   </div>
@@ -232,7 +232,7 @@ export default function CategoriesPage (){
                   <tr>
                     <th className="text-left px-5 py-3 text-base text-gold font-medium">Name</th>
                     <th className="text-left px-5 py-3 text-base text-gold font-medium">Metal</th>
-                    <th className="text-left px-5 py-3 text-base text-gold font-medium">Wastage (g)</th>
+                    <th className="text-left px-5 py-3 text-base text-gold font-medium">Wastage (%)</th>
                     <th className="text-left px-5 py-3 text-base text-gold font-medium">Making (₹)</th>
                     <th className="text-left px-5 py-3 text-base text-gold font-medium">Touch 22K</th>
                     <th className="text-left px-5 py-3 text-base text-gold font-medium">Touch 18K</th>

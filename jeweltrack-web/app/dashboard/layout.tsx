@@ -94,7 +94,7 @@ return(
             </div>
             </header>
 
-            <main className="flex-1 p-3 overflow-auto">
+            <main className="flex-1 p-4 px-5   overflow-auto">
                 {children}
             </main>
 

@@ -49,6 +49,7 @@ const NewBillPage = () => {
   const [notes,setNotes] = useState('');
   const [highlightIndex ,setHighlightIndex] = useState(0); 
   const firstItemRef = useRef<HTMLInputElement>(null)
+  const customerRef = useRef<HTMLInputElement>(null);
 
 
   const {data :rate} = useQuery({
@@ -145,6 +146,11 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
         item.amount = calcAmount(item);
         updated[index] = item ; 
         setItems(updated)
+
+        // Auto add row 
+        if(field ==='making_charge' && index === items.length-1){
+          addItem()
+        }
         }
 
     const selectCategory = (index:number , catId:string)=>{
@@ -188,7 +194,7 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
       if(!selectedCustomer) {setError('Please select a customer ') ; return}
       if(items.length===0) { setError('Add at leaset on eitem'); return}
 
-mutate({
+      mutate({
       customer_id: selectedCustomer.id,
       is_gst_bill: isGst,
       discount,
@@ -203,15 +209,49 @@ mutate({
         wastage: item.wastage_weight,
         making_charge: item.making_charge,
         amount: item.amount,
+
       })),
     });
 
     }
 
+
+    // UX enhancement -----------------------
+    // 1. click enter -> move next cell
+      const moveNext = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if(e.key !=='Enter') return ;
+
+        e.preventDefault();
+
+        const inputs = Array.from(
+          document.querySelectorAll('input,select')
+        ) as HTMLElement[]
+
+        const index = inputs.indexOf(e.currentTarget);
+        if(index > -1 && index < inputs.length -1){
+          inputs[index+1 ].focus()
+        }
+    };
+
+    // 2.Auto add row - inside updateItem
+
+    // 3. first time focus 
+    useEffect(()=>{
+      const t = setTimeout(()=>{
+        customerRef.current?.focus();
+      },100)
+
+      return ()=>clearTimeout(t);
+    },[])
+
+
+    //-----------------------------------
+
+
     
   return (    
-    <div className=" flex flex-col min-h-[calc(screen -12px)]  ">
-      <div className="flex items-center justify-between gap-3 w-full ">
+    <div className=" flex flex-col min-h-[calc(screen -12px)]  -mt-1">
+      <div className="flex mb-1 items-center justify-between gap-3 w-full ">
         <div className="">
     
         {
@@ -225,7 +265,7 @@ mutate({
             </div>
           ) : (
          <div className="relative w-72 ">
-          <input 
+          <input ref={ customerRef }
           placeholder="Search customer..."
           value={customerSearch}
           onChange={(e)=>{setCustomerSearch(e.target.value); setHighlightIndex(0)} }
@@ -254,7 +294,7 @@ mutate({
 
           {customerSearch.trim().length >1 && (
         
-          <div className="absolute w-full bg-white border mt-1 z-10">
+          <div className="absolute w-full  bg-white border mt-1 z-30">
             {
               customers?.length >0 ?(
                   customers?.map((c:any,i:any)=>(
@@ -286,9 +326,7 @@ mutate({
        <div className="px-2 py-1 text-sm text-blue-600 cursor-pointer hover:bg-gray-100">
         + Add New Customer
        </div>
-           <button onClick={addItem}>
-        Add row
-      </button>
+   
 
       </div>
 
@@ -314,14 +352,16 @@ mutate({
           <tbody>
             {
               items.map((item,i)=>(
-                <tr key={i} className="border-b border-gray-200 odd:bg-white even:bg-gray-50 
-                 hover:bg-blue-50 focus-within:bg-blue-50">
+                <tr key={i+item.item_name} className="border-b border-gray-200 odd:bg-white even:bg-gray-50 
+                 hover:bg-blue-50 focus-within:bg-blue-50 ">
                   <td className="w-full px-1.5 py-1.5 align-middle text-center">{i+1}</td>
                    <td className="px-1.5 py-1.5 align-middle">
                     <select 
+                     onKeyDown={moveNext} 
+                    ref={firstItemRef}
                     value={item?.item_name}
                     onChange={(e)=>updateItem(i,'item_name',e.target.value)}
-                    className="w-full"
+                    className="w-full h-7"
                     >
                       {categories?.map((cat:any,i:number)=>(
                         <option key={i+cat?.name}>{cat?.name}</option>
@@ -330,7 +370,7 @@ mutate({
                   </td>
 
                  <td className="px-1.5 py-1.5 align-middle">
-                    <select value={item?.metal} 
+                    <select value={item?.metal}  onKeyDown={moveNext} 
                     onChange={(e)=>updateItem(i,'metal',e.target.value)}
                     className="h-7 w-full "
                     >
@@ -341,7 +381,7 @@ mutate({
 
                    <td className="px-1.5 py-1.5 align-middle">
                     {item.metal ==="GOLD"  &&(
-                    <select 
+                    <select  onKeyDown={moveNext} 
                       value={item.purity}
                       onChange={(e)=>updateItem(i,'purity',e.target.value)}
                       className="h-7 w-full"
@@ -354,34 +394,35 @@ mutate({
                   </td>
 
                   <td className="px-1.5 py-1.5 align-middle text-right">
-                    <input type="text" value={item.rate || ""}
+                    <input type="text" value={item.rate || ""} onKeyDown={moveNext} 
                     onChange={(e)=>updateItem(i,'rate',Number(e.target.value))}
                     className="h-7  text-right  w-full bg-transparent outline-none px-1.5 py-1.5 text-base focus:bg-white focus:ring-1 focus:ring-gold-dark "
                     />
                   </td>
 
                    <td className="px-1.5 py-1.5 align-middle text-right">
-                    <input type="text" value={item.gross_weight || ''} 
+                    <input  onKeyDown={moveNext} type="text" value={item.gross_weight || ''} 
                     onChange={(e)=>updateItem(i,'gross_weight',Number(e.target.value))}
                     className="h-7  w-full bg-transparent  outline-none px-1.5 py-1.5 text-base focus:bg-white focus:ring-1 focus:ring-gold-dark "
                     />
                   </td>
 
                  <td className="px-1.5 py-1.5 align-middle text-right">
-                    <input type="text" value={item.stone || 0}
+                    <input  onKeyDown={moveNext} type="text" value={item.stone || 0}
                     onChange={(e)=>updateItem(i,'stone',Number(e.target.value))}
                     className="h-7  w-full bg-transparent outline-none px-1.5 py-1.5 text-base focus:bg-white focus:ring-1 focus:ring-gold-dark  "
                     />
                   </td>
                    <td className="px-1.5 py-1.5 align-middle text-right">
-                    <input type="text" value={item.net_weight || ''} 
-                    onChange={(e)=>updateItem(i,'net_weight',Number(e.target.value))}
+                    <input  onKeyDown={moveNext} type="text" value={item.net_weight || ''} 
+                    readOnly
+                    // onChange={(e)=>updateItem(i,'net_weight',Number(e.target.value))}
                     className="h-7  w-full bg-transparent outline-none px-1.5 py-1.5 text-base focus:bg-white focus:ring-1 focus:ring-gold-dark "
                     />
                   </td>
 
                    <td className="px-1.5 py-1.5 align-middle text-right">
-                    <input type="text" 
+                    <input  onKeyDown={moveNext} type="text" 
                     value={item.wastage_pct}
                     onChange={(e)=>updateItem(i,'wastage_pct',Number(e.target.value))}
                     className="h-7 w-full bg-transparent outline-none px-1.5 py-1.5 text-base focus:bg-white focus:ring-1 focus:ring-gold-dark "
@@ -389,23 +430,30 @@ mutate({
                   </td>
 
                    <td className="px-1.5 py-1.5 align-middle text-right">
-                    <input type="text" value={item.wastage_weight}
+                    <input  onKeyDown={moveNext} type="text" value={item.wastage_weight}
                     onChange={(e)=>updateItem(i,'wastage_weight',Number(e.target.value))}
                     className="h-7   w-full bg-transparent outline-none px-1.5 py-1.5 text-base focus:bg-white focus:ring-1 focus:ring-gold-dark "
                     />
                   </td>
 
                    <td className="px-1.5 py-1.5 align-middle text-right">
-                    <input type="text" vlaue={item.making_charge ||'  '} 
+                    <input  onKeyDown={moveNext} type="text" value={item.making_charge ||'  '} 
                     onChange={(e)=>updateItem(i,'making_charge',Number(e.target.value))}
                     className="h-7  w-full bg-transparent outline-none px-1.5 py-1.5 text-base focus:bg-white focus:ring-1 focus:ring-gold-dark "
+                    onFocus={()=>{
+                      if(items.length ===0) return ;
+                      const lastRow = items[items.length-1];
+                      if(lastRow.amount> 0){
+                        addItem()
+                      }
+                    }}
                     />   
                   </td>
 
                
 
-                    <td className=" font-medium  w-full px-1.5 py-1.5 align-middle text-right">
-                       ₹ {item.amount}
+                    <td className=" font-medium  w-full px-1.5 py-1.5 align-middle text-right  ">
+                      <span className="font-[600] text-green-700 tracking-wide">₹ {Number(item.amount||0).toLocaleString('en-IN')}</span>                       
                     </td>
 
                     <td className=" text-center w-fll px-1.5 py-1.5 align-middle">
@@ -424,17 +472,17 @@ mutate({
 
       <div className="w-1/3  bg-gray-50 p-2 px-5 my-2 ml-auto ">
             <div className="flex justify-between ">
-              <span> SubTotal</span>
-             <span>₹ {Math.round(total)}  </span>
+              <span className="text-slate-600"> SubTotal</span>
+             <span>₹ {Math.round(Number(total)).toLocaleString('en-IN')}  </span>
             </div>
             <div className="flex justify-between">
-              <span> discount</span>
+              <span className="text-slate-600"> discount</span>
                  <input className=" outline-none w-20 ring-1 ring-gold" type="number" onChange={(e)=>setDiscount(Number(e.target.value))} />
-              <span>₹ {Math.round(discount)}</span>
+              <span>₹ {Math.round(Number(discount)).toLocaleString('en-IN')}</span>
             </div>
             <div className="flex justify-between">
-              <span> discounted Total</span>           
-              <span>₹ {Math.round(discountedTotal)}</span>
+              <span className="text-slate-600"> discounted Total</span>           
+              <span>₹ {Math.round(Number(discountedTotal)).toLocaleString('en-IN')}</span>
             </div>
 
             <div className="h-0.5 bg-gold-light my-1">
@@ -445,14 +493,14 @@ mutate({
 
           <div>
           <div className="flex justify-between">
-              <span> CGST</span>
-              <span>1.5%</span>
-              <span>₹ {Math.round(gstAmount/2)}</span>
+              <span className="text-slate-600"> CGST</span>
+              <span className="text-slate-600">1.5%</span>
+              <span>₹ {Math.round(gstAmount/2).toLocaleString('en-IN')}</span>
             </div>
           <div className="flex justify-between">
-              <span> SGST</span>
-              <span>1.5%</span>
-              <span> ₹ {Math.round(gstAmount/2)}</span>
+              <span className="text-slate-600"> SGST</span>
+              <span className="text-slate-600">1.5%</span>
+              <span> ₹ {Math.round(gstAmount/2).toLocaleString('en-IN')}</span>
             </div>
             </div>
             
@@ -462,15 +510,21 @@ mutate({
             
             </div>
 
-            <div>
-              <span>Grand Total </span>
+            <div>              
                <div className="flex justify-between">
-                <span>Payable  </span>
-                <span>₹ {Math.round(payableAmount)}  </span>
+                <span>Payable Amount </span>
+                <span className="text-2xl text-red-600 font-bold"><span className="text-lg">₹ </span>{Math.round(payableAmount).toLocaleString('en-IN')}  </span>
               </div>
 
             </div>
+               <div className="text-gold-dark border border-gold-dark text-center mt-3">
+              <button onClick={handleSubmit} className="w-full p-0.5">
+                Print Bill
+              </button>
+            </div>
       </div>
+
+   
 
   
     </div>

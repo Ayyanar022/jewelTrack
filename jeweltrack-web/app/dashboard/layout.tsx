@@ -20,7 +20,7 @@ const navItems = [
 
 export default function DashboardLayout({children} : {children:React.ReactNode}){
 
-    const [collapsed,setCollapsed] = useState(false);
+    const [collapsed,setCollapsed] = useState(true);
     const pathname = usePathname()
     const router = useRouter();
     const { logout} = useAuthStore()
@@ -35,7 +35,7 @@ export default function DashboardLayout({children} : {children:React.ReactNode})
 return(
     <div className="min-h-screen flex bg-page">
         {/* Sidebar */}
-        <aside className={`bg-sidebar-dark flex flex-col transition-all duration-300 ${collapsed? "w-16": "w-52"} flex-shrink-0`}>
+        <aside onMouseEnter={()=>(setCollapsed(false))} onMouseLeave={()=>setCollapsed(true)} className={`bg-sidebar-dark flex flex-col transition-all duration-300 ${collapsed? "w-16": "w-44"} flex-shrink-0`}>
             {/* Logo */}
             <div className="flex items-center justify-between px-4 py-5 border-b border-gold/10">
                 {

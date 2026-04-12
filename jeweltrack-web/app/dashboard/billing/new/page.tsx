@@ -8,6 +8,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useDebounce } from "@/hooks/useDebouce";
 import { Span } from "next/dist/trace";
+import { Toast } from "radix-ui";
 
 
 
@@ -16,20 +17,21 @@ interface BillItem {
   metal: 'GOLD' | 'SILVER';
   purity: 'K22' | 'K18' | 'K24';
   rate: number;
-  weight: number;
+  gross_weight: number;
+  stone:number;
+  net_weight: number;
   wastage_pct: number;
   wastage_weight: number;
   making_charge: number;
   amount: number;
-  stone:number;
 }
 
 const calcAmount = (item:BillItem):number=>{
- return Math.max(Math.round(item.rate * (item.weight + item.wastage_weight)+item.making_charge),0)
+ return Math.max(Math.round(item.rate * (item.net_weight + item.wastage_weight)+item.making_charge),0)
 }
 
 const defaultItem = (rate22k =0):BillItem=>({
-  amount:0,rate:rate22k , wastage_pct:0,wastage_weight:0, weight:0,
+  amount:0,rate:rate22k , wastage_pct:0,wastage_weight:0, net_weight:0,gross_weight:0,
   item_name:'',making_charge:0,metal:'GOLD',purity:"K22",stone:0
 })
 
@@ -37,9 +39,9 @@ const defaultItem = (rate22k =0):BillItem=>({
 const NewBillPage = () => {
 
   const queryclient = useQueryClient();
-  const [items,setItems] = useState<BillItem[]>([])
+  const [items,setItems] = useState<BillItem[]>([defaultItem()])
   const [customerSearch,setCustomerSearch] = useState('');
-  const [isGst , setIsGst] = useState(false);
+  const [isGst , setIsGst] = useState(true);
   const [discount,setDiscount] = useState(0);
   const [success,setSuccess] = useState('')
   const [selectedCustomer , setSelectedCustomer] = useState<any>(null) ;
@@ -101,16 +103,24 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
         }
 
         if (field === 'wastage_pct') {
-      item.wastage_weight = item.weight > 0
-        ? parseFloat(((value / 100) * item.weight).toFixed(3)) : 0;
+      item.wastage_weight = item.net_weight > 0
+        ? parseFloat(((value / 100) * item.net_weight).toFixed(3)) : 0;
     }
     if (field === 'wastage_weight') {
-      item.wastage_pct = item.weight > 0
-        ? parseFloat(((value / item.weight) * 100).toFixed(2)) : 0;
+      item.wastage_pct = item.net_weight > 0
+        ? parseFloat(((value / item.net_weight) * 100).toFixed(2)) : 0;
     }
 
-        if(field === 'weight' && item.wastage_pct>0){
+    if(field ==='gross_weight' ){
+        item.net_weight = Math.max(item.stone>0 ? (item.gross_weight-item.stone ) : item.gross_weight ,0)
+    }
+
+        if(field === 'net_weight' && item.wastage_pct>0){          
           item.wastage_weight = parseFloat(((item.wastage_pct /100 )* value).toFixed(3))
+        }
+
+        if(field ==='stone' && item.gross_weight>0){
+           item.net_weight = Math.max(item.stone>0 ? (item.gross_weight-item.stone ) : item.gross_weight,0)
         }
 
         item.amount = calcAmount(item);
@@ -126,7 +136,7 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
       item.item_name = cat.name;
       item.wastage_pct = cat.default_wastage ??0 ;
       item.wastage_weight =  item.wastage_pct >0 
-            ? parseFloat( (item.weight * item.wastage_pct /100).toFixed(2)) : 0 ;
+            ? parseFloat( (item.net_weight * item.wastage_pct /100).toFixed(2)) : 0 ;
       item.making_charge = cat.default_making_charge  ?? 0 ;
       item.amount = calcAmount(item)
       updated[index] = item;
@@ -138,9 +148,7 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
       setItems([...items , defaultItem(rate?.rate22k ?? 0)])
     }
 
-    useEffect(()=>{
-      addItem()
-    },[])
+  
 
     const removeItem = (index:number)=>{
       setItems(items.filter((_,i)=>i !==index))
@@ -149,6 +157,10 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
     const total = Math.max(
       items.reduce((sum,i)=>sum+i.amount ,0)-discount , 0
     )
+
+    const discountedTotal = Math.max((total - discount) ,0 )
+    const gstAmount = Math.max(discountedTotal *(3/100),0)  
+    const payableAmount = discountedTotal + gstAmount
 
     const handleSubmit = ()=>{
       setError('');
@@ -165,7 +177,8 @@ mutate({
         metal: item.metal,
         purity: item.metal === 'GOLD' ? item.purity : undefined,
         rate: item.rate,
-        weight: item.weight,
+        gross_weight : item.gross_weight,
+        net_weight: item.net_weight,
         wastage: item.wastage_weight,
         making_charge: item.making_charge,
         amount: item.amount,
@@ -396,8 +409,8 @@ mutate({
   // )
 
 
-  return (
-    <div className=" flex flex-col min-h-screen  ">
+  return (    
+    <div className=" flex flex-col min-h-[calc(screen -12px)]  ">
       <div className="flex items-center justify-between gap-3 w-full ">
         <div className="">
     
@@ -473,37 +486,42 @@ mutate({
        <div className="px-2 py-1 text-sm text-blue-600 cursor-pointer hover:bg-gray-100">
         + Add New Customer
        </div>
+           <button onClick={addItem}>
+        Add row
+      </button>
 
       </div>
 
-      <div className="flex-1 bg-white border rounded-md overflow-hidden ">
-        <table className="w-full ">
-          <thead className="bg-gray-100 sticky top-0">
-            <tr>
-              <th className="p-2">NO </th>
-              <th>Item</th>
-              <th>Metal</th>
-              <th>Purity</th>
-              <th>Rate/g</th>
-              <th>GR.WT</th>
-              <th>Net.Wt</th>
-              <th>WST%</th>
-              <th>WST(G)</th>
-              <th>MC</th>
-              <th>Stone</th>
-              <th>AMOUNT</th>
-              <th>Act</th>
+      <div className="flex-1 bg-white border rounded-md overflow-hidden min-h-[220px]">
+        <table className="w-full table-fixed ">
+          <thead className="bg-gray-100 sticky top-0 z-10 ">
+            <tr >
+              <th className="p-2 w-[30px] bg-green-200">NO </th>
+              <th className="w-[100px] bg-yellow-200">Item</th>
+              <th className="w-[70px] bg-pink-200" >Metal</th>
+              <th className="w-[60px] bg-yellow-200">Purity</th>
+              <th className="w-[80px] bg-green-200">Rate/g</th>
+              <th className="w-[60px] bg-yellow-200">GR.WT</th>
+              <th className="w-[50px] bg-blue-200">Stone</th>
+              <th className="w-[60px] bg-orange-200">Net.Wt</th>
+              <th className="w-[60px] bg-yellow-200">WST%</th>
+              <th className="w-[60px] bg-red-200">WST(G)</th>
+              <th className="w-[60px] bg-yellow-200">MC</th>
+              <th className="w-[80px] bg-yellow-200">AMOUNT</th>
+              <th className="w-[40px] bg-rose-200">Act</th>
                </tr>
           </thead>
           <tbody>
             {
               items.map((item,i)=>(
-                <tr key={i} className="border-t ">
-                  <td>{i+1}</td>
-                  <td>
+                <tr key={i} className="border-b border-gray-200 odd:bg-white even:bg-gray-50 
+                 hover:bg-blue-50 focus-within:bg-blue-50">
+                  <td className="w-full px-1.5 py-1.5 align-middle text-center">{i+1}</td>
+                   <td className="px-1.5 py-1.5 align-middle">
                     <select 
                     value={item?.item_name}
                     onChange={(e)=>updateItem(i,'item_name',e.target.value)}
+                    className="w-full"
                     >
                       {categories?.map((cat:any,i:number)=>(
                         <option key={i+cat?.name}>{cat?.name}</option>
@@ -511,85 +529,87 @@ mutate({
                     </select>
                   </td>
 
-                  <td>
+                 <td className="px-1.5 py-1.5 align-middle">
                     <select value={item?.metal} 
                     onChange={(e)=>updateItem(i,'metal',e.target.value)}
-                    className="h-7 "
+                    className="h-7 w-full "
                     >
                       <option value="GOLD">Gold</option>
-                      <option value="SILVER">silver</option>
+                      <option value="SILVER">Silver</option>
                     </select>
                   </td>
 
-                  <td>
-                    {item.metal ==="GOLD" ? (
+                   <td className="px-1.5 py-1.5 align-middle">
+                    {item.metal ==="GOLD"  &&(
                     <select 
                       value={item.purity}
                       onChange={(e)=>updateItem(i,'purity',e.target.value)}
-                      className="h-7 "
+                      className="h-7 w-full"
                     >
                       <option value="K22">22K</option>
                       <option value="K18">18K</option>
                       {/* <option value="K24"></option> */}
                     </select>
-                    ):(<span>none</span>)}      
+                    )   }
                   </td>
 
-                  <td>
-                    <input type="number" value={item.rate || ""}
+                  <td className="px-1.5 py-1.5 align-middle text-right">
+                    <input type="text" value={item.rate || ""}
                     onChange={(e)=>updateItem(i,'rate',Number(e.target.value))}
-                    className="h-7  w-20"
+                    className="h-7  text-right  w-full bg-transparent outline-none px-1.5 py-1.5 text-base focus:bg-white focus:ring-1 focus:ring-gold-dark "
                     />
                   </td>
 
-                  <td>
-                    <input type="number" value={item.weight || ''} 
-                    onChange={(e)=>updateItem(i,'weight',Number(e.target.value))}
-                    className="h-7 w-16"
-                    />
-                  </td>
-                  <td>
-                    <input type="number" value={item.weight || ''} 
-                    onChange={(e)=>updateItem(i,'weight',Number(e.target.value))}
-                    className="h-7 w-16"
+                   <td className="px-1.5 py-1.5 align-middle text-right">
+                    <input type="text" value={item.gross_weight || ''} 
+                    onChange={(e)=>updateItem(i,'gross_weight',Number(e.target.value))}
+                    className="h-7  w-full bg-transparent  outline-none px-1.5 py-1.5 text-base focus:bg-white focus:ring-1 focus:ring-gold-dark "
                     />
                   </td>
 
-                  <td>
-                    <input type="number" 
+                 <td className="px-1.5 py-1.5 align-middle text-right">
+                    <input type="text" value={item.stone || 0}
+                    onChange={(e)=>updateItem(i,'stone',Number(e.target.value))}
+                    className="h-7  w-full bg-transparent outline-none px-1.5 py-1.5 text-base focus:bg-white focus:ring-1 focus:ring-gold-dark  "
+                    />
+                  </td>
+                   <td className="px-1.5 py-1.5 align-middle text-right">
+                    <input type="text" value={item.net_weight || ''} 
+                    onChange={(e)=>updateItem(i,'net_weight',Number(e.target.value))}
+                    className="h-7  w-full bg-transparent outline-none px-1.5 py-1.5 text-base focus:bg-white focus:ring-1 focus:ring-gold-dark "
+                    />
+                  </td>
+
+                   <td className="px-1.5 py-1.5 align-middle text-right">
+                    <input type="text" 
                     value={item.wastage_weight}
                     onChange={(e)=>updateItem(i,'wastage_weight',Number(e.target.value))}
-                    className="w-16 h-7"
+                    className="h-7 w-full bg-transparent outline-none px-1.5 py-1.5 text-base focus:bg-white focus:ring-1 focus:ring-gold-dark "
                     />
                   </td>
 
-                  <td>
-                    <input type="number" value={item.wastage_pct}
+                   <td className="px-1.5 py-1.5 align-middle text-right">
+                    <input type="text" value={item.wastage_pct}
                     onChange={(e)=>updateItem(i,'wastage_pct',Number(e.target.value))}
-                    className="w-16 h-7"
+                    className="h-7   w-full bg-transparent outline-none px-1.5 py-1.5 text-base focus:bg-white focus:ring-1 focus:ring-gold-dark "
                     />
                   </td>
 
-                  <td>
-                    <input type="number" vlaue={item.making_charge ||'  '} 
+                   <td className="px-1.5 py-1.5 align-middle text-right">
+                    <input type="text" vlaue={item.making_charge ||'  '} 
                     onChange={(e)=>updateItem(i,'making_charge',Number(e.target.value))}
-                    className="w-16 h-7"
+                    className="h-7  w-full bg-transparent outline-none px-1.5 py-1.5 text-base focus:bg-white focus:ring-1 focus:ring-gold-dark "
                     />   
                   </td>
 
-                    <td>
-                      <input type="number" value={item.stone || 0}
-                      onChange={(e)=>updateItem(i,'stone',Number(e.target.value))}
-                      className="w-16 h-7"
-                      />
+               
+
+                    <td className=" font-medium  w-full px-1.5 py-1.5 align-middle text-right">
+                       ₹ {item.amount}
                     </td>
 
-                    <td className="text-right pr-2 font-medium">
-                       ₹{item.amount}
-                    </td>
-
-                    <td>
-                      <button onClick={()=>removeItem(i)} className="text-red-500 ">
+                    <td className=" text-center w-fll px-1.5 py-1.5 align-middle">
+                      <button onClick={()=>removeItem(i)} className="text-red-500 px-1.5 outline-none hover:text-red-700 hover:font-bold transition-all cursor-pointer focus:font-bold focus:text-red-700 ">
                         ✕
                       </button>
                     </td>
@@ -601,7 +621,60 @@ mutate({
 
         </table>
       </div>
+
+      <div className="w-1/3  bg-gray-50 p-2 px-5 my-2 ml-auto ">
+            <div className="flex justify-between ">
+              <span> SubTotal</span>
+             <span>₹ {Math.round(total)}  </span>
+            </div>
+            <div className="flex justify-between">
+              <span> discount</span>
+                 <input className=" outline-none w-20 ring-1 ring-gold" type="number" onChange={(e)=>setDiscount(Number(e.target.value))} />
+              <span>₹ {Math.round(discount)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span> discounted Total</span>           
+              <span>₹ {Math.round(discountedTotal)}</span>
+            </div>
+
+            <div className="h-0.5 bg-gold-light my-1">
+            
+            </div>
+
+            {isGst && 
+
+          <div>
+          <div className="flex justify-between">
+              <span> CGST</span>
+              <span>1.5%</span>
+              <span>₹ {Math.round(gstAmount/2)}</span>
+            </div>
+          <div className="flex justify-between">
+              <span> SGST</span>
+              <span>1.5%</span>
+              <span> ₹ {Math.round(gstAmount/2)}</span>
+            </div>
+            </div>
+            
+            }
+            
+          <div className="h-0.5 bg-gold-light my-1">
+            
+            </div>
+
+            <div>
+              <span>Grand Total </span>
+               <div className="flex justify-between">
+                <span>Payable  </span>
+                <span>₹ {Math.round(payableAmount)}  </span>
+              </div>
+
+            </div>
+      </div>
+
+  
     </div>
+
   )
 
 }

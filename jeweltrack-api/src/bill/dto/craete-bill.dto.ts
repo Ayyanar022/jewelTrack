@@ -9,21 +9,39 @@ export class CreateBillItemDto{
     @ApiProperty({example:"Chain"})
     @IsString()
     @IsNotEmpty()
-    item_name:string;
+    item_name!:string;
 
     @ApiPropertyOptional({enum: Purity,example:Purity.K22})
     @IsOptional()
     @IsEnum(Purity)
-    purity?:Purity
+    purity?:Purity;
+
+    @ApiProperty({example:16.20})
+    @IsNotEmpty()
+    @IsNumber()
+    @Min(0)
+    gross_weight!:number; 
+
+    @ApiProperty({example:16.20})
+    @IsNotEmpty()
+    @IsNumber()
+    @Min(0)
+    net_weight!:number; 
+
+    @ApiPropertyOptional({example:16.20})
+    @IsOptional()
+    @IsNumber()
+    @Min(0)
+    stone!:number; 
 
     @ApiProperty({enum:Metal , example:Metal.GOLD})
     @IsEnum(Metal)
-    metal:Metal
+    metal!:Metal
 
-    @ApiProperty({example:8.02})
-    @IsNumber()
-    @Min(0)
-    weight:number;
+    // @ApiProperty({example:8.02})
+    // @IsNumber()
+    // @Min(0)
+    // weight!:number;
 
     @ApiPropertyOptional({example:0.5})
     @IsNumber()
@@ -34,17 +52,17 @@ export class CreateBillItemDto{
     @ApiProperty({example:6400})
     @IsNotEmpty()
     @IsNumber()
-    rate:number
+    rate!:number
 
     @ApiProperty({example:230})
     @IsOptional()
     @IsNumber()
-    making_charge:number
+    making_charge!:number
 
     @ApiProperty({example:39930})
     @IsNotEmpty()
     @IsNumber()
-    amount:number
+    amount!:number
 }
 
 
@@ -52,7 +70,7 @@ export class CreateBillDto{
     @ApiProperty({example:"customer-uuid-here"})
     @IsString()
     @IsNotEmpty()
-    customer_id:string;
+    customer_id!:string;
 
     @ApiPropertyOptional({example:false})
     @IsOptional()
@@ -63,7 +81,7 @@ export class CreateBillDto{
     @IsNumber()
     @IsOptional()
     @Min(0)
-    discount:number
+    discount!:number
 
     @ApiPropertyOptional({example:"paid by cash"})
     @IsOptional()
@@ -74,7 +92,7 @@ export class CreateBillDto{
     @IsArray()
     @ValidateNested({each:true})
     @Type(()=>CreateBillItemDto)
-    billItem :CreateBillItemDto[];
+    billItem !:CreateBillItemDto[];
 
     }
 

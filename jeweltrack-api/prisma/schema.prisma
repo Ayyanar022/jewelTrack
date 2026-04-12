@@ -135,7 +135,9 @@ model BillItem{
   item_name String 
   purity Purity? @default(K22)
   metal Metal @default(GOLD)
-  weight Float 
+  gross_weight Float @default(0)
+  net_weight Float @default(0)
+  stone Float? @default(0)
   wastage Float?
   rate Float
   making_charge Float

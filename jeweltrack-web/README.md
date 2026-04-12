@@ -49,3 +49,9 @@ In real shops, billing must be:
 🧾 Error-proof
 📊 GST clear & correct
 🧠 Minimal thinking for user
+
+
+formulas 
+
+net_weight = gross_weight - stone
+wastage_weight = net_weight * (wastage_pct / 100)

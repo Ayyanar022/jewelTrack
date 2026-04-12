@@ -62,6 +62,19 @@ const NewBillPage = () => {
   });
 
 
+  useEffect(()=>{
+    if(!rate) return
+
+    setItems((prev)=>
+    prev.map((item)=>({
+      ...item,
+      rate: rate.rate_22k ?? 0
+                
+    }))
+    )
+  },[rate])
+
+
 const debouncedSearch = useDebounce(customerSearch.trim() , 300)
   const {data:customers} = useQuery({
     queryKey:['customer',debouncedSearch],
@@ -102,25 +115,31 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
           item.purity = "K22" ;
         }
 
-        if (field === 'wastage_pct') {
-      item.wastage_weight = item.net_weight > 0
-        ? parseFloat(((value / 100) * item.net_weight).toFixed(3)) : 0;
-    }
-    if (field === 'wastage_weight') {
-      item.wastage_pct = item.net_weight > 0
-        ? parseFloat(((value / item.net_weight) * 100).toFixed(2)) : 0;
-    }
+        if(field === 'gross_weight' || field === 'stone'){
+          item.net_weight = Math.max(item.gross_weight-item.stone, 0)
+        }
 
-    if(field ==='gross_weight' ){
-        item.net_weight = Math.max(item.stone>0 ? (item.gross_weight-item.stone ) : item.gross_weight ,0)
-    }
+        if (field === 'wastage_pct') {
+        item.wastage_weight = item.net_weight > 0
+        ? parseFloat(((item.wastage_pct / 100) * item.net_weight).toFixed(3)) : 0;
+        }
+
+        if (field === 'wastage_weight') {
+          item.wastage_pct = item.net_weight > 0
+            ? parseFloat(((item.wastage_weight / item.net_weight) * 100).toFixed(2)) : 0;
+        }
 
         if(field === 'net_weight' && item.wastage_pct>0){          
           item.wastage_weight = parseFloat(((item.wastage_pct /100 )* value).toFixed(3))
-        }
+        }    
 
-        if(field ==='stone' && item.gross_weight>0){
-           item.net_weight = Math.max(item.stone>0 ? (item.gross_weight-item.stone ) : item.gross_weight,0)
+        // if net weight changes 
+        if(field === "gross_weight" || field==='stone'){
+          if(item.wastage_pct>0){
+            item.wastage_weight= parseFloat(
+              ((item.wastage_pct /100) * item.net_weight).toFixed(3)
+            )
+          }
         }
 
         item.amount = calcAmount(item);
@@ -144,8 +163,10 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
 
     }
 
+
     const addItem = ()=>{
-      setItems([...items , defaultItem(rate?.rate22k ?? 0)])
+      const newItem = defaultItem(rate?.rate_22k ?? 0)
+      setItems(prev => [...prev , newItem])
     }
 
   
@@ -188,227 +209,6 @@ mutate({
     }
 
     
-
-  // return (
-  //   <div className="flex flex-col gap-5 max-w-4xl">
-      
-  //     <div className="flex items-center justify-between">
-  //       <div>
-  //         <h1 className="text-xl font-medium text-foreground">New Bill</h1>        
-  //       </div>
-  //         <a href="dashboard/billing/history"
-  //         className="text-xs text-gold border border-gold/30 p-3 py-1.5 rounded-lg hover:bg-gold-light transition-colors"
-  //         >Vew bill history</a>
-  //     </div>
-
-  //     {success && (
-  //       <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded-lg">
-  //         {success}
-  //       </div>
-  //     )}
-
-  //     {/* {customer} */}
-  //     <div className="bg-white border border-gold rounded-xl p-5">
-  //       <h2 className="text-sm font-medium text-foreground mb-4">
-  //         Customer
-  //       </h2>
-
-  //       {selectedCustomer ? (
-  //         <div className="flex items-center justify-between bg-gold-light border border-gold rounded-lg px-4 py-3">
-  //           <div>
-  //             <span className="text-sm font-medium text-foreground">{selectedCustomer.name}</span>
-  //             <span className="text-xs text-muted-foreground ml-2 ">{selectedCustomer.phone} · {selectedCustomer.village}</span>
-  //           </div>
-  //           <button onClick={()=>setSelectedCustomer(null)}
-  //           className="text-xs text-muted-foreground hover:text-destructive" > 
-  //             Change 
-  //           </button>
-  //         </div>
-  //       ) : (
-  //         <div className="relative">
-  //           <Input 
-  //           placeholder="Search by phone or name..."
-  //           value={customerSearch}
-  //           onChange={(e)=>setCustomerSearch(e.target.value)} 
-  //           />
-  //           {
-  //             customers?.map((c:any)=>(
-  //               <div key={c.id} 
-  //               onClick={()=>{setSelectedCustomer(c); setCustomerSearch('');}}
-  //               className="px-4 py-2.5 hover:bg-gold-light cursor-pointer text-sm border-b border-gold/30 last:border-0"
-  //               >
-  //                 <span className="font-medium">{c.name}</span>
-  //                 <span className="text-muted-foreground ml-2 text-xs">{c.phone} . {c.village}</span>
-  //               </div>
-  //             ))
-  //           }
-  //         </div>
-  //       )}
-
-  //     </div>
-
-  //     {/* Items */}
-  //     <div className="flex flex-col gap-3">
-  //       {items.map((item,i)=>(
-  //         <div key={i} className="bg-white border border-gold rounded-xl p-5">
-  //           <div className="flex items-center justify-between mb-4">
-  //             <span className="text-xs font-medium text-gold-light px-2 py-1 rounded-full">
-  //               Item {i +1}
-  //             </span>
-  //             {items.length>1 && (
-  //               <button onClick={()=>removeItem(i)}>
-  //                 Remove
-  //               </button>
-  //             )}
-  //           </div>
-
-  //           <div className=" grid grid-cols-2 md:grid-cols-3 gap-3 ,b-3">
-  //             {
-  //               categories?.length>0 && (
-  //                 <div className="flex flex-col gap-1">
-  //                   <label htmlFor="" className="text-xs text-muted-foreground ">Category</label>
-  //                   <select  onChange={(e)=>selectCategory(i,e.target.value)} 
-  //                     className="h-9 rounded-lg border border-input px-3 text-sm bg-white"
-  //                     >
-  //                     <option>Quick fill..</option>
-  //                     {categories.map((c:any)=>(
-  //                       <option key={c.id} value={c.id}>{c.name}</option>
-  //                     ))}
-  //                   </select>
-  //                 </div>
-  //               )}
-
-  //               <div className="flex flex-col gap-1">
-  //                 <label >Item name</label>
-  //                 <input type="text" placeholder="e.g. Chain" 
-  //                   value={item.item_name}
-  //                   onChange={(e)=>updateItem(i,'item_name',e.target.value)}
-  //                 />
-  //               </div>
-
-  //               <div className="flex flex-col gap-1">
-  //                 <label className="text-xs text-muted-foreground" htmlFor="">Metal</label>
-  //                 <select 
-  //                 value={item.metal}
-  //                 onChange={(e)=>updateItem(i,'metal',e.target.value)}
-  //                 className="h-9 rounded-lg border-input px-3 text-sm bg-white"
-  //                 >
-  //                   <option value="GOLD">Gold</option>
-  //                   <option value="SILVER">Silver</option>
-  //                 </select>
-
-  //               </div>
-  //           </div>
-
-  //            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
-  //             {item.metal === 'GOLD' && (
-  //               <div className="flex flex-col gap-1">
-  //                 <label className="text-xs text-muted-foreground">Purity</label>
-  //                 <select value={item.purity}
-  //                   onChange={(e) => updateItem(i, 'purity', e.target.value)}
-  //                   className="h-9 rounded-lg border border-input px-3 text-sm bg-white">
-  //                   <option value="K22">22K</option>
-  //                   <option value="K18">18K</option>
-  //                   <option value="K24">24K</option>
-  //                 </select>
-  //               </div>
-  //             )}
-  //             <div className="flex flex-col gap-1">
-  //               <label className="text-xs text-muted-foreground">Rate (₹/g)</label>
-  //               <Input type="number" value={item.rate || ''}
-  //                 onChange={(e) => updateItem(i, 'rate', Number(e.target.value))} />
-  //             </div>
-  //             <div className="flex flex-col gap-1">
-  //               <label className="text-xs text-muted-foreground">Weight (g)</label>
-  //               <Input type="number" value={item.weight || ''}
-  //                 onChange={(e) => updateItem(i, 'weight', Number(e.target.value))} />
-  //             </div>
-  //             <div className="flex flex-col gap-1">
-  //               <label className="text-xs text-muted-foreground">Wastage (g)</label>
-  //               <Input type="number" value={item.wastage_weight || ''}
-  //                 onChange={(e) => updateItem(i, 'wastage_weight', Number(e.target.value))} />
-  //             </div>
-  //           </div>
-
-  //                  <div className="grid grid-cols-2 gap-3">
-  //             <div className="flex flex-col gap-1">
-  //               <label className="text-xs text-muted-foreground">Making charge (₹)</label>
-  //               <Input type="number" value={item.making_charge || ''}
-  //                 onChange={(e) => updateItem(i, 'making_charge', Number(e.target.value))} />
-  //             </div>
-  //             <div className="flex items-end">
-  //               <div className="w-full bg-gold-light border border-gold rounded-lg px-4 py-2 flex justify-between items-center">
-  //                 <span className="text-xs text-muted-foreground">Amount</span>
-  //                 <span className="text-base font-medium text-gold">
-  //                   ₹{item.amount.toLocaleString('en-IN')}
-  //                 </span>
-  //               </div>
-  //             </div>
-  //           </div>
-
-
-  //         </div>
-  //       ))}
-
-  //        <button onClick={addItem}
-  //         className="border border-dashed border-gold text-gold px-4 py-2.5 rounded-lg text-sm hover:bg-gold-light transition-colors self-start">
-  //         + Add item
-  //       </button>
-
-  //     </div>
-
-
-  //      {/* Bill options + total */}
-  //     {items.length > 0 && (
-  //       <div className="bg-white border border-gold rounded-xl p-5 flex flex-col gap-4">
-  //         <div className="grid grid-cols-2 gap-4">
-  //           <div className="flex flex-col gap-1.5">
-  //             <Label>Discount (₹)</Label>
-  //             <Input type="number" value={discount || ''}
-  //               onChange={(e) => setDiscount(Number(e.target.value))}
-  //               placeholder="0" />
-  //           </div>
-  //           <div className="flex flex-col gap-1.5">
-  //             <Label>Notes</Label>
-  //             <Input placeholder="Optional notes" value={notes}
-  //               onChange={(e) => setNotes(e.target.value)} />
-  //           </div>
-  //         </div>
-  //         <div className="flex items-center gap-2">
-  //           <input type="checkbox" id="gst" checked={isGst}
-  //             onChange={(e) => setIsGst(e.target.checked)}
-  //             className="w-4 h-4 accent-gold" />
-  //           <label htmlFor="gst" className="text-sm text-foreground cursor-pointer">
-  //             GST bill
-  //           </label>
-  //         </div>
-  //         <div className="flex items-center justify-between bg-gold-light border border-gold rounded-lg px-5 py-4">
-  //           <span className="text-sm font-medium text-foreground">Total amount</span>
-  //           <span className="text-xl font-medium text-gold">
-  //             ₹{total.toLocaleString('en-IN')}
-  //           </span>
-  //         </div>
-  //       </div>
-  //     )}
-
-  //     {error && (
-  //       <p className="text-sm text-destructive bg-red-50 border border-red-200 px-4 py-2 rounded-lg">
-  //         {error}
-  //       </p>
-  //     )}
-
-  //     <Button onClick={handleSubmit} disabled={isPending}
-  //       className="bg-gold hover:bg-gold/90 text-white w-full py-3">
-  //       {isPending ? 'Creating bill...' : 'Create bill'}
-  //     </Button>
-
-
-
-     
-  //   </div>
-  // )
-
-
   return (    
     <div className=" flex flex-col min-h-[calc(screen -12px)]  ">
       <div className="flex items-center justify-between gap-3 w-full ">
@@ -582,15 +382,15 @@ mutate({
 
                    <td className="px-1.5 py-1.5 align-middle text-right">
                     <input type="text" 
-                    value={item.wastage_weight}
-                    onChange={(e)=>updateItem(i,'wastage_weight',Number(e.target.value))}
+                    value={item.wastage_pct}
+                    onChange={(e)=>updateItem(i,'wastage_pct',Number(e.target.value))}
                     className="h-7 w-full bg-transparent outline-none px-1.5 py-1.5 text-base focus:bg-white focus:ring-1 focus:ring-gold-dark "
                     />
                   </td>
 
                    <td className="px-1.5 py-1.5 align-middle text-right">
-                    <input type="text" value={item.wastage_pct}
-                    onChange={(e)=>updateItem(i,'wastage_pct',Number(e.target.value))}
+                    <input type="text" value={item.wastage_weight}
+                    onChange={(e)=>updateItem(i,'wastage_weight',Number(e.target.value))}
                     className="h-7   w-full bg-transparent outline-none px-1.5 py-1.5 text-base focus:bg-white focus:ring-1 focus:ring-gold-dark "
                     />
                   </td>

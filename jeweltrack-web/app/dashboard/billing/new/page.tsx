@@ -5,13 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import api from "@/lib/axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDebounce } from "@/hooks/useDebouce";
+import { Span } from "next/dist/trace";
 
 
 
 interface BillItem {
-    item_name: string;
+  item_name: string;
   metal: 'GOLD' | 'SILVER';
   purity: 'K22' | 'K18' | 'K24';
   rate: number;
@@ -20,6 +21,7 @@ interface BillItem {
   wastage_weight: number;
   making_charge: number;
   amount: number;
+  stone:number;
 }
 
 const calcAmount = (item:BillItem):number=>{
@@ -28,7 +30,7 @@ const calcAmount = (item:BillItem):number=>{
 
 const defaultItem = (rate22k =0):BillItem=>({
   amount:0,rate:rate22k , wastage_pct:0,wastage_weight:0, weight:0,
-  item_name:'',making_charge:0,metal:'GOLD',purity:"K22",
+  item_name:'',making_charge:0,metal:'GOLD',purity:"K22",stone:0
 })
 
 
@@ -135,6 +137,10 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
     const addItem = ()=>{
       setItems([...items , defaultItem(rate?.rate22k ?? 0)])
     }
+
+    useEffect(()=>{
+      addItem()
+    },[])
 
     const removeItem = (index:number)=>{
       setItems(items.filter((_,i)=>i !==index))
@@ -468,6 +474,132 @@ mutate({
         + Add New Customer
        </div>
 
+      </div>
+
+      <div className="flex-1 bg-white border rounded-md overflow-hidden ">
+        <table className="w-full ">
+          <thead className="bg-gray-100 sticky top-0">
+            <tr>
+              <th className="p-2">NO </th>
+              <th>Item</th>
+              <th>Metal</th>
+              <th>Purity</th>
+              <th>Rate/g</th>
+              <th>GR.WT</th>
+              <th>Net.Wt</th>
+              <th>WST%</th>
+              <th>WST(G)</th>
+              <th>MC</th>
+              <th>Stone</th>
+              <th>AMOUNT</th>
+              <th>Act</th>
+               </tr>
+          </thead>
+          <tbody>
+            {
+              items.map((item,i)=>(
+                <tr key={i} className="border-t ">
+                  <td>{i+1}</td>
+                  <td>
+                    <select 
+                    value={item?.item_name}
+                    onChange={(e)=>updateItem(i,'item_name',e.target.value)}
+                    >
+                      {categories?.map((cat:any,i:number)=>(
+                        <option key={i+cat?.name}>{cat?.name}</option>
+                      ))}
+                    </select>
+                  </td>
+
+                  <td>
+                    <select value={item?.metal} 
+                    onChange={(e)=>updateItem(i,'metal',e.target.value)}
+                    className="h-7 "
+                    >
+                      <option value="GOLD">Gold</option>
+                      <option value="SILVER">silver</option>
+                    </select>
+                  </td>
+
+                  <td>
+                    {item.metal ==="GOLD" ? (
+                    <select 
+                      value={item.purity}
+                      onChange={(e)=>updateItem(i,'purity',e.target.value)}
+                      className="h-7 "
+                    >
+                      <option value="K22">22K</option>
+                      <option value="K18">18K</option>
+                      {/* <option value="K24"></option> */}
+                    </select>
+                    ):(<span>none</span>)}      
+                  </td>
+
+                  <td>
+                    <input type="number" value={item.rate || ""}
+                    onChange={(e)=>updateItem(i,'rate',Number(e.target.value))}
+                    className="h-7  w-20"
+                    />
+                  </td>
+
+                  <td>
+                    <input type="number" value={item.weight || ''} 
+                    onChange={(e)=>updateItem(i,'weight',Number(e.target.value))}
+                    className="h-7 w-16"
+                    />
+                  </td>
+                  <td>
+                    <input type="number" value={item.weight || ''} 
+                    onChange={(e)=>updateItem(i,'weight',Number(e.target.value))}
+                    className="h-7 w-16"
+                    />
+                  </td>
+
+                  <td>
+                    <input type="number" 
+                    value={item.wastage_weight}
+                    onChange={(e)=>updateItem(i,'wastage_weight',Number(e.target.value))}
+                    className="w-16 h-7"
+                    />
+                  </td>
+
+                  <td>
+                    <input type="number" value={item.wastage_pct}
+                    onChange={(e)=>updateItem(i,'wastage_pct',Number(e.target.value))}
+                    className="w-16 h-7"
+                    />
+                  </td>
+
+                  <td>
+                    <input type="number" vlaue={item.making_charge ||'  '} 
+                    onChange={(e)=>updateItem(i,'making_charge',Number(e.target.value))}
+                    className="w-16 h-7"
+                    />   
+                  </td>
+
+                    <td>
+                      <input type="number" value={item.stone || 0}
+                      onChange={(e)=>updateItem(i,'stone',Number(e.target.value))}
+                      className="w-16 h-7"
+                      />
+                    </td>
+
+                    <td className="text-right pr-2 font-medium">
+                       ₹{item.amount}
+                    </td>
+
+                    <td>
+                      <button onClick={()=>removeItem(i)} className="text-red-500 ">
+                        ✕
+                      </button>
+                    </td>
+
+                </tr>
+              ))
+            }
+          </tbody>
+
+        </table>
       </div>
     </div>
   )

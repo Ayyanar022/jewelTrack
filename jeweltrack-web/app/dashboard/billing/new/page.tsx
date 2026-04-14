@@ -1,14 +1,11 @@
 'use client'
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+
 import api from "@/lib/axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useDebounce } from "@/hooks/useDebouce";
-import { Span } from "next/dist/trace";
-import { Toast } from "radix-ui";
+import BillTemplate from "@/components/app_component/BillTemplate";
 
 
 
@@ -50,6 +47,8 @@ const NewBillPage = () => {
   const [highlightIndex ,setHighlightIndex] = useState(0); 
   const firstItemRef = useRef<HTMLInputElement>(null)
   const customerRef = useRef<HTMLInputElement>(null);
+  const [printBill,setPrintBill] = useState(null);
+
 
 
   const {data :rate} = useQuery({
@@ -88,8 +87,26 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
     const { mutate , isPending} = useMutation({
       mutationFn : (data:any)=> api.post('/bill' ,data),
       onSuccess :(res)=>{
+        const billData ={
+          billNo : res.data.bill_number,
+          customer:selectedCustomer,
+          items,
+          total,
+          gstAmount,
+          payableAmount,
+          discount,
+          isGst,
+        }
+
+        setPrintBill(billData) // for print
+
+        setTimeout(() => {
+          window.print()// trigger print          
+        }, 200);
+
         queryclient.invalidateQueries({queryKey:['bills']});
         setSuccess(`Bill ${res.data.bill_number} created successfully!`);
+
         setItems([]);
         setSelectedCustomer(null);
         setDiscount(0);
@@ -254,10 +271,14 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
 
 
     //-----------------------------------
-console.log("categories",categories)
+// console.log("categories",categories)
 
     
-  return (    
+  return (   
+    
+    <>
+
+  
     <div className=" flex flex-col min-h-[calc(screen -12px)]  -mt-1">
       <div className="flex mb-1 items-center justify-between gap-3 w-full ">
         <div className="">
@@ -533,11 +554,15 @@ console.log("categories",categories)
               </button>
             </div>
       </div>
-
-   
-
   
     </div>
+
+    {printBill && (
+      <div className="print-area">
+        <BillTemplate data={printBill} />
+      </div>
+    )}
+      </>
 
   )
 

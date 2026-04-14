@@ -6,6 +6,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useDebounce } from "@/hooks/useDebouce";
 import BillTemplate from "@/components/app_component/BillTemplate";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import BillHistory from "@/components/app_component/BillHistory";
 
 
 
@@ -276,10 +278,17 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
     
   return (   
     
-    <>
 
-  
-    <div className=" flex flex-col min-h-[calc(screen -12px)]  -mt-1">
+  <Tabs defaultValue="new" className="-mt-4">
+
+    <TabsList className="inline-flex h-auto p-1 ml-auto">
+      <TabsTrigger value="new">New Bill</TabsTrigger>
+      <TabsTrigger value="history">History</TabsTrigger>
+    </TabsList>
+
+      <TabsContent value="new">
+
+            <div className=" flex flex-col -mt-7">
       <div className="flex mb-1 items-center justify-between gap-3 w-full ">
         <div className="">
     
@@ -351,10 +360,10 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
 
               
         </div>
-    
+{/*     
        <div className="px-2 py-1 text-sm text-blue-600 cursor-pointer hover:bg-gray-100">
         + Add New Customer
-       </div>
+       </div> */}
    
 
       </div>
@@ -562,10 +571,16 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
         <BillTemplate data={printBill} />
       </div>
     )}
-      </>
+      </TabsContent>
+
+      <TabsContent value="history">
+
+        <BillHistory />
+      </TabsContent>
+
+  </Tabs>
 
   )
-
 }
 
 export default NewBillPage

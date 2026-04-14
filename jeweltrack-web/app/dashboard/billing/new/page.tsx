@@ -94,7 +94,9 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
         setSelectedCustomer(null);
         setDiscount(0);
         setNotes('');
-        setIsGst(false);        
+        setIsGst(false);   
+        addItem()   
+
       },
       onError : (e:any)=>{
         setError(e?.response?.data?.message || 'Something went wrong')
@@ -154,11 +156,13 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
         }
 
     const selectCategory = (index:number , catId:string)=>{
+      console.log(catId)
       const cat = categories?.find((c:any)=>c.id===catId)
       if(!cat) return;
       const updated = [...items];
       const item = {...updated[index]}
       item.item_name = cat.name;
+      item.category_id = cat.id;
       item.wastage_pct = cat.default_wastage ??0 ;
       item.wastage_weight =  item.wastage_pct >0 
             ? parseFloat( (item.net_weight * item.wastage_pct /100).toFixed(2)) : 0 ;
@@ -199,7 +203,8 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
       is_gst_bill: isGst,
       discount,
       notes,
-      billItem: items.map(item => ({
+      billItem: items.filter(i=>i.amount>0).map(item => (
+        {
         item_name: item.item_name,
         metal: item.metal,
         purity: item.metal === 'GOLD' ? item.purity : undefined,
@@ -207,11 +212,14 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
         gross_weight : item.gross_weight,
         net_weight: item.net_weight,
         wastage: item.wastage_weight,
+        stone:item.stone,
         making_charge: item.making_charge,
         amount: item.amount,
 
       })),
     });
+
+      
 
     }
 
@@ -246,7 +254,7 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
 
 
     //-----------------------------------
-
+console.log("categories",categories)
 
     
   return (    
@@ -359,12 +367,14 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
                     <select 
                      onKeyDown={moveNext} 
                     ref={firstItemRef}
-                    value={item?.item_name}
-                    onChange={(e)=>updateItem(i,'item_name',e.target.value)}
+                   value={item.category_id || ""}
+                    // onChange={(e)=>updateItem(i,'item_name',e.target.value)}
+                    onChange={(e)=>selectCategory(i,e.target.value)}
                     className="w-full h-7"
                     >
+                      <option>Choose item..</option>
                       {categories?.map((cat:any,i:number)=>(
-                        <option key={i+cat?.name}>{cat?.name}</option>
+                        <option key={i+cat?.name} value={cat.id} >{cat?.name}</option>
                       ))}
                     </select>
                   </td>
@@ -477,7 +487,7 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
             </div>
             <div className="flex justify-between">
               <span className="text-slate-600"> discount</span>
-                 <input className=" outline-none w-20 ring-1 ring-gold" type="number" onChange={(e)=>setDiscount(Number(e.target.value))} />
+                 <input className=" outline-none w-20 ring-1 ring-gold px-2" type="number" value={discount||''}  onChange={(e)=>setDiscount(Number(e.target.value))} />
               <span>₹ {Math.round(Number(discount)).toLocaleString('en-IN')}</span>
             </div>
             <div className="flex justify-between">

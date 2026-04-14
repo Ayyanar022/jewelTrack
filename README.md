@@ -1,3 +1,6 @@
+# Important 
+npx prisma migrate dev --name your-change-name  - prisma command
+
 # JewelTrack
 
 A SaaS application for individual jewellery shop owners in India to manage billing, stock distribution, and gold loans.

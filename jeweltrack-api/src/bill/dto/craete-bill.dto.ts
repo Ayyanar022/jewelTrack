@@ -63,6 +63,9 @@ export class CreateBillItemDto{
     @IsNotEmpty()
     @IsNumber()
     amount!:number
+
+ 
+
 }
 
 
@@ -93,6 +96,23 @@ export class CreateBillDto{
     @ValidateNested({each:true})
     @Type(()=>CreateBillItemDto)
     billItem !:CreateBillItemDto[];
+
+    @ApiProperty({example:36900})
+    @IsNotEmpty()
+    @IsNumber()
+    @Min(0)
+    totalAmount! :number
+
+    @ApiProperty({example:3600})
+    @IsNumber()
+    @IsOptional()
+    totalGST? :number
+
+    @ApiProperty({example:36900})
+    @IsNotEmpty()
+    @IsNumber()
+    @Min(0)
+    payableAmount! :number
 
     }
 

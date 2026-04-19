@@ -8,6 +8,8 @@ import { useDebounce } from "@/hooks/useDebouce";
 import BillTemplate from "@/components/app_component/BillTemplate";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BillHistory from "@/components/app_component/BillHistory";
+import { Dialog } from "radix-ui";
+import { DialogContent } from "@/components/ui/dialog";
 
 
 
@@ -89,18 +91,18 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
     const { mutate , isPending} = useMutation({
       mutationFn : (data:any)=> api.post('/bill' ,data),
       onSuccess :(res)=>{
-        const billData ={
-          billNo : res.data.bill_number,
-          customer:selectedCustomer,
-          items,
-          total,
-          gstAmount,
-          payableAmount,
-          discount,
-          isGst,
-        }
+        // const billData ={
+        //   bill_number : res.data.bill_number,
+        //   customer:selectedCustomer,
+        //   billItem:items,
+        //   total,
+        //   gstAmount,
+        //   payableAmount,
+        //   discount,
+        //   isGst,
+        // }
 
-        setPrintBill(billData) // for print
+        setPrintBill(res.data) // for print
 
         setTimeout(() => {
           window.print()// trigger print          
@@ -205,7 +207,7 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
     }
 
     const total = Math.max(
-      items.reduce((sum,i)=>sum+i.amount ,0)-discount , 0
+      items.reduce((sum,i)=>sum+i.amount ,0) , 0
     )
 
     const discountedTotal = Math.max((total - discount) ,0 )
@@ -222,6 +224,9 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
       is_gst_bill: isGst,
       discount,
       notes,
+      totalAmount :total, // before discount 
+      totalGST :gstAmount , // after discount 
+      payableAmount,   // after discount + gst 
       billItem: items.filter(i=>i.amount>0).map(item => (
         {
         item_name: item.item_name,
@@ -570,6 +575,7 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
       <div className="print-area">
         <BillTemplate data={printBill} />
       </div>
+
     )}
       </TabsContent>
 

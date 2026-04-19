@@ -22,9 +22,11 @@ export class BillService {
                 customer_id:dto.customer_id,
                 bill_number,
                 is_gst_bill:dto.is_gst_bill ?? false ,
-                total_amount: dto.billItem.reduce((sum,item)=>sum+item.amount ,0),
+                total_amount: dto.totalAmount,
                 discount:dto.discount??0,
                 notes:dto.notes,
+                totalGST:dto.totalGST??0,
+                payableAmount:dto.payableAmount,
                 billItem:{
                     create:dto.billItem
                 }

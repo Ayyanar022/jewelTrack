@@ -121,6 +121,8 @@ model Bill{
   is_gst_bill Boolean  @default(false)
   total_amount Float 
   discount Float? @default(0)
+  totalGST Float? @default(0)
+  payableAmount Float
   notes  String?
   created_at DateTime @default(now())
 
@@ -131,7 +133,7 @@ model Bill{
 model BillItem{
   id String @id @default(uuid())
   bill_id String 
-  bill Bill @relation(fields:[bill_id],references:[id])
+  bill Bill @relation(fields:[bill_id],references:[id] )
   item_name String 
   purity Purity? @default(K22)
   metal Metal @default(GOLD)

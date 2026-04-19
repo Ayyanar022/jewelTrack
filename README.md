@@ -1,6 +1,7 @@
 # Important 
 1. npx prisma migrate dev --name your-change-name  - prisma command
-2. npx shadcn@latest add button card dialog - shadcn
+2. npx prisma generate - to gerate prisma client
+3. npx shadcn@latest add button card dialog - shadcn
 
 # JewelTrack
 

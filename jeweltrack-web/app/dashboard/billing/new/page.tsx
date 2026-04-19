@@ -11,6 +11,7 @@ import BillHistory from "@/components/app_component/BillHistory";
 import { Dialog } from "radix-ui";
 import { DialogContent } from "@/components/ui/dialog";
 import { Edit2, MapPin, Phone, Search, User } from "lucide-react";
+import { printBillFun } from "@/lib/printBillFun";
 
 
 
@@ -52,8 +53,6 @@ const NewBillPage = () => {
   const [highlightIndex ,setHighlightIndex] = useState(0); 
   const firstItemRef = useRef<HTMLInputElement>(null)
   const customerRef = useRef<HTMLInputElement>(null);
-  const [printBill,setPrintBill] = useState(null);
-
 
 
   const {data :rate} = useQuery({
@@ -92,20 +91,18 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
     const { mutate , isPending} = useMutation({
       mutationFn : (data:any)=> api.post('/bill' ,data),
       onSuccess :(res)=>{
-        setPrintBill(res.data) // for print
-        setTimeout(() => {
-          window.print()// trigger print          
-        }, 200);
+        // to print bill
+        printBillFun(res.data.id);
 
         queryclient.invalidateQueries({queryKey:['bills']});
         setSuccess(`Bill ${res.data.bill_number} created successfully!`);
 
-        setItems([]);
+        setItems([defaultItem(rate?.rate_22k ?? 0)])
+        // addItem()   
         setSelectedCustomer(null);
         setDiscount(0);
         setNotes('');
-        setIsGst(false);   
-        addItem()   
+        setIsGst(true);   
 
       },
       onError : (e:any)=>{
@@ -288,7 +285,7 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
         {
           selectedCustomer ? (       
 
-            <div className="flex gap-x-10 items-center justify-between bg-green-50 border border-green-200 rounded-md px-3 py-1.5">
+            <div className="flex gap-x-10 items-center justify-between bg-green-50 border border-green-200 rounded-md px-3 py-2">
               <div className="flex items-center gap-3 text-sm text-gray-800">
                   <User size={16} className="text-green-600" />
                   <span className="font-medium">  {selectedCustomer.name} </span>
@@ -390,7 +387,7 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
           <tbody>
             {
               items.map((item,i)=>(
-                <tr key={i+item.item_name} className="border-b border-gray-200 odd:bg-white even:bg-gray-50 
+                <tr key={i+item.item_name} className="border-b border-gray-200 odd:bg-gray-100 even:bg-gray-50 
                  hover:bg-blue-50 focus-within:bg-blue-50 ">
                   <td className="w-full px-1.5 py-1.5 align-middle text-center">{i+1}</td>
                    <td className="px-1.5 py-1.5 align-middle">
@@ -434,52 +431,52 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
                   </td>
 
                   <td className="px-1.5 py-1.5 align-middle text-right">
-                    <input type="text" value={item.rate || ""} onKeyDown={moveNext} 
+                    <input type="number" min={0} step="any" value={item.rate || ""} onKeyDown={moveNext} 
                     onChange={(e)=>updateItem(i,'rate',Number(e.target.value))}
-                    className="h-7  text-right  w-full bg-transparent outline-none px-1.5 py-1.5 text-base focus:bg-white focus:ring-1 focus:ring-gold-dark "
+                    className="h-7  text-right  w-full bg-transparent outline-none px-1.5 py-1.5  focus:bg-white focus:ring-1 focus:ring-gold-dark "
                     />
                   </td>
 
                    <td className="px-1.5 py-1.5 align-middle text-right">
-                    <input  onKeyDown={moveNext} type="text" value={item.gross_weight || ''} 
+                    <input  onKeyDown={moveNext} type="number" min={0} step="any" value={item.gross_weight || ''} 
                     onChange={(e)=>updateItem(i,'gross_weight',Number(e.target.value))}
-                    className="h-7  w-full bg-transparent  outline-none px-1.5 py-1.5 text-base focus:bg-white focus:ring-1 focus:ring-gold-dark "
+                    className="h-7  w-full bg-transparent  text-base font-semibold text-slate-600 outline-none px-1.5 py-1.5 text-center focus:bg-white focus:ring-1 focus:ring-gold-dark "
                     />
                   </td>
 
                  <td className="px-1.5 py-1.5 align-middle text-right">
-                    <input  onKeyDown={moveNext} type="text" value={item.stone || 0}
+                    <input  onKeyDown={moveNext} type="number" min={0} step="any" value={item.stone || 0}
                     onChange={(e)=>updateItem(i,'stone',Number(e.target.value))}
-                    className="h-7  w-full bg-transparent outline-none px-1.5 py-1.5 text-base focus:bg-white focus:ring-1 focus:ring-gold-dark  "
+                    className="h-7  w-full bg-transparent outline-none px-1.5 py-1.5 text-center focus:bg-white focus:ring-1 focus:ring-gold-dark  "
                     />
                   </td>
                    <td className="px-1.5 py-1.5 align-middle text-right">
-                    <input  onKeyDown={moveNext} type="text" value={item.net_weight || ''} 
+                    <input  onKeyDown={moveNext} type="number" min={0} step="any" value={item.net_weight || ''} 
                     readOnly
                     // onChange={(e)=>updateItem(i,'net_weight',Number(e.target.value))}
-                    className="h-7  w-full bg-transparent outline-none px-1.5 py-1.5 text-base focus:bg-white focus:ring-1 focus:ring-gold-dark "
+                    className="h-7  w-full bg-transparent outline-none px-1.5 py-1.5 text-center focus:bg-white focus:ring-1 focus:ring-gold-dark "
                     />
                   </td>
 
                    <td className="px-1.5 py-1.5 align-middle text-right">
-                    <input  onKeyDown={moveNext} type="text" 
+                    <input  onKeyDown={moveNext} type="number" min={0} step="any" 
                     value={item.wastage_pct}
                     onChange={(e)=>updateItem(i,'wastage_pct',Number(e.target.value))}
-                    className="h-7 w-full bg-transparent outline-none px-1.5 py-1.5 text-base focus:bg-white focus:ring-1 focus:ring-gold-dark "
+                    className="h-7 w-full bg-transparent outline-none px-1.5 py-1.5 text-center focus:bg-white focus:ring-1 focus:ring-gold-dark "
                     />
                   </td>
 
                    <td className="px-1.5 py-1.5 align-middle text-right">
-                    <input  onKeyDown={moveNext} type="text" value={item.wastage_weight}
+                    <input  onKeyDown={moveNext} type="number" min={0} step="any" value={item.wastage_weight}
                     onChange={(e)=>updateItem(i,'wastage_weight',Number(e.target.value))}
-                    className="h-7   w-full bg-transparent outline-none px-1.5 py-1.5 text-base focus:bg-white focus:ring-1 focus:ring-gold-dark "
+                    className="h-7   w-full bg-transparent outline-none px-1.5 py-1.5 text-center focus:bg-white focus:ring-1 focus:ring-gold-dark "
                     />
                   </td>
 
                    <td className="px-1.5 py-1.5 align-middle text-right">
-                    <input  onKeyDown={moveNext} type="text" value={item.making_charge ||'  '} 
+                    <input  onKeyDown={moveNext} type="number" min={0} step="any" value={item.making_charge } 
                     onChange={(e)=>updateItem(i,'making_charge',Number(e.target.value))}
-                    className="h-7  w-full bg-transparent outline-none px-1.5 py-1.5 text-base focus:bg-white focus:ring-1 focus:ring-gold-dark "
+                    className="h-7  w-full bg-transparent outline-none px-1.5 py-1.5 text-base text-center focus:bg-white focus:ring-1 focus:ring-gold-dark "
                     onFocus={()=>{
                       if(items.length ===0) return ;
                       const lastRow = items[items.length-1];
@@ -565,17 +562,10 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
       </div>
   
     </div>
-
-    {printBill && (
-      <div className="print-area">
-        <BillTemplate data={printBill} />
-      </div>
-
-    )}
       </TabsContent>
 
-      <TabsContent value="history">
 
+      <TabsContent value="history">
         <BillHistory />
       </TabsContent>
 

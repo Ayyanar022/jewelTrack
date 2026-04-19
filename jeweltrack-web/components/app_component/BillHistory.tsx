@@ -6,6 +6,7 @@ import api from "@/lib/axios";
 import { Eye, Fullscreen, Printer, Search, View } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import BillTemplate from "./BillTemplate";
+import { printBill, printBillFun } from "@/lib/printBillFun";
 
 
 
@@ -29,6 +30,8 @@ export default function BillHistory(){
     const handleSearch = ()=>{
 
     }
+
+    // console.log("data0000",data)
 
     return (
 
@@ -113,7 +116,8 @@ export default function BillHistory(){
                         <TableCell className="text-center">
                             <div className="flex items-center justify-center gap-2">
                             <button
-                                onClick={() => setSelectedBill(bill)}
+                                // onClick={() => setSelectedBill(bill)}
+                                onClick={()=>printBillFun(bill.id)}
                                 className="p-1.5 cursor-pointer rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors"
                                 title="View bill"
                             >

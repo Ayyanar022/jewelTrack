@@ -1,4 +1,4 @@
-import { Body, Controller, Get,  Post, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get,  Param,  Post, Query, Request, UseGuards } from '@nestjs/common';
 import { BillService } from './bill.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
@@ -25,6 +25,11 @@ export class BillController {
     @Get('all')
     fetchAll(@Query('customerId') customerId:string , @Request() req ){
         return this.billService.findAll(customerId ,req.user.id)
+    }
+
+    @Get(':id')
+    findOne(@Param('id') billId:string,@Request() req){
+        return this.billService.findOne(billId , req.user.id)
     }
 
 

@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BillHistory from "@/components/app_component/BillHistory";
 import { Dialog } from "radix-ui";
 import { DialogContent } from "@/components/ui/dialog";
+import { Edit2, MapPin, Phone, Search, User } from "lucide-react";
 
 
 
@@ -91,19 +92,7 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
     const { mutate , isPending} = useMutation({
       mutationFn : (data:any)=> api.post('/bill' ,data),
       onSuccess :(res)=>{
-        // const billData ={
-        //   bill_number : res.data.bill_number,
-        //   customer:selectedCustomer,
-        //   billItem:items,
-        //   total,
-        //   gstAmount,
-        //   payableAmount,
-        //   discount,
-        //   isGst,
-        // }
-
         setPrintBill(res.data) // for print
-
         setTimeout(() => {
           window.print()// trigger print          
         }, 200);
@@ -250,7 +239,7 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
 
     // UX enhancement -----------------------
     // 1. click enter -> move next cell
-      const moveNext = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      const moveNext = (e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>) => {
         if(e.key !=='Enter') return ;
 
         e.preventDefault();
@@ -278,7 +267,6 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
 
 
     //-----------------------------------
-// console.log("categories",categories)
 
     
   return (   
@@ -298,16 +286,27 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
         <div className="">
     
         {
-          selectedCustomer ? (
-            <div className="flex items-center gap-4 ">
-           
-            <span className="font-medium ">
-            {selectedCustomer.name} - {selectedCustomer.village} - {selectedCustomer.phone}
-            </span>           
-            <button onClick={()=>setSelectedCustomer(null)} className="text-base text-red-500">Chnage</button>
+          selectedCustomer ? (       
+
+            <div className="flex gap-x-10 items-center justify-between bg-green-50 border border-green-200 rounded-md px-3 py-1.5">
+              <div className="flex items-center gap-3 text-sm text-gray-800">
+                  <User size={16} className="text-green-600" />
+                  <span className="font-medium">  {selectedCustomer.name} </span>
+                  <span className="flex items-center gap-1 text-gray-500"> <Phone size={14} /> {selectedCustomer.phone}  </span>
+                  <span className="flex items-center gap-1 text-gray-500">  <MapPin size={14} />{selectedCustomer.village} </span>
+              </div>
+
+                <button  onClick={() => setSelectedCustomer(null)}  className="flex items-center gap-1 text-xs text-red-500 hover:text-red-600 hover:underline" >
+                <Edit2 size={14} />
+                Change
+              </button>
             </div>
           ) : (
-         <div className="relative w-72 ">
+         <div className="relative w-[400px] ">
+
+          <div className="flex items-center gap-2 border border-gold-dark px-3 py-1.5 rounded-md flex-1 max-w-sm bg-white">
+            <Search size={14} className="text-slate-400 shrink-0" />
+                  
           <input ref={ customerRef }
           placeholder="Search customer..."
           value={customerSearch}
@@ -332,8 +331,9 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
               }
             }
           }}  
-          className="h-8 text-sm px-2 border border-gold-dark rounded-sm"
+          className=" outline-none flex-1 text-base bg-transparent"
           />
+          </div>  
 
           {customerSearch.trim().length >1 && (
         
@@ -341,7 +341,7 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
             {
               customers?.length >0 ?(
                   customers?.map((c:any,i:any)=>(
-              <div  className={`px-2 py-1 text-sm cursor-pointer ${i===highlightIndex ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
+              <button    className={`px-3 py-1  text-base cursor-pointer w-full text-start  ${i===highlightIndex ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
                 key={c.id}
                 onClick={()=>{
                   setSelectedCustomer(c);
@@ -349,7 +349,7 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
                 }}
               >
                 {c.name} - {c.phone} - {c.village} 
-              </div>
+              </button>
             ))
               ) : (
                <div className="px-2 py-1 text-xs text-gray-500">
@@ -362,14 +362,8 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
            </div>
           )
         }
-
               
-        </div>
-{/*     
-       <div className="px-2 py-1 text-sm text-blue-600 cursor-pointer hover:bg-gray-100">
-        + Add New Customer
-       </div> */}
-   
+        </div>   
 
       </div>
 
@@ -377,21 +371,22 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
         <table className="w-full table-fixed ">
           <thead className="bg-gray-100 sticky top-0 z-10 ">
             <tr >
-              <th className="p-2 w-[30px] bg-green-200">NO </th>
-              <th className="w-[100px] bg-yellow-200">Item</th>
-              <th className="w-[70px] bg-pink-200" >Metal</th>
-              <th className="w-[60px] bg-yellow-200">Purity</th>
-              <th className="w-[80px] bg-green-200">Rate/g</th>
-              <th className="w-[60px] bg-yellow-200">GR.WT</th>
-              <th className="w-[50px] bg-blue-200">Stone</th>
-              <th className="w-[60px] bg-orange-200">Net.Wt</th>
-              <th className="w-[60px] bg-yellow-200">WST%</th>
-              <th className="w-[60px] bg-red-200">WST(G)</th>
-              <th className="w-[60px] bg-yellow-200">MC</th>
-              <th className="w-[80px] bg-yellow-200">AMOUNT</th>
-              <th className="w-[40px] bg-rose-200">Act</th>
+              <th className="p-2 w-[30px] bg-green-100">NO </th>
+              <th className="w-[100px] bg-yellow-100 ">Item</th>
+              <th className="w-[70px] bg-pink-100" >Metal</th>
+              <th className="w-[60px] bg-cyan-100">Purity</th>
+              <th className="w-[80px] bg-purple-100">Rate/g</th>
+              <th className="w-[60px] bg-yellow-100">GR.WT</th>
+              <th className="w-[50px] bg-blue-100">Stone</th>
+              <th className="w-[60px] bg-purple-100">Net.Wt</th>
+              <th className="w-[60px] bg-blue-100">WST%</th>
+              <th className="w-[60px] bg-cyan-100">WST(G)</th>
+              <th className="w-[60px] bg-red-100">MC</th>
+              <th className="w-[80px] bg-green-100">AMOUNT</th>
+              <th className="w-[40px] bg-rose-100">Act</th>
                </tr>
           </thead>
+
           <tbody>
             {
               items.map((item,i)=>(

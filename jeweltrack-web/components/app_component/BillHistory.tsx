@@ -14,11 +14,13 @@ export default function BillHistory(){
 
     const [search,setSearch] = useState('');
     const [selectedBill,setSelectedBill]= useState(null)
+    const [page,setPage] = useState(1)
+    const LIMIT = 7 ;
    
    
     const {data,isLoading}  = useQuery({
-        queryKey:['bill-history',search],
-        queryFn:()=>api.get(`/bill/all?search=${search}`).then(r=>r.data)
+        queryKey:['bill-history',search,page],
+        queryFn:()=>api.get(`/bill/all?search=${search}&page=${page}&limit=${LIMIT}`).then(r=>r.data)
 
     });
 
@@ -136,8 +138,8 @@ export default function BillHistory(){
             <div className="flex items-center justify-between mt-4">
                 <span className="text-xs text-slate-400">Showing {data?.length ?? 0} bills</span>
                 <div className="flex gap-2">
-                <Button variant="outline" size="sm" disabled>← Prev</Button>
-                <Button variant="outline" size="sm" disabled>Next →</Button>
+                <Button variant="outline" size="sm" onClick={()=>setPage(p=>p-1)} disabled={page===1}>← Prev</Button>
+                <Button variant="outline" size="sm" onClick={()=>setPage(p=>p+1)} disabled={data?.length<LIMIT}>Next →</Button>
                 </div>
             </div>
             </div>

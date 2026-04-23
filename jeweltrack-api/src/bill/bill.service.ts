@@ -52,13 +52,39 @@ export class BillService {
     }
 
 
-    async findAll(customerId:string , shopId:string){
+    async findAll(search:string , shopId:string ,page:string , limit:string){
+        const pageNumber = Number(page) || 1 ;
+        const dataLimit = Number(limit) || 10 ; 
+
+        const skip = (pageNumber-1) * dataLimit ;
+        const take = dataLimit ;
         const bill = await this.prisma.bill.findMany({
             where:{
                 shop_id:shopId, 
-                ...(customerId && {customer_id:customerId})
+                ...(search && {
+                    OR:[
+                        {
+                            customer:{name:{contains:search , mode:'insensitive'}}
+                        },
+                        {
+                            customer : {phone:{contains:search,mode:'insensitive'}}
+                        },
+                        {
+                            customer:{village :{contains:search , mode:'insensitive'}}
+                        },
+                        {
+                            bill_number:{contains:search}
+                        }
+                    ]
+                }
+                    
+                ),
+                
             },
-            include:{billItem:true ,customer:true}
+            include:{billItem:true ,customer:true},
+            skip,
+            take,
+            orderBy:{created_at:'desc'}
         })
 
         return bill

@@ -23,8 +23,13 @@ export class BillController {
     }
 
     @Get('all')
-    fetchAll(@Query('customerId') customerId:string , @Request() req ){
-        return this.billService.findAll(customerId ,req.user.id)
+    fetchAll(
+        @Query('search') search:string ,
+        @Query('page') page:string ,
+        @Query('limit') limit:string ,
+        @Request() req 
+    ){
+        return this.billService.findAll(search ,req.user.id,page,limit)
     }
 
     @Get(':id')

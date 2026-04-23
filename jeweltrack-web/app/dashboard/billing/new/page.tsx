@@ -55,6 +55,7 @@ const NewBillPage = () => {
   const customerRef = useRef<HTMLInputElement>(null);
 
 
+
   const {data :rate} = useQuery({
     queryKey:['recent-rate'],
     queryFn:()=>api.get('rate/recent-rate').then(r=>r.data)

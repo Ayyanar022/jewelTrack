@@ -26,7 +26,8 @@ interface HistoryEntry {
 }
 
 const calcAmount = (item: EstimateItem) =>
-  Math.max(Math.round(item.rate * (item.weight + item.wastage_weight) + item.making_charge), 0);
+  // Math.max(Math.round(item.rate * (item.weight + item.wastage_weight) + item.making_charge), 0);
+  Number(item.rate * (item.weight + item.wastage_weight)+item.making_charge).toFixed(2)
 
 const defaultItem = (rate22k = 0): EstimateItem => ({
   item_name: '', metal: 'GOLD', purity: 'K22',
@@ -70,6 +71,8 @@ export default function EstimatePage() {
 
 
   const total = Math.max(item.amount - discount, 0);
+  const gst = total * 0.03 ;
+  const finalAmount = gst+total ;
 
   const updateItem = (field: keyof EstimateItem, value: any) => {
     let u = { ...item, [field]: value };
@@ -99,7 +102,11 @@ export default function EstimatePage() {
 
 
   const handlePrint = useCallback(() => {
-    if (item.weight <= 0) { setPrintError('Enter weight first'); return; }
+    if(!item.item_name) return  setPrintError(`Enter item name`);
+    if (item.weight <= 0)return setPrintError('Enter weight first'); 
+    if(!item.rate) return setPrintError('Invalid rate');
+    if(total<0) return setPrintError("Invalid total") ;
+
     if (total <= 0) { setPrintError('Total is ₹0 — check values'); return; }
     const entry: HistoryEntry = { id: Date.now().toString(), item, discount, total, date: new Date().toLocaleString('en-IN') };
     saveToHistory(entry);
@@ -125,7 +132,8 @@ export default function EstimatePage() {
         @media print {
           body * { visibility: hidden; }
           #print-bill, #print-bill * { visibility: visible; }
-          #print-bill { position: fixed; top: 0; left: 0; width: 100%; padding: 2rem; }
+          #print-bill { position: fixed; top: 0; left: 0; width: 58mm;font-size:12px;  padding: 5px; }
+    
         }
         .ef {
           width: 100%;
@@ -174,10 +182,10 @@ export default function EstimatePage() {
         </div>
 
         {/* ── MAIN CONTENT ── */}
-        <div className="flex gap-4 flex-1 min-h-0">
+        <div className="flex gap-10 flex-1 min-h-0">
 
           {/* ── FORM (left, 3/5) ── */}
-          <div className="flex-[3] bg-white border border-gold/25 rounded-xl flex flex-col overflow-hidden">
+          <div className="flex-[2.5] bg-white border border-gold/25 rounded-xl flex flex-col overflow-hidden">
 
             {/* Thin gold top accent */}
             <div className="h-0.5 bg-gradient-to-r from-gold/60 via-gold to-gold/60 flex-shrink-0" />
@@ -307,13 +315,13 @@ export default function EstimatePage() {
           </div>
 
           {/* ── BILL PREVIEW (right, 2/5) ── */}
-          <div className="flex-[1.25] bg-white border border-gold/25 rounded-xl flex flex-col overflow-hidden">
+          <div className="flex-[1.35] bg-white border border-gold/25 rounded-xl flex flex-col overflow-hidden">
 
             <div className="h-0.5 bg-gradient-to-r from-gold/60 via-gold to-gold/60 flex-shrink-0" />
 
             {/* Bill rows */}
             <div className="flex-1 px-6 py-4 flex flex-col gap-0 overflow-hidden">
-              <p className="text-sm font-semibold uppercase tracking-widest text-gold mb-3">Bill</p>
+              <p className="text-sm font-semibold uppercase tracking-widest text-gold mb-1">Bill</p>
 
               {[
                 { label: 'Item', value: item.item_name || '—' },
@@ -330,20 +338,57 @@ export default function EstimatePage() {
               ))}
 
               {/* Totals */}
-              <div className="mt-3 pt-3 border-t border-gold/20 flex flex-col gap-1.5">
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>Subtotal</span><span>₹{fmt(item.amount)}</span>
-                </div>
-                {discount > 0 && (
-                  <div className="flex justify-between text-xs text-muted-foreground">
+              {/* <div className="mt-1  border-gold/20 flex flex-col gap-1.5">
+               
+               <section className=' border-b space-y-1 py-1'>             
+                <div className="flex justify-between text-[17px] text-green-700 font-[600]">
+                  <span>Subtotal</span><span  className='text-green-700'>₹{fmt(item.amount)}</span>
+                </div>               
+               
+                </section>
+            
+             <section>      
+                <div className="flex justify-between text-sm text-slate-600 ">
                     <span>Discount</span><span>− ₹{fmt(discount)}</span>
                   </div>
-                )}
-                <div className="flex justify-between items-center mt-2">
-                  <span className="text-base font-semibold text-foreground">Total</span>
-                  <span className="text-xl font-bold text-gold">₹{fmt(total)}</span>
+                   <div className="flex justify-between items-center ">
+                    <span className=" text-sm text-slate-600">Gst</span>
+                  <span className="text-sm text-slate-600 ">₹{fmt(gst)}</span>
                 </div>
+            </section>
+
+                <div className="flex justify-between items-center border-t pt-2 ">
+                  <span className="text-lg  font-semibold text-foreground">Total</span>
+                  <span className="text-xl font-bold text-gold">₹{fmt(finalAmount)}</span>
+                </div>
+              </div> */}
+              <div className="mt-1 flex flex-col gap-1.5">
+
+              <div className="flex justify-between text-sm text-muted-foreground">
+                <span>Subtotal</span>
+                <span>₹{fmt(item.amount)}</span>
               </div>
+
+  {discount > 0 && (
+    <div className="flex justify-between text-sm text-muted-foreground">
+      <span>Discount</span>
+      <span>− ₹{fmt(discount)}</span>
+    </div>
+  )}
+
+  <div className="flex justify-between text-sm text-muted-foreground">
+    <span>GST</span>
+    <span>₹{fmt(gst)}</span>
+  </div>
+
+  <div className="flex justify-between items-center border-t pt-1 mt-1">
+    <span className="text-lg font-semibold text-foreground">Total</span>
+    <span className="text-xl font-bold text-gold">
+      ₹{fmt(finalAmount)}
+    </span>
+  </div>
+
+</div>
             </div>
 
             {/* Actions */}
@@ -352,10 +397,10 @@ export default function EstimatePage() {
                 className="w-full bg-gold text-white py-2.5 rounded-lg text-sm font-medium hover:bg-gold/90 transition-colors">
                 Print
               </button> */}
-              <a href="/dashboard/billing/new"
+              {/* <a href="/dashboard/billing/new"
                 className="w-full border border-gold/30 text-gold py-2 rounded-lg text-xs font-medium hover:bg-gold/5 transition-colors text-center block">
                 Convert to actual bill →
-              </a>
+              </a> */}
             </div>
 
           </div>
@@ -396,39 +441,80 @@ export default function EstimatePage() {
       )}
 
       {/* ── PRINT BILL ── */}
-      <div id="print-bill" className="hidden">
-        <div style={{ fontFamily: 'serif', maxWidth: 380, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 16 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 'bold', margin: 0 }}>Estimate Bill</h2>
-            <p style={{ fontSize: 11, color: '#666', margin: '3px 0 0' }}>
-              {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
-            </p>
-          </div>
-          <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
+      <div style={{ fontSize: 12, width: '58mm' ,backgroundColor:'yellow',padding:'14px 18px' }}>
+          <p style={{ textAlign: 'center', fontWeight: 'bold' ,paddingBottom:"5px"}}>
+            Estimate
+          </p>
+          <hr />
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <tbody>
-              {[
-                ['Item', item.item_name || '—'],
-                ['Metal', item.metal === 'GOLD' ? `Gold · ${item.purity}` : 'Silver'],
-                ['Rate', `₹${fmt(item.rate)} / g`],
-                ['Weight', `${item.weight} g`],
-                ['Wastage', `${item.wastage_weight} g (${item.wastage_pct}%)`],
-                ['Making Charge', `₹${fmt(item.making_charge)}`],
-                ['Subtotal', `₹${fmt(item.amount)}`],
-                ...(discount > 0 ? [['Discount', `− ₹${fmt(discount)}`]] : []),
-              ].map(([label, value]) => (
-                <tr key={label} style={{ borderBottom: '1px solid #eee' }}>
-                  <td style={{ padding: '7px 0', color: '#555' }}>{label}</td>
-                  <td style={{ padding: '7px 0', textAlign: 'right', fontWeight: 500 }}>{value}</td>
-                </tr>
-              ))}
+
+              <tr>
+                <td>Item</td>
+                <td style={{ textAlign: 'center' }}>:</td>
+                <td style={{ textAlign: 'right' }}>{item.item_name}</td>
+              </tr>
+
+              <tr>
+                <td>Wt</td>
+                <td style={{ textAlign: 'center' }}>:</td>
+                <td style={{ textAlign: 'right' }}>{item.weight} g</td>
+              </tr>
+
+              <tr>
+                <td>Vt</td>
+                <td style={{ textAlign: 'center' }}>:</td>
+                <td style={{ textAlign: 'right' }}>{item.wastage_weight} g</td>
+              </tr>
+
+              <tr>
+                <td>Rate</td>
+                <td style={{ textAlign: 'center' }}>:</td>
+                <td style={{ textAlign: 'right' }}>₹{fmt(item.rate)}</td>
+              </tr>
+
+              <tr>
+                <td>MC</td>
+                <td style={{ textAlign: 'center' }}>:</td>
+                <td style={{ textAlign: 'right' }}>₹{fmt(item.making_charge)}</td>
+              </tr>
+
+              <tr><td colSpan={3}><hr /></td></tr>
+
+              <tr>
+                <td>Subtotal</td>
+                <td style={{ textAlign: 'center' }}>:</td>
+                <td style={{ textAlign: 'right' }}>₹{fmt(item.amount)}</td>
+              </tr>
+
+              <tr>
+                <td>Discount</td>
+                <td style={{ textAlign: 'center' }}>:</td>
+                <td style={{ textAlign: 'right' }}>₹{fmt(discount)}</td>
+              </tr>
+
+              <tr>
+                <td>GST</td>
+                <td style={{ textAlign: 'center' }}>:</td>
+                <td style={{ textAlign: 'right' }}>₹{fmt(gst)}</td>
+              </tr>
+
+              <tr><td colSpan={2}><hr /></td></tr>
+
+              <tr style={{paddingTop:"6px"}}>
+                <td style={{ fontWeight: 'bold' }}>Total</td>
+                <td style={{ textAlign: 'right', fontWeight: 'bold' }}>
+                  ₹{fmt(finalAmount)}
+                </td>
+              </tr>
+
             </tbody>
           </table>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 17, fontWeight: 'bold', borderTop: '2px solid #333', marginTop: 8, paddingTop: 10 }}>
-            <span>Total</span>
-            <span>₹{fmt(total)}</span>
-          </div>
-        </div>
       </div>
+
+      
+
+    
     </>
   );
 }

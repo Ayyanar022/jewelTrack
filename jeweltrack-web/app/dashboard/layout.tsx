@@ -10,7 +10,7 @@ import { useState } from "react";
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: '📊' },
   { label: 'Gold Rate', href: '/dashboard/rate', icon: '📈' },
-  { label: 'Estimate Bill', href: '/dashboard/billing', icon: '📄' },
+  { label: 'Estimate Bill', href: '/dashboard/billing/estimate', icon: '📄' },
   { label: 'New Bill', href: '/dashboard/billing/new', icon: '➕' },
   { label: 'Customers', href: '/dashboard/customers', icon: '👥' },
   { label: 'Category', href: '/dashboard/categories', icon: '👥' },

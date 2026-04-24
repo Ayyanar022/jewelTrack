@@ -27,7 +27,7 @@ interface HistoryEntry {
 
 const calcAmount = (item: EstimateItem) =>
   // Math.max(Math.round(item.rate * (item.weight + item.wastage_weight) + item.making_charge), 0);
-  Number(item.rate * (item.weight + item.wastage_weight)+item.making_charge).toFixed(2)
+  Number(item.rate * (item.weight + item.wastage_weight)+item.making_charge).toFixed(2) 
 
 const defaultItem = (rate22k = 0): EstimateItem => ({
   item_name: '', metal: 'GOLD', purity: 'K22',
@@ -157,10 +157,11 @@ export default function EstimatePage() {
       
         .ef {
           width: 100%;
-          border: 1.5px solid rgba(180,140,60,0.25);
+          border: 0.5px solid rgba(180,140,60,0.25);
+          border: 1.5px solid #EDA35A;
           border-radius: 8px;
           padding: 5px 12px;
-          font-size: 18px;
+          font-size: 17px;
           background: transparent;
           color: var(--foreground);
           transition: border-color 0.15s, box-shadow 0.15s;
@@ -168,9 +169,9 @@ export default function EstimatePage() {
         .ef:focus {
           outline: none;
           border-color: var(--gold, #b48c3c);
-          box-shadow: 0 0 0 3px rgba(180,140,60,0.12);
+          box-shadow: 0 0 0 2px rgba(180,140,60,0.12);
         }
-        .ef::placeholder { opacity: 0.45; }
+        .ef::placeholder { opacity: 0.8; font-size:15px; }
         .drawer-enter { animation: slideIn 0.22s ease; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         .backdrop-enter { animation: fadeIn 0.2s ease; }
@@ -178,24 +179,24 @@ export default function EstimatePage() {
       `}</style>
 
       {/* Full viewport, no scroll */}
-      <div className="h-[calc(100vh-85px)] flex flex-col px-4 pb-3 max-w-5xl mx-auto overflow-hidden ">
+      <div className="h-[calc(100vh-100px)] flex flex-col px-4 pb-3 max-w-5xl mx-auto overflow-hidden ">
 
         {/* ── TOP BAR (minimal) ── */}
-        <div className="flex items-center justify-between mb-3 flex-shrink-0">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-end mb-3 flex-shrink-0">
+          {/* <div className="flex items-center gap-3">
             <h1 className="text-base font-semibold text-foreground">Estimate</h1>
             <span className="text-sm text-muted-foreground">
               {rate ? `22K -  ₹${fmt(rate.rate_22k)} ·  18K - ₹${fmt(rate.rate_18k)} · Silver ₹${fmt(rate.rate_silver)}` : '...'}
             </span>
-          </div>
-          <div className="flex items-center gap-3">
+          </div> */}
+          <div className="flex items-center  gap-3">
             <button
               onClick={() => { setHistory(getHistory()); setShowHistory(true); }}
-              className="text-xs text-muted-foreground border border-gold/25 px-3 py-1.5 rounded-lg hover:border-gold hover:text-foreground transition-colors"
+              className="text-xs cursor-pointer text-gold-dark border border-gold/25 px-3 py-1.5 rounded-lg hover:border-gold hover:text-foreground transition-colors"
             >
               History ({history.length})
             </button>
-            <button onClick={handleReset} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+            <button onClick={handleReset} className="text-xs cursor-pointer text-muted-foreground hover:text-foreground transition-colors">
               Reset
             </button>
           </div>
@@ -210,13 +211,13 @@ export default function EstimatePage() {
             {/* Thin gold top accent */}
             <div className="h-0.5 bg-gradient-to-r from-gold/60 via-gold to-gold/60 flex-shrink-0" />
 
-            <div className="flex-1 px-5 py-4 flex flex-col gap-3 overflow-hidden">
+            <div className="flex-1 px-7 py-4 flex flex-col gap-3 overflow-hidden">
 
               {/* Category + Item name */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-6">
                 {categories?.length > 0 && (
                   <div className="flex flex-col gap-1">
-                    <label className="text-sm text-gold">Category</label>
+                    <label className="text-sm text-sidebar-dark">Category</label>
                     <select
                       value=""
                       onChange={(e) => {
@@ -236,24 +237,24 @@ export default function EstimatePage() {
                   </div>
                 )}
                 <div className="flex flex-col gap-1">
-                  <label className="text-sm text-gold tracking-wide">Item name</label>
+                  <label className="text-sm text-sidebar-dark tracking-wide">Item name</label>
                   <input type="text" value={item.item_name} onChange={(e) => updateItem('item_name', e.target.value)}
                     placeholder="e.g. Necklace, Ring" className="ef" />
                 </div>
               </div>
 
               {/* Metal + Purity + Rate */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-6">
                 <div className="flex flex-col gap-1">
-                  <label className="text-sm text-gold tracking-wide">Metal</label>
+                  <label className="text-sm text-sidebar-dark tracking-wide">Metal</label>
                   <select value={item.metal} onChange={(e) => {updateItem('metal', e.target.value) ; setItem((prev)=>({...prev , wastage_pct:0 ,wastage_weight:0}))}} className="ef h-10 ">
                     <option  value="GOLD">Gold</option>
                     <option value="SILVER">Silver</option>
                   </select>
                 </div>
                 {item.metal === 'GOLD' && (
-                  <div className="flex flex-col gap-1">
-                    <label className="text-sm text-gold tracking-wide">Purity</label>
+                  <div className="flex flex-col gap-1  ">
+                    <label className="text-sm text-sidebar-dark tracking-wide">Purity</label>
                     <select value={item.purity} onChange={(e) => updateItem('purity', e.target.value)} className="ef h-10">
                       <option value="K22">22K</option>
                       <option value="K18">18K</option>
@@ -262,46 +263,46 @@ export default function EstimatePage() {
                   </div>
                 )}
                 <div className="flex flex-col gap-1">
-                  <label className="text-sm text-gold tracking-wide">Rate (₹/g)</label>
+                  <label className="text-sm text-sidebar-dark tracking-wide">Rate (₹/g)</label>
                   <input type="number" value={item.rate || ''} onChange={(e) => updateItem('rate', Number(e.target.value))}
                     placeholder="0" className="ef" />
                 </div>
               </div>
 
               {/* Weight + Wastage % + Wastage g */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-6">
                 <div className="flex flex-col gap-1">
-                  <label className="text-sm text-gold tracking-wide">Weight (g)</label>
+                  <label className="text-sm text-sidebar-dark tracking-wide">Weight (g)</label>
                   <input type="number" value={item.weight || ''} onChange={(e) => updateItem('weight', Number(e.target.value))}
                     placeholder="0.000" className="ef" />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-sm text-gold tracking-wide">Wastage %</label>
+                  <label className="text-sm text-sidebar-dark tracking-wide">Wastage %</label>
                   <div className="relative">
                     <input type="number" value={item.wastage_pct || ''} onChange={(e) => updateItem('wastage_pct', Number(e.target.value))}
                       placeholder="0.00" className="ef pr-6" />
-                    <span className="absolute right-8 top-1/2 -translate-y-1/2 text-sm text-gold tracking-wide pointer-events-none">%</span>
+                    <span className="absolute right-8 top-1/2 -translate-y-1/2 text-sm text-sidebar-dark tracking-wide pointer-events-none">%</span>
                   </div>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-sm text-gold tracking-wide">Wastage (g)</label>
+                  <label className="text-sm text-sidebar-dark tracking-wide">Wastage (g)</label>
                   <div className="relative">
                     <input type="number" value={item.wastage_weight || ''} onChange={(e) => updateItem('wastage_weight', Number(e.target.value))}
                       placeholder="0.000" className="ef pr-5" />
-                    <span className="absolute right-8 top-1/2 -translate-y-1/2 text-sm text-gold tracking-wide pointer-events-none">g</span>
+                    <span className="absolute right-8 top-1/2 -translate-y-1/2 text-sm text-sidebar-dark tracking-wide pointer-events-none">g</span>
                   </div>
                 </div>
               </div>
 
               {/* Making charge + Discount */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-6">
                 <div className="flex flex-col gap-1">
-                  <label className="text-sm text-gold tracking-wide">Making charge (₹)</label>
+                  <label className="text-sm text-sidebar-dark tracking-wide">Making charge (₹)</label>
                   <input type="number" value={item.making_charge || ''} onChange={(e) => updateItem('making_charge', Number(e.target.value))}
                     placeholder="0" className="ef" />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-sm text-gold tracking-wide">Discount (₹)</label>
+                  <label className="text-sm text-sidebar-dark tracking-wide">Discount (₹)</label>
                   <input type="number" value={discount || ''} onChange={(e) => { setDiscount(Number(e.target.value)); setPrintError(''); }}
                     placeholder="0" className="ef" />
                 </div>
@@ -313,7 +314,7 @@ export default function EstimatePage() {
                 <p className="text-sm text-red-500 bg-red-50 border border-red-200 px-5 py-0.5 rounded-lg">⚠ {printError}</p>
               )}
 
-            <div className='  mt-auto flex  gap-5'>
+            <div className='  mt-auto flex   gap-5'>
 
               <button  onClick={handlePrint}
                 className="w-full flex-3 bg-gold text-white py-2 rounded-lg text-base font-medium hover:bg-gold/90 transition-colors">
@@ -327,7 +328,7 @@ export default function EstimatePage() {
             </div>
 
               {/* Hint */}
-              <p className="text-sm text-muted-foreground/60 mt-auto">
+              <p className="text-sm text-muted-foreground mt-auto">
                 Press <kbd className="bg-gold/10 text-gold px-1.5 py-0.5 rounded text-xs font-mono">Enter</kbd> to print
               </p>
 
@@ -340,7 +341,7 @@ export default function EstimatePage() {
             <div className="h-0.5 bg-gradient-to-r from-gold/60 via-gold to-gold/60 flex-shrink-0" />
 
             {/* Bill rows */}
-            <div className="flex-1 px-6 py-4 flex flex-col gap-0 overflow-hidden">
+            <div className="flex-1 px-8 py-4 flex flex-col gap-0 overflow-hidden shadow">
               <p className="text-sm font-semibold uppercase tracking-widest text-gold mb-1">Bill</p>
 
               {[
@@ -358,11 +359,11 @@ export default function EstimatePage() {
               ))}
 
               {/* Totals */}
-              {/* <div className="mt-1  border-gold/20 flex flex-col gap-1.5">
+              <div className="mt-1  border-gold/20 flex flex-col gap-1.5">
                
                <section className=' border-b space-y-1 py-1'>             
                 <div className="flex justify-between text-[17px] text-green-700 font-[600]">
-                  <span>Subtotal</span><span  className='text-green-700'>₹{fmt(item.amount)}</span>
+                  <span>Subtotal</span><span  className='text-green-700 text-lg '>₹{fmt(item.amount)}</span>
                 </div>               
                
                 </section>
@@ -378,50 +379,14 @@ export default function EstimatePage() {
             </section>
 
                 <div className="flex justify-between items-center border-t pt-2 ">
-                  <span className="text-lg  font-semibold text-foreground">Total</span>
-                  <span className="text-xl font-bold text-gold">₹{fmt(finalAmount)}</span>
+                  <span className="text-[20px]  font-semibold text-foreground">Total</span>
+                  <span className="text-xl font-bold text-red-600 ">₹{fmt(finalAmount)}</span>
                 </div>
-              </div> */}
-              <div className="mt-1 flex flex-col gap-1.5">
-
-              <div className="flex justify-between text-sm text-muted-foreground">
-                <span>Subtotal</span>
-                <span>₹{fmt(item.amount)}</span>
-              </div>
-
-  {discount > 0 && (
-    <div className="flex justify-between text-sm text-muted-foreground">
-      <span>Discount</span>
-      <span>− ₹{fmt(discount)}</span>
-    </div>
-  )}
-
-  <div className="flex justify-between text-sm text-muted-foreground">
-    <span>GST</span>
-    <span>₹{fmt(gst)}</span>
-  </div>
-
-  <div className="flex justify-between items-center border-t pt-1 mt-1">
-    <span className="text-lg font-semibold text-foreground">Total</span>
-    <span className="text-xl font-bold text-gold">
-      ₹{fmt(finalAmount)}
-    </span>
-  </div>
-
-</div>
+              </div>             
+        
             </div>
 
-            {/* Actions */}
-            <div className="px-4 pb-4 flex flex-col gap-2 flex-shrink-0">
-              {/* <button onClick={handlePrint}
-                className="w-full bg-gold text-white py-2.5 rounded-lg text-sm font-medium hover:bg-gold/90 transition-colors">
-                Print
-              </button> */}
-              {/* <a href="/dashboard/billing/new"
-                className="w-full border border-gold/30 text-gold py-2 rounded-lg text-xs font-medium hover:bg-gold/5 transition-colors text-center block">
-                Convert to actual bill →
-              </a> */}
-            </div>
+        
 
           </div>
         </div>
@@ -521,7 +486,7 @@ export default function EstimatePage() {
 
               <tr><td colSpan={2}><hr /></td></tr>
 
-              <tr style={{paddingTop:"10px",fontSize:"14px"}}>
+              <tr style={{paddingTop:"15px",fontSize:"14px"}}>
                 <td style={{ fontWeight: 'bold' }}>Total</td>
                 <td style={{ textAlign: 'right', fontWeight: 'bold' }}>
                   ₹{fmt(finalAmount)}

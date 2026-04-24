@@ -129,12 +129,32 @@ export default function EstimatePage() {
   return (
     <>
       <style>{`
-        @media print {
-          body * { visibility: hidden; }
-          #print-bill, #print-bill * { visibility: visible; }
-          #print-bill { position: fixed; top: 0; left: 0; width: 58mm;font-size:12px;  padding: 5px; }
-    
-        }
+
+        #print-bill {
+      position: absolute;
+      left: -9999px;
+    }
+
+     @media print {
+      body * {
+        visibility: hidden;
+      }
+
+      #print-bill, #print-bill * {
+        visibility: visible;
+      }
+
+      #print-bill {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 58mm;
+        font-size: 12px;
+        padding: 5px;
+      }
+    }
+
+      
         .ef {
           width: 100%;
           border: 1.5px solid rgba(180,140,60,0.25);
@@ -441,9 +461,9 @@ export default function EstimatePage() {
       )}
 
       {/* ── PRINT BILL ── */}
-      <div style={{ fontSize: 12, width: '58mm' ,backgroundColor:'yellow',padding:'14px 18px' }}>
+      <div id='print-bill' style={{ fontSize: 12, width: '58mm' ,backgroundColor:'#E5EEE4',padding:'14px 18px' }}>
           <p style={{ textAlign: 'center', fontWeight: 'bold' ,paddingBottom:"5px"}}>
-            Estimate
+            Estimate bill
           </p>
           <hr />
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -501,7 +521,7 @@ export default function EstimatePage() {
 
               <tr><td colSpan={2}><hr /></td></tr>
 
-              <tr style={{paddingTop:"6px"}}>
+              <tr style={{paddingTop:"10px",fontSize:"14px"}}>
                 <td style={{ fontWeight: 'bold' }}>Total</td>
                 <td style={{ textAlign: 'right', fontWeight: 'bold' }}>
                   ₹{fmt(finalAmount)}

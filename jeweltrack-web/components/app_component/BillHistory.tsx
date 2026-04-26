@@ -53,7 +53,10 @@ export default function BillHistory(){
                     placeholder="Bill no, customer, phone…"
                 />
                 </div>
-                <Button size="sm" onClick={handleSearch}>Search</Button>
+                
+                <Button size="sm" onClick={handleSearch}>Today</Button>
+                <Button size="sm" onClick={handleSearch}>Week</Button>
+                <Button size="sm" onClick={handleSearch}>Month</Button>
             </div>
 
             {/* Table */}

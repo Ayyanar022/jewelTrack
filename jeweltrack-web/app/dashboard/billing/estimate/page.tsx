@@ -398,7 +398,8 @@ export default function EstimatePage() {
           <div className="fixed inset-0 bg-black/20 z-40 backdrop-enter" onClick={() => setShowHistory(false)} />
           <div className="fixed right-0 top-0 h-full w-72 bg-white border-l border-gold/30 z-50 flex flex-col shadow-xl drawer-enter">
             <div className="px-4 py-3 border-b border-gold/20 bg-gold/5 flex items-center justify-between flex-shrink-0">
-              <span className="text-sm font-semibold text-foreground">Recent Estimates</span>
+              <span className="text-sm font-semibold text-foreground">Recent Estimates</span> 
+              <span className="text-sm font-semibold text-foreground">Today-7</span> 
               <button onClick={() => setShowHistory(false)} className="text-muted-foreground hover:text-foreground text-xl leading-none">×</button>
             </div>
             <div className="flex-1 overflow-y-auto">

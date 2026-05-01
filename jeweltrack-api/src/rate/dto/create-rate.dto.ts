@@ -8,12 +8,12 @@ export class CreateRateDto{
  @ApiProperty({ example: 6200 })
 @IsInt()
 @IsNotEmpty()
-  rate_22k:number
+  rate_22k!:number
 
 @ApiProperty({ example: 5100 })
 @IsInt()
 @IsNotEmpty()
-  rate_18k :number
+  rate_18k! :number
 
 @ApiPropertyOptional({ example: 6600 })
 @IsInt()
@@ -24,5 +24,5 @@ export class CreateRateDto{
 @ApiProperty({ example: 85 })
 @IsInt()
 @IsNotEmpty()
-  rate_silver :number
+  rate_silver! :number
 }

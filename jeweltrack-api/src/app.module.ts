@@ -7,9 +7,10 @@ import { RateModule } from './rate/rate.module';
 import { CustomerModule } from './customer/customer.module';
 import { BillModule } from './bill/bill.module';
 import { JewelleryCategoryModule } from './jewellery-category/jewellery-category.module';
+import { InventoryModule } from './inventory/inventory.module';
 
 @Module({
-  imports: [AuthModule,PrismaModule, RateModule, CustomerModule, BillModule, JewelleryCategoryModule],
+  imports: [AuthModule,PrismaModule, RateModule, CustomerModule, BillModule, JewelleryCategoryModule, InventoryModule],
   controllers: [AppController],
   providers: [AppService],
 

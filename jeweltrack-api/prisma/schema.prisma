@@ -44,6 +44,21 @@ enum Purity{
     CLOSED
   }
 
+  enum Type{
+    IN
+    OUT
+  }
+
+  enum StockType{
+    OWN 
+    BORROW
+  }
+
+  enum ReferenceType {
+  BILL
+  MANUAL
+}
+
 
 
 model Shop{
@@ -65,6 +80,7 @@ model Shop{
   stockTransaction StockTransaction[]
    metalPayment MetalPayment[]
   goldLoan JewelLoan[]
+  inventoryStockEntry InventoryStockEntry[]
 }
 
 
@@ -161,6 +177,7 @@ model JewelleryCategory{
   created_at DateTime @default(now())
 
   stockTransaction StockTransaction[]
+  inventoryStockEntry InventoryStockEntry[]
 }
 
 model StockTransaction {
@@ -247,5 +264,21 @@ model MetalPayment {
     interest_paid Int 
     payment_date DateTime
     notes String?
+    created_at DateTime @default(now())
+  }
+
+
+  model InventoryStockEntry{
+    id String @id @default(uuid())
+    shop_id String 
+    shop Shop @relation(fields:[shop_id], references:[id])
+    category_id String
+    category JewelleryCategory @relation(fields:[category_id] , references:[id])
+    type Type
+    weight Float
+    purity Purity
+    stockType StockType
+    reference ReferenceType
+    reference_id String?
     created_at DateTime @default(now())
   }

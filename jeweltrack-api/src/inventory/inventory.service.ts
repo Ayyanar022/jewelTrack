@@ -15,9 +15,10 @@ export class InventoryService {
                 type :dto.type,
                 weight :dto.weight ,
                 purity :dto.purity ,
-                stockType :dto.stockType ,
+                // stockType :dto.stockType ,
                 reference :dto.reference,
-                ...(dto.reference_id && {reference_id:dto.reference_id})  ,
+                 stockType: "OWN" // or "BORROW",
+                // ...(dto.reference_id && {reference_id:dto.reference_id})  ,
             }
         })
     }
@@ -31,7 +32,13 @@ export class InventoryService {
 
     // }
 
-    // async ledger(shopId:string){
-
-    // }
+    async getLedger(shopId:string){
+        return this.prisma.inventoryStockEntry.findMany({
+            where:{shop_id:shopId},
+            include : {category:{
+                select:{name:true}
+            }}
+        
+        })
+    }
 }

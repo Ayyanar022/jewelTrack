@@ -28,19 +28,19 @@ export class In_out_adj_dto{
     purity! : Purity
 
 
-    @ApiProperty({enum:StockType ,example:StockType.OWN})
-    @IsNotEmpty()
-    @IsEnum(StockType)
-    stockType!: StockType
+    // @ApiProperty({enum:StockType ,example:StockType.OWN})
+    // @IsNotEmpty()
+    // @IsEnum(StockType)
+    // stockType!: StockType
 
     @ApiProperty({enum:ReferenceType ,example:ReferenceType.BILL})
     @IsNotEmpty()
     @IsEnum(ReferenceType)
     reference! : ReferenceType
 
-    @ApiProperty({example:'bill reference id'})
-    @IsOptional()
-    @IsString()
-    reference_id?  : string
+    // @ApiProperty({example:'bill reference id'})
+    // @IsOptional()
+    // @IsString()
+    // reference_id?  : string
 
 }

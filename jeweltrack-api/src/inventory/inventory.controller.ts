@@ -13,6 +13,7 @@ export class InventoryController {
 
     @Post('in')
     stockIn(@Body() dto:In_out_adj_dto , @Request() req){
+        console.log("hello---------")
         return this.invenToryService.stockIn(dto,req.user.id)
     }
 
@@ -26,9 +27,9 @@ export class InventoryController {
     //     return 
     // }
 
-    // @Get('inventory-ledger')
-    // ledger(@Request() req){
-    //     return
-    // }
+    @Get('inventory-ledger')
+    getLedger(@Request() req){
+        return this.invenToryService.getLedger(req.user.id)
+    }
     
 }

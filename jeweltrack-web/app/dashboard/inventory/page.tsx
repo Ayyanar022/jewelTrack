@@ -162,7 +162,7 @@ const page = () => {
                     <tr key={i+"his"}>
                        <td className="border border-gray-400 p-1.5 text-center ">{i+1}</td>
                        <td className="border border-gray-400 p-1.5">{new Date(r?.created_at).toLocaleDateString('en-IN')}</td>
-                       <td className="border border-gray-400 p-1.5 text-center">{r?.type}</td>
+                       <td className={`border border-gray-400 p-1.5 text-center ${r?.type ==='IN' ? 'bg-green-200' :'bg-red-200'}`}>{r?.type}</td>
                        <td className="border border-gray-400 p-1.5 text-start">{r?.category?.name}</td>
                        <td className="border border-gray-400 p-1.5 text-right">{r?.purity}</td>
                        <td className="border border-gray-400 p-1.5 text-right">{r?.weight} g</td>

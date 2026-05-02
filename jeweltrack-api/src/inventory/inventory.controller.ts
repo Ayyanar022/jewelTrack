@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
 import { InventoryService } from './inventory.service';
@@ -17,19 +17,16 @@ export class InventoryController {
         return this.invenToryService.stockIn(dto,req.user.id)
     }
 
-    // @Post('out')
-    // stockOut(@Body() dto:In_out_adj_dto , @Request() req){
-    //     return 
-    // }
+    @Get('inventory-total')
+    inventoryTotal( @Request() req){
+        return this.invenToryService.inventoryStatus(req.user.id)
+    }
 
-    // @Post('Adjustment')
-    // adjustment(@Body() dto:In_out_adj_dto , @Request() req){
-    //     return 
-    // }
+  
 
     @Get('inventory-ledger')
-    getLedger(@Request() req){
-        return this.invenToryService.getLedger(req.user.id)
+    getLedger(@Query('page') page , @Request() req){
+        return this.invenToryService.getLedger(page ,req.user.id)
     }
     
 }

@@ -66,7 +66,7 @@ export class BillService {
                     purity :out.purity,
                     stockType : "OWN" ,
                     reference :"BILL" ,
-                    reference_id : bill.id
+                    reference_id : bill_number ,
             }))
 
         })

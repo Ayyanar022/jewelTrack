@@ -23,22 +23,51 @@ export class InventoryService {
         })
     }
 
-    // async stockOut(dto:In_out_adj_dto,shopId:string){
+    async inventoryStatus(shopId:string){
+        const data =await  this.prisma.$queryRaw `
+        select 
+            c.id as category_id,
+            c.name as category_name,
+            i.purity,
+            sum(case when i.type='IN' then i.weight else 0 end ) as total_in ,
+            sum(case when i.type='OUT' then i.weight else 0 end ) as total_out ,
+            sum(case when i."stockType"='BORROW' then i.weight else 0 end )as total_borrowed,
+            ( 
+            sum(case when i.type='IN' then i.weight else 0 end ) -
+             sum(case when i.type='OUT' then i.weight else 0 end )
+            ) as balance
 
+            from "InventoryStockEntry" i 
+            join "JewelleryCategory" c 
+            on c.id = i.category_id
 
-    // }
+            where i.shop_id= ${shopId}
+
+            group by c.id, c.name, i.purity
+            order by c.name , i.purity desc
+            
+            `
+        // console.log(data)
+            return data
+
+    }
 
     // async adjustment(dto:In_out_adj_dto,shopId:string){
 
     // }
 
-    async getLedger(shopId:string){
+    async getLedger(page:number,shopId:string){
+        
+        const limit =10
+        const skip = (page -1) * limit
         return this.prisma.inventoryStockEntry.findMany({
             where:{shop_id:shopId},
             include : {category:{
                 select:{name:true}
-            }}
-        
+            }},
+            orderBy:{created_at:"desc"},
+            skip,
+            take:limit,        
         })
     }
 }

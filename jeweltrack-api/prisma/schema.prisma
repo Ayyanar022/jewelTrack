@@ -270,6 +270,7 @@ model StockTransaction {
     created_at DateTime @default(now())
   }
 
+//----------------------------
 
   model InventoryStockEntry{
     id String @id @default(uuid())

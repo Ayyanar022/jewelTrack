@@ -35,21 +35,38 @@ const page = () => {
   const [formHeader,setFormHeader]= useState('Add Item')
   const [entryForm,setEntryForm] = useState<EntryRows>(defaultEntry())
   const [error,setError] = useState('')
+  const [leadgerPage,setLeadgerPage] = useState(1)
 
   const {data:categories} = useQuery({
     queryKey :['categories'],
-    queryFn :()=>api.get('/jewellery-category').then(r=>r.data)
+    queryFn :()=>api.get('/jewellery-category').then(r=>r.data),
+      refetchOnWindowFocus: false,
+      staleTime: 1000 * 60 * 20,  // 20 mins
+
   });
 
   const {data:ledger} = useQuery({
-    queryKey :['inventory_ledger'],
-    queryFn :()=>api.get('/inventory/inventory-ledger').then(r=>r.data)
+    queryKey :['inventory_ledger',leadgerPage],
+    queryFn :()=>api.get(`/inventory/inventory-ledger?page=${leadgerPage}`).then(r=>r.data),
+    refetchOnWindowFocus: false,
+    placeholderData: (prev)=>prev, // ✅ smooth pagination
+    staleTime: 1000 * 60 * 5,  // 20 mins
   });
+
+  const {data:inventoryTotal}= useQuery({
+    queryKey:['inventoryTotal'],
+    queryFn: async()=>api.get('/inventory/inventory-total').then(r=>r.data),
+     refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 5,  // 20 mins
+  })
+
+  console.log("inventoryTotal",inventoryTotal)
 
   const {mutate,isSuccess} = useMutation({
       mutationFn:(data:any)=>api.post('/inventory/in',data),
         onSuccess:(res)=>{
           queryClient.invalidateQueries({ queryKey: ['inventory_ledger'] })
+          queryClient.invalidateQueries({ queryKey: ['inventoryTotal'] })
           setEntryForm(defaultEntry())
           setOpen(false)
         } ,
@@ -107,17 +124,18 @@ const page = () => {
                   <th className="border border-gray-400 py-1">Balance</th>
                 </tr>
                 </thead>
+                
                 <tbody>
                   {
-                    [1,2,3,4].map((r,i)=>(
-                    <tr key={i+"inv"}>
+                    inventoryTotal?.map((r:any,i:number)=>(
+                    <tr key={r.category_id+i+"inv"}>
                        <td className="border border-gray-400 p-1.5 text-center ">{i+1}</td>
-                       <td className="border border-gray-400 p-1.5">Ring</td>
-                       <td className="border border-gray-400 p-1.5 text-center">22K</td>
-                       <td className="border border-gray-400 p-1.5 text-right">34</td>
-                       <td className="border border-gray-400 p-1.5 text-right">12</td>
-                       <td className="border border-gray-400 p-1.5 text-right">2</td>
-                       <td className="border border-gray-400 p-1.5 text-right font-bold">20</td>
+                       <td className="border border-gray-400 p-1.5">{r?.category_name}</td>
+                       <td className="border border-gray-400 p-1.5 text-center">{r?.purity}</td>
+                       <td className="border border-gray-400 p-1.5 text-right">{r?.total_in.toFixed(2)}</td>
+                       <td className="border border-gray-400 p-1.5 text-right">{r?.total_out.toFixed(2)}</td>
+                       <td className="border border-gray-400 p-1.5 text-right">{r?.total_borrowed.toFixed(2)}</td>
+                       <td className="border border-gray-400 p-1.5 text-right font-bold">{r?.balance.toFixed(2)}</td>
                        
                   </tr>
                     ))
@@ -139,20 +157,20 @@ const page = () => {
         </TabsContent>
 
         <TabsContent value="ledger">
-          <div className="max-w-[1000px] mx-auto mt-2">
+          <div className="max-w-[1000px]  mx-auto mt-2">
 
                <table className="w-full table-fixed border border-gray-400">
                 <thead>
                   <tr>                  
                   <th className="border border-gray-400 py-1 w-[35px]">#</th>
-                  <th className="border border-gray-400 py-1 w-[100px] ">Date</th>
+                  <th className="border border-gray-400 py-1 w-[90px] ">Date</th>
                   <th className="border border-gray-400 py-1 w-[80px]">Type</th>
                   <th className="border border-gray-400 py-1 w-[150px]">Category</th>
                   <th className="border border-gray-400 py-1 w-[70px] text-center">Purity </th>
-                  <th className="border border-gray-400 py-1 w-[90px]">weight (g)</th>
+                  <th className="border border-gray-400 py-1 w-[90px] ">weight (g)</th>
                   <th className="border border-gray-400 py-1 w-[120px]">StockType</th>
                   <th className="border border-gray-400 py-1 w-[130px]">Ref</th>
-                  <th className="border border-gray-400 py-1">Ref Id</th>
+                  <th className="border border-gray-400 py-1 w-[110px]">Ref Id</th>
                 </tr>
                 </thead>
 
@@ -169,8 +187,8 @@ const page = () => {
                        <td className="border border-gray-400 p-1.5">{new Date(r?.created_at).toLocaleDateString('en-IN')}</td>
                        <td className={`border border-gray-400 p-1.5 text-center ${r?.type ==='IN' ? 'bg-green-200' :'bg-red-200'}`}>{r?.type}</td>
                        <td className="border border-gray-400 p-1.5 text-start">{r?.category?.name}</td>
-                       <td className="border border-gray-400 p-1.5 text-center">{r?.purity}</td>
-                       <td className="border border-gray-400 p-1.5 text-right px-2">{r?.weight} </td>
+                       <td className="border border-gray-400 p-1.5 text-center">{r?.purity ==="K22" ?"22k":"18k"}</td>
+                       <td className="border border-gray-400 p-1.5 text-right px-2 font-bold">{(r?.weight).toFixed(2)} </td>
                        <td className="border border-gray-400 p-1.5 text-center">{r?.stockType}</td>
                        <td className="border border-gray-400 p-1.5 text-center ">{r?.reference}</td>
                        <td className="border border-gray-400 p-1.5 text-center ">{r.reference_id ? r.reference_id : ''}</td>
@@ -183,6 +201,11 @@ const page = () => {
                 </tbody>
               </table>
 
+                  <div className="flex gap-7 justify-end p-4">
+                    <Button variant={"outline"}  disabled={leadgerPage ===1} onClick={()=>setLeadgerPage(p=> p>1 ? p-1 :p)} className="">← Prev</Button>
+                    <Button variant={"outline"} disabled={ledger?.length<10 } onClick={()=>setLeadgerPage(p=> p+1)} className="">next →</Button>
+                    
+                  </div>
             
           </div>
 

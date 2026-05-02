@@ -93,6 +93,7 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
         window.open(`/print/${res.data.id}`, '_blank')
 
         queryclient.invalidateQueries({queryKey:['bills']});
+        queryclient.invalidateQueries({queryKey:['inventory_ledger']});
         setSuccess(`Bill ${res.data.bill_number} created successfully!`);
 
         setItems([defaultItem(rate?.rate_22k ?? 0)])

@@ -48,14 +48,14 @@ export class AuthService {
         })
 
         if(!shop){
-            throw new UnauthorizedException("Invalid credentials");
+            throw new UnauthorizedException("Invalid Password or Phone");
         }
 
         // 2.compare pass
         const passwordMatch = await bcrypt.compare(dto.password,shop.password)
 
         if(!passwordMatch){
-            throw new UnauthorizedException("Invalid credentials")
+            throw new UnauthorizedException("Invalid Password")
         }
 
         // 3.generate token 

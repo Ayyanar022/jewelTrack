@@ -5,13 +5,9 @@ import api from "@/lib/axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useDebounce } from "@/hooks/useDebouce";
-import BillTemplate from "@/components/app_component/BillTemplate";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BillHistory from "@/components/app_component/BillHistory";
-import { Dialog } from "radix-ui";
-import { DialogContent } from "@/components/ui/dialog";
 import { Edit2, MapPin, Phone, Search, User } from "lucide-react";
-import { printBillFun } from "@/lib/printBillFun";
 
 
 
@@ -27,6 +23,7 @@ interface BillItem {
   wastage_weight: number;
   making_charge: number;
   amount: number;
+  // category_id:number;
 }
 
 const calcAmount = (item:BillItem):number=>{
@@ -93,7 +90,7 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
       mutationFn : (data:any)=> api.post('/bill' ,data),
       onSuccess :(res)=>{
         // to print bill
-        printBillFun(res.data.id);
+        window.open(`/print/${res.data.id}`, '_blank')
 
         queryclient.invalidateQueries({queryKey:['bills']});
         setSuccess(`Bill ${res.data.bill_number} created successfully!`);
@@ -205,6 +202,7 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
       setError('');
       if(!selectedCustomer) {setError('Please select a customer ') ; return}
       if(items.length===0) { setError('Add at leaset on eitem'); return}
+      console.log("items",items)
 
       mutate({
       customer_id: selectedCustomer.id,
@@ -216,7 +214,8 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
       payableAmount,   // after discount + gst 
       billItem: items.filter(i=>i.amount>0).map(item => (
         {
-        item_name: item.item_name,
+        category_id: item.category_id,
+        //  item_name: item.item_name,
         metal: item.metal,
         purity: item.metal === 'GOLD' ? item.purity : undefined,
         rate: item.rate,
@@ -270,7 +269,7 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
   return (   
     
 
-  <Tabs defaultValue="new" className="-mt-4">
+  <Tabs defaultValue="new" className="-mt-4 ">
 
     <TabsList className="inline-flex h-auto p-1 ml-auto">
       <TabsTrigger value="new">New Bill</TabsTrigger>

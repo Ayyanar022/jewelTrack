@@ -56,7 +56,8 @@ enum Purity{
 
   enum ReferenceType {
   BILL
-  MANUAL
+  ADJUSTMENT
+  ADD
 }
 
 
@@ -150,7 +151,8 @@ model BillItem{
   id String @id @default(uuid())
   bill_id String 
   bill Bill @relation(fields:[bill_id],references:[id] )
-  item_name String 
+  category_id String 
+   category JewelleryCategory @relation(fields:[category_id] , references:[id])
   purity Purity? @default(K22)
   metal Metal @default(GOLD)
   gross_weight Float @default(0)
@@ -178,6 +180,7 @@ model JewelleryCategory{
 
   stockTransaction StockTransaction[]
   inventoryStockEntry InventoryStockEntry[]
+  billItem BillItem[]
 }
 
 model StockTransaction {
@@ -206,7 +209,7 @@ model StockTransaction {
 
 
 
-model MetalPayment {
+  model MetalPayment {
   id String @id @default(uuid())
   shop_id String 
   shop Shop @relation(fields:[shop_id], references:[id])
@@ -221,7 +224,7 @@ model MetalPayment {
   }
 
 
-  // gold lean 
+  // gold lean ------------------------------
 
   model JewelLoan {
     id String @id @default(uuid())

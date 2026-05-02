@@ -1,12 +1,11 @@
-import { useRef, useState } from "react";
+import {  useState } from "react";
 import { Button } from "../ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
-import { useQueries, useQuery } from "@tanstack/react-query";
+import {  useQuery } from "@tanstack/react-query";
 import api from "@/lib/axios";
-import { Eye, Fullscreen, Printer, Search, View } from "lucide-react";
+import { Eye,  Search } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import BillTemplate from "./BillTemplate";
-import { printBill, printBillFun } from "@/lib/printBillFun";
 
 
 

@@ -9,7 +9,7 @@ export class CreateBillItemDto{
     @ApiProperty({example:"Chain"})
     @IsString()
     @IsNotEmpty()
-    item_name!:string;
+    category_id!:string;
 
     @ApiPropertyOptional({enum: Purity,example:Purity.K22})
     @IsOptional()

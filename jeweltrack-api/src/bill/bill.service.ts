@@ -6,17 +6,22 @@ import { PrismaService } from 'src/common/prisma/prisma.service';
 export class BillService {
     constructor (private prisma:PrismaService){}
 
+  
     async create(dto:CreateBillDto,shopId:string){
-        // existing bill count 
-        const count =await this.prisma.bill.count({
+
+       return await this.prisma.$transaction(async (tx)=>{
+
+               // existing bill count 
+        const count =await tx.bill.count({
             where:{shop_id:shopId}
-        })
+            })
 
 
+            
         const bill_number = `BILL-${String(count+1).padStart(3,'0')}`
         
     
-        const bill = await this.prisma.bill.create({
+        const bill = await tx.bill.create({
             data:{
                 shop_id:shopId,
                 customer_id:dto.customer_id,
@@ -28,7 +33,20 @@ export class BillService {
                 totalGST:dto.totalGST??0,
                 payableAmount:dto.payableAmount,
                 billItem:{
-                    create:dto.billItem
+                    create:dto.billItem.map(item=>({
+                       purity: item.purity,
+                        gross_weight: item.gross_weight,
+                        net_weight: item.net_weight,
+                        stone: item.stone,
+                        metal: item.metal,
+                        wastage: item.wastage,
+                        rate: item.rate,
+                        making_charge: item.making_charge,
+                        amount: item.amount,
+                        category: {
+                            connect: { id: item.category_id }
+                        }
+                                            }))
                 }
             },
             include:{
@@ -37,7 +55,26 @@ export class BillService {
             }
         })
 
-        return bill
+        
+        // ledger out entry 
+         await tx.inventoryStockEntry.createMany({
+            data:dto.billItem.map((out:any)=>({
+                    shop_id : shopId ,
+                    category_id :out.category_id,
+                    type  : "OUT",
+                    weight : out.net_weight,
+                    purity :out.purity,
+                    stockType : "OWN" ,
+                    reference :"BILL" ,
+                    reference_id : bill.id
+            }))
+
+        })
+
+// console.log("bill")
+        return {id:bill.id}
+        })
+
     }
 
 
@@ -46,8 +83,9 @@ export class BillService {
 
         const bill = await this.prisma.bill.findFirst({
             where:{id:billId , shop_id:shopId},
-            include:{billItem:true,customer:true}
+            include:{billItem:{include:{category:{select:{name:true}}}},customer:true}
         })
+    //    console.dir(bill, { depth: null });
         return bill
     }
 

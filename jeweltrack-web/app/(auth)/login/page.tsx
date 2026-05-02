@@ -22,7 +22,8 @@ export default function LoginPage() {
       setToken(res.data.access_token);
       router.push('/dashboard');
     },
-    onError: () => {
+    onError: (e) => {
+      console.log(e)
       setError('Invalid phone number or password');
     }
   });

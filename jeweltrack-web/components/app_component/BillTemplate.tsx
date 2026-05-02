@@ -64,7 +64,7 @@ export default function BillTemplate({ data }: { data: BillData }) {
           {data.billItem.map((item, i) => (
             <tr key={i}>
               <td className="border px-1 text-center">{i + 1}</td>
-              <td className="border px-1">{item.item_name}</td>
+              <td className="border px-1">{item.category?.name}</td>
               <td className="border px-1">{item.metal}</td>
               <td className="border px-1">{item.purity}</td>
               <td className="border px-1">{item.rate}</td>

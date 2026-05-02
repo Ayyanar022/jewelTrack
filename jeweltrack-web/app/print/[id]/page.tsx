@@ -14,6 +14,7 @@ export default function PrintBillPage({ params }: { params: Promise<{ id: string
     queryFn: () => api.get(`/bill/${resolvedParams.id}`).then(r => r.data)
   })
 
+  console.log("data bill",data)
 
 useEffect(() => {
   if (!data) return

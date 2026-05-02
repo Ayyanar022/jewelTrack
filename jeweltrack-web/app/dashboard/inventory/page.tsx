@@ -26,7 +26,7 @@ const defaultEntry =  ():EntryRows =>({
   type:"IN",
   adjustment:false,
   // stockType:"OWN" ,
-  reference : 'MANUAL'
+  reference : 'ADD'
 })
 
 const page = () => {
@@ -85,7 +85,7 @@ const page = () => {
         <TabsContent value="inventory">
           <div className=" inline-flex gap-4    justify-end w-full  p-2">
            
-            <Button onClick={()=>{setOpen(true) ; setEntryForm(p=>({...p,type:'IN' ,reference:"MANUAL"})) ;  setFormHeader("Add Item")  }} 
+            <Button onClick={()=>{setOpen(true) ; setEntryForm(p=>({...p,type:'IN' ,reference:"ADD"})) ;  setFormHeader("Add Item")  }} 
             variant={"outline"} className=""><span>➕</span>Add Stock</Button>
            
             <Button onClick={()=>{setOpen(true) ;
@@ -139,39 +139,44 @@ const page = () => {
         </TabsContent>
 
         <TabsContent value="ledger">
-          <div className="max-w-[900px] mx-auto mt-2">
+          <div className="max-w-[1000px] mx-auto mt-2">
 
                <table className="w-full table-fixed border border-gray-400">
                 <thead>
                   <tr>                  
                   <th className="border border-gray-400 py-1 w-[35px]">#</th>
-                  <th className="border border-gray-400 py-1 ">Date</th>
-                  <th className="border border-gray-400 py-1">Type</th>
-                  <th className="border border-gray-400 py-1 w-1/4">Category</th>
-                  <th className="border border-gray-400 py-1">Purity </th>
-                  <th className="border border-gray-400 py-1">weight</th>
-                  <th className="border border-gray-400 py-1">StockType</th>
-                  <th className="border border-gray-400 py-1">Ref</th>
+                  <th className="border border-gray-400 py-1 w-[100px] ">Date</th>
+                  <th className="border border-gray-400 py-1 w-[80px]">Type</th>
+                  <th className="border border-gray-400 py-1 w-[150px]">Category</th>
+                  <th className="border border-gray-400 py-1 w-[70px] text-center">Purity </th>
+                  <th className="border border-gray-400 py-1 w-[90px]">weight (g)</th>
+                  <th className="border border-gray-400 py-1 w-[120px]">StockType</th>
+                  <th className="border border-gray-400 py-1 w-[130px]">Ref</th>
                   <th className="border border-gray-400 py-1">Ref Id</th>
                 </tr>
                 </thead>
 
                 <tbody>
-                  {
-                    ledger?.map((r,i)=>(
+                  {  !ledger?.map ? (
+                    <tr className="p-6 ">
+                      <td colSpan={9} className="text-center p-6 text-slate-600">No Data</td>
+                    </tr>
+                   ) : (                    
+               
+                    ledger?.map((r:any,i:number)=>(
                     <tr key={i+"his"}>
                        <td className="border border-gray-400 p-1.5 text-center ">{i+1}</td>
                        <td className="border border-gray-400 p-1.5">{new Date(r?.created_at).toLocaleDateString('en-IN')}</td>
                        <td className={`border border-gray-400 p-1.5 text-center ${r?.type ==='IN' ? 'bg-green-200' :'bg-red-200'}`}>{r?.type}</td>
                        <td className="border border-gray-400 p-1.5 text-start">{r?.category?.name}</td>
-                       <td className="border border-gray-400 p-1.5 text-right">{r?.purity}</td>
-                       <td className="border border-gray-400 p-1.5 text-right">{r?.weight} g</td>
+                       <td className="border border-gray-400 p-1.5 text-center">{r?.purity}</td>
+                       <td className="border border-gray-400 p-1.5 text-right px-2">{r?.weight} </td>
                        <td className="border border-gray-400 p-1.5 text-center">{r?.stockType}</td>
                        <td className="border border-gray-400 p-1.5 text-center ">{r?.reference}</td>
                        <td className="border border-gray-400 p-1.5 text-center ">{r.reference_id ? r.reference_id : ''}</td>
                        
                   </tr>
-                    ))
+                    ))   )
 
                   }
               
@@ -230,7 +235,7 @@ const page = () => {
 
             <div className="flex gap-6 w-full">              
                 <Button className="w-1/2" variant={'secondary'}>Add</Button>
-                <Button className="w-1/2" variant={'outline'} onClick={()=>{ useState(defaultEntry());
+                <Button className="w-1/2" variant={'outline'} onClick={()=>{ setEntryForm(defaultEntry());
                    setOpen(false)}}    >clear</Button>
             </div>
                 </form>

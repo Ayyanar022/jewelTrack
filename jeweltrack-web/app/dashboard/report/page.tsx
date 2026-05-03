@@ -1,39 +1,27 @@
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import React from 'react'
 
 const page = () => {
+  // Sales | Bills | Items | Payments | GST | Stock
   return (
     <div>
-        Report 
+       <Tabs>
+        <TabsList>
+          <TabsTrigger className='px-4' value='sales'>Sales</TabsTrigger>
+          <TabsTrigger className='px-4' value='items'>Items</TabsTrigger>
+          <TabsTrigger className='px-4' value='gst'>GST</TabsTrigger>
+          <TabsTrigger className='px-4' value='payments'>Payments</TabsTrigger>
+          <TabsTrigger className='px-4' value='stock'>Stock</TabsTrigger>
+          <TabsTrigger className='px-4' value='bills'>Bills</TabsTrigger>
+        </TabsList>
 
-
-        🔥 MUST HAVE (Phase 1) <br />
-Sales Report <br />
-Date-wise total <br />
-GST / non-GST split <br />
-Bill Report<br />
-List of bills<br />
-Filter: date, customer<br />
-Item-wise Sales<br />
-Which items sold most<br />
-<br />
-<br />
-<hr />
-
-🔥 IMPORTANT (Phase 2) <br />
-Stock Report <br />
-Current inventory<br />
-Old Gold Report<br />
-Total old gold received<br />
-Customer Report<br />
-Total purchase per customer <br />
-
-<br /><br />
-
-Total sales today?  <br />
-GST collected?      <br />
-Which item sold most? <br />
-Customer lifetime value? <br />
-
+          <TabsContent value='sales'></TabsContent>
+          <TabsContent value='items'></TabsContent>
+          <TabsContent value='gst'></TabsContent>
+          <TabsContent value='payments'></TabsContent>
+          <TabsContent value='stock'></TabsContent>
+          <TabsContent value='bills'></TabsContent>
+       </Tabs>
 
       
     </div>

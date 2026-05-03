@@ -110,7 +110,7 @@ const page = () => {
               setFormHeader("Adjustment")}} variant={'outline'}><span>⚙️</span>Adjustment</Button>
           </div>
           <section className="grid grid-cols-7">         
-            <div className="col-span-4">
+            <div className="col-span-5">
 
               <table className="w-full table-fixed border border-gray-400">
                 <thead>
@@ -149,7 +149,7 @@ const page = () => {
 
             </div>
 
-            <div className="col-span-3 bg-blue-200">
+            <div className="col-span-2 bg-blue-200">
 
             </div>
 

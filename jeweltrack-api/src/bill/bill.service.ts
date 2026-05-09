@@ -101,8 +101,23 @@ export class BillService {
 
         const bill = await this.prisma.bill.findFirst({
             where:{id:billId , shop_id:shopId},
-            include:{billItem:{include:{category:{select:{name:true}}}},customer:true ,billPaymentsEntry:true}
+            include:{billItem:{include:{category:{select:{name:true}}}},
+            customer:{select:{
+                id:true,
+                name:true,
+                village:true,
+                address:true,
+                phone:true
+
+            }} ,
+            billPaymentsEntry:{select:{
+                id:true , paid_amount:true , created_at:true
+            }}},
+            
         })
+
+        // console.log(billId)
+        // console.log(bill)
     //    console.dir(bill, { depth: null });
         return bill
     }
@@ -144,6 +159,18 @@ export class BillService {
         })
 
         return bill
+    }
+
+
+    async AddPayment(billId:string , dto:any , shopId:string){
+        // console.log("amount",dto ,shopId , billId)
+        return this.prisma.billPaymentsEntry.create({
+            data:{
+                shop_id:shopId,
+                bill_id:billId,
+               paid_amount: Number(dto.addPayment)
+            }
+        })
     }
 
 

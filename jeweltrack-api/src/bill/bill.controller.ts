@@ -39,7 +39,12 @@ export class BillController {
 
     @Get('bill-detail-payment-entry/:id')
     findBillDetaile(@Param('id') billId:string,@Request() req){
-        return this.billService.findOne(billId , req.user.id)
+        return this.billService.findBillDetaile(billId , req.user.id)
+    }
+
+    @Post('payment/bill-add-entry/:id')
+    postBillPayment(@Param('id') billId:string ,@Body() data , @Request() req){
+        return this.billService.AddPayment(billId,data , req.user.id )
     }
 
     

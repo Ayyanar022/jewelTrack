@@ -114,6 +114,12 @@ export class CreateBillDto{
     @Min(0)
     payableAmount! :number
 
+    @ApiProperty({example:2300})
+    @IsNotEmpty()
+    @IsNumber()
+    @Min(0)
+    paid_amount! :number 
+
     }
 
 

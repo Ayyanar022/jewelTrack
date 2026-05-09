@@ -50,6 +50,7 @@ const NewBillPage = () => {
   const [highlightIndex ,setHighlightIndex] = useState(0); 
   const firstItemRef = useRef<HTMLInputElement>(null)
   const customerRef = useRef<HTMLInputElement>(null);
+  const [paid_amount,setPaidAmount] = useState('')
 
 
 
@@ -213,6 +214,7 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
       totalAmount :total, // before discount 
       totalGST :gstAmount , // after discount 
       payableAmount,   // after discount + gst 
+      paid_amount ,  // actually paid amount
       billItem: items.filter(i=>i.amount>0).map(item => (
         {
         category_id: item.category_id,
@@ -550,8 +552,15 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
 
             <div>              
                <div className="flex justify-between">
-                <span>Payable Amount </span>
+                <span>Payable  amount </span>
                 <span className="text-2xl text-red-600 font-bold"><span className="text-lg">₹ </span>{Math.round(payableAmount).toLocaleString('en-IN')}  </span>
+              </div>
+               <div className="flex justify-between">
+                <span>Paid  amount </span>
+                {/* <span className="text-2xl text-red-600 font-bold"><span className="text-lg">₹ </span>{Math.round(payableAmount).toLocaleString('en-IN')}  </span> */}
+                <input type="number" className="border  tracking-wide  border-blue-400 px-1 text-base w-[110px] outline-none" 
+                value={paid_amount} onChange={(e)=>setPaidAmount(Number(e.target.value)||'')}/>
+                <span className="text-2xl font-bold text-lime-800 "> ₹ {paid_amount.toLocaleString('en-IN')}</span>
               </div>
 
             </div>

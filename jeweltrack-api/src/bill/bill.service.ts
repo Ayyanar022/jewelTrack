@@ -15,11 +15,8 @@ export class BillService {
         const count =await tx.bill.count({
             where:{shop_id:shopId}
             })
-
-
             
-        const bill_number = `BILL-${String(count+1).padStart(3,'0')}`
-        
+        const bill_number = `BILL-${String(count+1).padStart(3,'0')}`        
     
         const bill = await tx.bill.create({
             data:{
@@ -71,6 +68,17 @@ export class BillService {
 
         })
 
+        const paid = 100 ;
+
+        await tx.billPaymentsEntry.create({
+            data: {
+                shop_id : shopId ,
+                bill_id : bill.id,
+                paid_amount :paid ,
+
+            }
+        })
+
 // console.log("bill")
         return {id:bill.id}
         })
@@ -84,6 +92,16 @@ export class BillService {
         const bill = await this.prisma.bill.findFirst({
             where:{id:billId , shop_id:shopId},
             include:{billItem:{include:{category:{select:{name:true}}}},customer:true}
+        })
+    //    console.dir(bill, { depth: null });
+        return bill
+    }
+    
+    async findBillDetaile(billId:string, shopId:string ){
+
+        const bill = await this.prisma.bill.findFirst({
+            where:{id:billId , shop_id:shopId},
+            include:{billItem:{include:{category:{select:{name:true}}}},customer:true ,billPaymentsEntry:true}
         })
     //    console.dir(bill, { depth: null });
         return bill
@@ -127,44 +145,6 @@ export class BillService {
 
         return bill
     }
-
-
-
-// payload 
-
-//     {
-//   "customer_id": "your-customer-id-here",
-//   "is_gst_bill": false,
-//   "discount": 0,
-//   "notes": "paid by cash",
-//   "billItem": [
-//     {
-//       "item_name": "Chain",
-//       "metal": "GOLD",
-//       "purity": "K22",
-//       "rate": 6200,
-//       "weight": 8.5,
-//       "wastage": 0.5,
-//       "making_charge": 500,
-//       "amount": 55800
-//     },
-//     {
-//       "item_name": "Ring",
-//       "metal": "GOLD",
-//       "purity": "K18",
-//       "rate": 5100,
-//       "weight": 3,
-//       "wastage": 0.2,
-//       "making_charge": 200,
-//       "amount": 16420
-//     }
-//   ]
-// }
-
-
-
-
-
 
 
 

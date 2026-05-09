@@ -37,5 +37,12 @@ export class BillController {
         return this.billService.findOne(billId , req.user.id)
     }
 
+    @Get('bill-detail-payment-entry/:id')
+    findBillDetaile(@Param('id') billId:string,@Request() req){
+        return this.billService.findOne(billId , req.user.id)
+    }
+
+    
+
 
 }

@@ -82,6 +82,7 @@ model Shop{
    metalPayment MetalPayment[]
   goldLoan JewelLoan[]
   inventoryStockEntry InventoryStockEntry[]
+   billPaymentsEntry BillPaymentsEntry[]
 }
 
 
@@ -141,9 +142,12 @@ model Bill{
   totalGST Float? @default(0)
   payableAmount Float
   notes  String?
+
   created_at DateTime @default(now())
 
   billItem BillItem[]
+  billPaymentsEntry BillPaymentsEntry[]
+
 
 }
 
@@ -286,3 +290,13 @@ model StockTransaction {
     reference_id String?
     created_at DateTime @default(now())
   }
+
+model BillPaymentsEntry{
+  id String @id @default(uuid())
+  shop_id String 
+  shop Shop @relation(fields:[shop_id] , references:[id])
+  bill_id String
+  bill Bill @relation(fields:[bill_id], references : [id])
+  paid_amount Float 
+  created_at DateTime @default(now())
+}

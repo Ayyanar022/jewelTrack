@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateBillDto } from './dto/craete-bill.dto';
+import { CreateBillDto, OldGoldEntryDto } from './dto/craete-bill.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 
 @Injectable()
@@ -44,7 +44,20 @@ export class BillService {
                             connect: { id: item.category_id }
                         }
                                             }))
-                }
+                },
+                ...(dto.oldJewelItem?.length>0 && {
+                    oldGoldEntry : {
+                        create : dto.oldJewelItem.map(item=>({
+                            shop_id : shopId ,
+                            item_name : item.item_name,
+                            purity :item.purity ,
+                            weight :item.weight ,
+                            rate  :item.rate,
+                            amount :item.amount
+                        }))
+                    }
+                })
+                
             },
             include:{
                 billItem:true,
@@ -52,6 +65,7 @@ export class BillService {
             }
         })
 
+       
         
         // ledger out entry 
          await tx.inventoryStockEntry.createMany({
@@ -68,16 +82,25 @@ export class BillService {
 
         })
 
-        const paid = 100 ;
-
+        // Entry Payment 
         await tx.billPaymentsEntry.create({
             data: {
                 shop_id : shopId ,
                 bill_id : bill.id,
-                paid_amount :paid ,
+                paid_amount :dto.paid_amount ,
 
             }
         })
+
+        // Entry old Stock 
+        // await tx.oldGoldEntry.create({
+        //     data:{
+        //          shop_id : shopId ,
+        //         bill_id : bill.id,
+
+        //     }
+
+        // })
 
 // console.log("bill")
         return {id:bill.id}

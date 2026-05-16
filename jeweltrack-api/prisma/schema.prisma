@@ -79,10 +79,11 @@ model Shop{
   bill Bill[]
   jewelleryCategory JewelleryCategory[]
   stockTransaction StockTransaction[]
-   metalPayment MetalPayment[]
+  metalPayment MetalPayment[]
   goldLoan JewelLoan[]
   inventoryStockEntry InventoryStockEntry[]
-   billPaymentsEntry BillPaymentsEntry[]
+  billPaymentsEntry BillPaymentsEntry[]
+  oldGoldEntry OldGoldEntry[]
 }
 
 
@@ -147,6 +148,7 @@ model Bill{
 
   billItem BillItem[]
   billPaymentsEntry BillPaymentsEntry[]
+  oldGoldEntry OldGoldEntry[]
 
 
 }
@@ -299,4 +301,17 @@ model BillPaymentsEntry{
   bill Bill @relation(fields:[bill_id], references : [id])
   paid_amount Float 
   created_at DateTime @default(now())
+}
+
+model OldGoldEntry{
+    id String @id @default(uuid())
+    shop_id String
+    shop Shop @relation(fields:[shop_id],references:[id])
+    bill_id String
+    bill Bill @relation(fields:[bill_id] , references :[id])
+    item_name String
+    purity String
+    weight Float
+    rate  Float
+    amount Float
 }

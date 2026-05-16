@@ -69,6 +69,37 @@ export class CreateBillItemDto{
 }
 
 
+export class OldGoldEntryDto{
+      @ApiProperty({example:"chain"})
+      @IsString()
+      @IsNotEmpty()
+      item_name! : string
+
+      @ApiProperty({example:"22k"})
+      @IsString()
+      @IsNotEmpty()
+     purity! : string
+
+      @ApiProperty({example:"8.09"})
+      @IsNotEmpty()
+      @IsNumber()
+      @Min(0)
+      weight! : number
+
+    @ApiProperty({example:"14900"})
+    @IsNotEmpty()
+    @IsNumber()
+    @Min(0)
+    rate! : number
+
+    @ApiProperty({example:"34000"})
+    @IsNotEmpty()
+    @IsNumber()
+    @Min(0)
+    amount! : number
+}
+
+
 export class CreateBillDto{
     @ApiProperty({example:"customer-uuid-here"})
     @IsString()
@@ -119,6 +150,14 @@ export class CreateBillDto{
     @IsNumber()
     @Min(0)
     paid_amount! :number 
+
+
+    
+    @ApiProperty({type:[OldGoldEntryDto]})
+    @IsArray()
+    @ValidateNested({each:true})
+    @Type(()=>OldGoldEntryDto)
+    oldJewelItem !:OldGoldEntryDto[];
 
     }
 

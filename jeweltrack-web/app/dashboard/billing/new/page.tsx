@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { useDebounce } from "@/hooks/useDebouce";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BillHistory from "@/components/app_component/BillHistory";
-import { Edit2, MapPin, Phone, Search, User } from "lucide-react";
+import { Edit2, Indent, MapPin, Phone, Plus, Search, User, X } from "lucide-react";
 
 
 
@@ -26,6 +26,14 @@ interface BillItem {
   // category_id:number;
 }
 
+interface OldJewelItem{
+   item_name : string;
+    purity : string;
+    weight :number;
+    rate  : number;
+    amount :number;
+}
+
 const calcAmount = (item:BillItem):number=>{
  return Math.max(Math.round(item.rate * (item.net_weight + item.wastage_weight)+item.making_charge),0)
 }
@@ -40,6 +48,13 @@ const NewBillPage = () => {
 
   const queryclient = useQueryClient();
   const [items,setItems] = useState<BillItem[]>([defaultItem()])
+  const [oldJewelItem,setOldJewelItem] = useState<OldJewelItem[]>([{   
+    item_name: 'GOLD',
+    purity : '',
+    weight :0,
+    rate  : 0,
+    amount :0
+  }])
   const [customerSearch,setCustomerSearch] = useState('');
   const [isGst , setIsGst] = useState(true);
   const [discount,setDiscount] = useState(0);
@@ -51,6 +66,7 @@ const NewBillPage = () => {
   const firstItemRef = useRef<HTMLInputElement>(null)
   const customerRef = useRef<HTMLInputElement>(null);
   const [paid_amount,setPaidAmount] = useState('')
+
 
 
 
@@ -98,6 +114,12 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
         setSuccess(`Bill ${res.data.bill_number} created successfully!`);
 
         setItems([defaultItem(rate?.rate_22k ?? 0)])
+        setOldJewelItem([{    item_name: 'GOLD',
+                        purity : '',
+                        weight :0,
+                        rate  : 0,
+                        amount :0}])
+          setPaidAmount('')
         // addItem()   
         setSelectedCustomer(null);
         setDiscount(0);
@@ -230,6 +252,14 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
         amount: item.amount,
 
       })),
+      oldJewelItem : oldJewelItem?.filter((item)=>item.amount>0 ).map((item)=>({
+              item_name: item.item_name,
+              purity : item.purity,
+              weight :Number(item.weight),
+              rate  : Number(item.rate),
+              amount :Number(item.amount)
+      }))
+
     });
 
       
@@ -268,7 +298,58 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
 
     //-----------------------------------
 
+    const handleOldGoldChange = (i:number,e:any)=>{
+      console.log("hello")
+      const {name , value} = e.target ;
+
     
+
+      console.log(name,value)
+      setOldJewelItem(prev=>{
+        const updated = [...prev]
+        // updated[i][name] = value ;
+        updated[i] = {
+          ...updated[i] , 
+          [name] :value
+        }
+
+        const weight = Number(updated[i].weight ||0)
+        const rate = Number(updated[i].rate ||0)
+
+        updated[i].amount = weight* rate
+
+        return updated
+      })      
+    }
+
+
+    console.log("old",oldJewelItem)
+
+    const handleOldGoldEnter = (i ,e)=>{
+     
+       if (e.key === 'Enter') {
+         e.preventDefault();
+        setOldJewelItem(p=>[
+        ...p,
+        {
+          item_name: 'GOLD',
+          purity : '',
+          weight :0,
+          rate  : 0,
+          amount :0 ,
+
+        }
+      ])
+      }
+    }
+
+    const handleRemove = (i)=>{
+      setOldJewelItem((p)=>p.filter((items,index)=> i!=index  ))
+    }
+
+    const oldGoldTotalAmount = oldJewelItem?.reduce((cum, val)=>cum+ Number(val.amount||0) ,0)
+    console.log("oldGoldAmount",oldGoldTotalAmount)
+    const reminigPayableAmount = (payableAmount ) - (Number(oldGoldTotalAmount) +Number(paid_amount))
   return (   
     
 
@@ -281,8 +362,8 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
 
       <TabsContent value="new">
 
-            <div className=" flex flex-col -mt-7">
-      <div className="flex mb-1 items-center justify-between gap-3 w-full ">
+      <div className=" flex flex-col -mt-7">
+        <div className="flex mb-1 items-center justify-between gap-3 w-full ">
         <div className="">
     
         {
@@ -343,7 +424,7 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
                   customers?.map((c:any,i:any)=>(
               <button    className={`px-3 py-1  text-base cursor-pointer w-full text-start  ${i===highlightIndex ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
                 key={c.id}
-                onClick={()=>{
+                onClick={(e)=>{
                   setSelectedCustomer(c);
                   setCustomerSearch('');
                 }}
@@ -510,7 +591,62 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
         </table>
       </div>
 
-      <div className="w-1/3  bg-gray-50 p-2 px-5 my-2 ml-auto ">
+      <div className=" flex ">
+
+      <section className=" max-w-[600px] mt-3">
+        <table className="w-full table-fixed border border-black border-collapse ">
+          <thead>
+            <tr>               
+              <th className=" w-10 border border-black   p-1">#</th>
+              <th className="border border-black  p-1 w-[120px]">Item name</th>
+              <th className="border border-black  p-1 ">Purity</th>
+              <th className="border border-black  p-1 ">weight</th>
+              <th className="border border-black  p-1 w-[100px]">Rate</th>
+              <th className="border border-black  p-1 w-[140px]">Amount</th>
+              <th className="border border-black  p-1 ">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+        {
+          oldJewelItem?.map((item,i)=>(
+
+              <tr className="" key={i+"old"}>
+                      <td className="border border-black  p-1 text-center">
+                       { i+1}
+                      </td>
+                      <td className="border border-black  p-1  ">
+                        <select   name="item_name" value={item.item_name||"GOLD"} onChange={(e)=>handleOldGoldChange(i,e)} className="w-full p-2 text-lg outline-1 " >
+                          <option value="GOLD">GOLD</option>
+                          <option value="Silver">Silver</option>
+                        </select>
+                      </td>
+                      <td className="border border-black  p-1 ">
+                        <input type="text" value={item.purity} name="purity" onChange={(e)=>handleOldGoldChange(i,e)}  className="w-full outline-1 text-lg h-8 text-center " />
+                      </td>
+                      <td className="border border-black  p-1 ">
+                         <input type="number"  value={item.weight} name="weight" onChange={(e)=>handleOldGoldChange(i,e)}  className="w-full outline-1 text-lg h-8 text-center" />
+                      </td>
+                      <td className="border border-black  p-1 ">
+                         <input type="number"  value={item.rate} name="rate" onChange={(e)=>handleOldGoldChange(i,e)} className="w-full outline-1 text-lg h-8 text-center"  onKeyDown={(e) => handleOldGoldEnter(i,e)}/>
+                      </td>
+                      <td className="border border-black  p-1 ">
+                         <input type="number"  value={item.amount} onChange={(e)=>handleOldGoldChange(i,e)}  readOnly name="amount" className="w-full outline-1 text-lg h-8 text-center" />
+                      </td>
+                      <td className="border border-black  p-1 text-center text-red-500 ">
+                       <button onClick={()=>handleRemove(i)} className="text-center"><X /> </button> 
+                      </td>
+
+                    </tr>
+
+          ))
+        }
+          
+          </tbody>
+        </table>
+
+      </section>
+
+      <section className="w-1/3  bg-gray-50 p-2 px-5 my-2 ml-auto ">
             <div className="flex justify-between ">
               <span className="text-slate-600"> SubTotal</span>
              <span>₹ {Math.round(Number(total)).toLocaleString('en-IN')}  </span>
@@ -550,17 +686,24 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
             
             </div>
 
-            <div>              
+            <div className="space-y-2">              
                <div className="flex justify-between">
-                <span>Payable  amount </span>
-                <span className="text-2xl text-red-600 font-bold"><span className="text-lg">₹ </span>{Math.round(payableAmount).toLocaleString('en-IN')}  </span>
+                <span>Payable amount </span>
+                <span className="text-2xl text-red-600 font-bold"><span className="text-lg">₹ </span>{Math.round(Number(payableAmount))?.toLocaleString('en-IN')}  </span>
               </div>
                <div className="flex justify-between">
-                <span>Paid  amount </span>
-                {/* <span className="text-2xl text-red-600 font-bold"><span className="text-lg">₹ </span>{Math.round(payableAmount).toLocaleString('en-IN')}  </span> */}
+                <span>Old Jewel Amount</span>
+                <span className="text-2xl text-green-600 font-bold"><span className="text-lg">₹ </span>{Math.round(oldGoldTotalAmount).toLocaleString('en-IN')}  </span>
+              </div>
+               <div className="flex justify-between">
+                <span>Paid amount </span>
                 <input type="number" className="border  tracking-wide  border-blue-400 px-1 text-base w-[110px] outline-none" 
                 value={paid_amount} onChange={(e)=>setPaidAmount(Number(e.target.value)||'')}/>
-                <span className="text-2xl font-bold text-lime-800 "> ₹ {paid_amount.toLocaleString('en-IN')}</span>
+                <span className="text-2xl font-bold text-lime-800 "> ₹ {paid_amount.toLocaleString('en-IN') }</span>
+              </div>
+               <div className="flex justify-between">
+                <span>Remining Payable amount </span>
+                <span className="text-2xl text-red-600 font-bold"><span className="text-lg">₹ </span>{Math.round(Number(reminigPayableAmount))?.toLocaleString('en-IN')}  </span>
               </div>
 
             </div>
@@ -569,6 +712,8 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
                 Print Bill
               </button>
             </div>
+      </section>
+
       </div>
   
     </div>

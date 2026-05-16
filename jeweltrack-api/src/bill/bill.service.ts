@@ -135,7 +135,17 @@ export class BillService {
             }} ,
             billPaymentsEntry:{select:{
                 id:true , paid_amount:true , created_at:true
-            }}},
+            }},
+            oldGoldEntry:{select:{
+                id:true,
+                amount:true ,
+                item_name:true ,
+                purity:true,
+                rate:true ,
+                 weight:true
+            }}
+        },
+
             
         })
 

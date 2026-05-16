@@ -31,6 +31,7 @@ const BillDetailPage = ({ params }: { params: Promise<{ id: string }> }) => {
         if(addPAyment>balanceAmount ) return alert('enter Correct Amount')
          await api.post(`/bill/payment/bill-add-entry/${resolvedParams.id}`, {"addPayment" :addPAyment})
         queryClient.invalidateQueries({queryKey:["bill-detail-payment-entry"]}) 
+        setAddPayment('')
         setOpen(false)
       }catch(e){
         console.log(e)
@@ -57,7 +58,7 @@ const BillDetailPage = ({ params }: { params: Promise<{ id: string }> }) => {
           <p className='flex  items-center  gap-2'><span><CalendarDays size={16}/></span>{new Date(billDetail?.created_at).toLocaleDateString('en-IN')}  </p>
 
         <Dialog open={opne} onOpenChange={setOpen}>
-          <DialogTrigger>
+          <DialogTrigger asChild >
           <Button variant='secondary' className='mt-4 border border-black shadow-md text-green-800 font-bold cursor-pointer'> Add Payment</Button>
           </DialogTrigger>
 
@@ -122,10 +123,11 @@ const BillDetailPage = ({ params }: { params: Promise<{ id: string }> }) => {
 
           </table>
 
-          <div className='flex gap-8 mt-4'>
-            <section className='flex-1'>
-
-              <table className='w-full table-fixed max-w-3/5'>
+          <div className='grid grid-cols-10  mt-4 gap-10'>
+         
+            <section className='col-span-3'>
+              <h3 className='font-bold '>Payments Paid</h3>
+              <table className='w-full table-fixed '>
                 <thead>
                   <tr>
                   <td className='w-[60px] border border-black text-center p-1'>#</td>
@@ -139,38 +141,70 @@ const BillDetailPage = ({ params }: { params: Promise<{ id: string }> }) => {
                       billDetail?.billPaymentsEntry?.map((p:any,i:number)=>(
                         <tr key={p?.id}>
                           <td className='border border-black text-center p-0.5'>{i+1}</td>
-                          <td className='border border-black text-center p-0.5'>{p.paid_amount}</td>
+                          <td className='border border-black text-center p-0.5'>{Number(p.paid_amount).toLocaleString('en-IN')}</td>
                           <td className='border border-black text-center p-0.5'>{new Date(p.created_at).toLocaleDateString('en-IN')}</td>
                         </tr>
                       ))
                     }
                   </tbody>
               </table>
-
-
             </section>
-            <section className='w-[1/4]'>
+           
+            <section className='col-span-4'>
+               <h3 className='font-bold '>Old Jewel Item</h3>
+              <table className='w-full table-fixed '>
+                <thead>
+                  <tr>
+                  <td className='w-[30px] border border-black text-center p-1 '>#</td>
+                  <td className=' border border-black text-center p-1'>Jewel</td>
+                  <td className='w-[60px] border border-black text-center p-1'>Purity </td>
+                  <td className='w-[80px] border border-black text-center p-1'>Weight </td>
+                  <td className=' border border-black text-center p-1'>Rate </td>
+                  <td className=' border border-black text-center p-1'>Amount </td>
+                  </tr>
+                  </thead>
+
+
+                  <tbody>
+                    {
+                      billDetail?.oldGoldEntry?.map((p:any,i:number)=>(
+                        <tr key={p?.id}>
+                          <td className='border border-black text-center p-0.5'>{i+1}</td>
+                          <td className='border border-black text-center p-0.5'>{p.item_name}</td>
+                          <td className='border border-black text-center p-0.5'>{p.purity}</td>
+                          <td className='border border-black text-center p-0.5'>{p.weight}</td>
+                          <td className='border border-black text-center p-0.5'>{Number(p.rate).toLocaleString('en-IN')}</td>
+                          <td className='border border-black text-center p-0.5'>{Number(p.amount).toLocaleString('en-IN')}</td>
+                        </tr>
+                      ))
+                    }
+                  </tbody>
+              </table>
+            </section>
+
+
+            <section className='col-span-3 '>
             <table className=''>
               <tbody className='border border-black p-1 px-5'>
                 <tr className='border border-black p-1 px-5'>
                   <td className='border border-black p-1 px-5'>Total amount</td>
-                  <td className='border border-black p-1 px-5'>{billDetail?.total_amount}</td>
+                  <td className='border border-black p-1 px-5'>{Number(billDetail?.total_amount).toLocaleString('en-IN')}</td>
                 </tr>
                 <tr className='border border-black p-1 px-5'>
                   <td className='border border-black p-1 px-5'>Gst</td>
-                  <td className='border border-black p-1 px-5'>{billDetail?.totalGST}</td>
+                  <td className='border border-black p-1 px-5'>{Number(billDetail?.totalGST).toLocaleString('en-IN')}</td>
                 </tr>
                 <tr className='border border-black p-1 px-5'>
                   <td className='border border-black p-1 px-5'>Payable Amount</td>
-                  <td className='border border-black p-1 px-5 text-gold font-bold tracking-wide text-lg '>{billDetail?.payableAmount}</td>
+                  <td className='border border-black p-1 px-5 text-gold font-bold tracking-wide text-lg '>{Number(billDetail?.payableAmount).toLocaleString('en-IN')}</td>
                 </tr>
                 <tr className='border border-black p-1 px-5'>
                   <td className='border border-black p-1 px-5'>Total Paid Amount</td>
-                  <td className='border border-black p-1 px-5 text-green-700 font-bold tracking-wide text-lg'>{totalPaidAmount}</td>
+                  <td className='border border-black p-1 px-5 text-green-700 font-bold tracking-wide text-lg'>{Number(totalPaidAmount).toLocaleString('en-IN')}</td>
                 </tr>
                 <tr className='border border-black p-1 px-5 bg-red-50 '>
                   <td className='border border-black p-1 px-5'>Balance Amount</td>
-                  <td className='border border-black p-1 px-5 text-red-500 font-bold tracking-wide text-lg '>{balanceAmount}</td>
+                  <td className='border border-black p-1 px-5 text-red-500 font-bold tracking-wide text-lg '>{Number(balanceAmount).toLocaleString('en-IN')}</td>
                 </tr>
               
               </tbody>

@@ -8,9 +8,10 @@ import { CustomerModule } from './customer/customer.module';
 import { BillModule } from './bill/bill.module';
 import { JewelleryCategoryModule } from './jewellery-category/jewellery-category.module';
 import { InventoryModule } from './inventory/inventory.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
-  imports: [AuthModule,PrismaModule, RateModule, CustomerModule, BillModule, JewelleryCategoryModule, InventoryModule],
+  imports: [AuthModule,PrismaModule, RateModule, CustomerModule, BillModule, JewelleryCategoryModule, InventoryModule, ReportsModule],
   controllers: [AppController],
   providers: [AppService],
 

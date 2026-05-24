@@ -1,3 +1,4 @@
+import SalesReport from '@/components/app_component/reports/SalesReport'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import React from 'react'
 
@@ -5,7 +6,7 @@ const page = () => {
   // Sales | Bills | Items | Payments | GST | Stock
   return (
     <div>
-       <Tabs>
+       <Tabs className='' defaultValue='sales'>
         <TabsList>
           <TabsTrigger className='px-4' value='sales'>Sales</TabsTrigger>
           <TabsTrigger className='px-4' value='items'>Items</TabsTrigger>
@@ -15,7 +16,9 @@ const page = () => {
           <TabsTrigger className='px-4' value='bills'>Bills</TabsTrigger>
         </TabsList>
 
-          <TabsContent value='sales'></TabsContent>
+          <TabsContent value='sales'>
+            <SalesReport />
+          </TabsContent>
           <TabsContent value='items'></TabsContent>
           <TabsContent value='gst'></TabsContent>
           <TabsContent value='payments'></TabsContent>

@@ -7,6 +7,7 @@ export class ReportsService {
 
      async saleStats(shopId:string){
 
+        // stats 
         const [
             totalSalesAmount,
             totalGramSaleGoldAndSilver ,
@@ -67,6 +68,14 @@ export class ReportsService {
             })
 
         ])
+
+        // for table
+        const tableData = await this.prisma.bill.groupBy({
+            by:['created_at'],
+            _count:{id:true},
+            _sum :{payableAmount:true},
+            // _sum: {totalGST:true} ,
+        })
 
         return {
             totalSalesAmount,

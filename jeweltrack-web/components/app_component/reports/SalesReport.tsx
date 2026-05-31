@@ -12,27 +12,6 @@ const SalesReport = () => {
     queryKey:['billState'],
     queryFn:()=>api.get(`/reports/sale-stats`).then(r=>r.data)
   })
-  console.log("billStats",billStats)
-  // con
-
-//   totalBillCount
-// : 
-// 19
-// totalGSTAmount
-// : 
-// {_sum: {…}}
-// totalGramSaleGoldAndSilver
-// : 
-// (2) [{…}, {…}]
-// totalGstBillCount
-// : 
-// 19
-// totalNonGstBillCount
-// : 
-// 0
-// totalSalesAmount
-// : 
-// {_sum: {…}}
 
   const billStatsData = [
     {title:'Bill Count',data:billStats?.totalBillCount ||0 },

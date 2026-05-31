@@ -25,10 +25,10 @@ const navItems = [
   { label: 'Estimate Bill', href: '/dashboard/billing/estimate', icon: '🧾' },
   { label: 'New Bill', href: '/dashboard/billing/new', icon: '➕' },
   { label: 'Customers', href: '/dashboard/customers', icon: '👥' },
-  { label: 'Category', href: '/dashboard/categories', icon: '🗂️' },
+  { label: 'Category', href: '/dashboard/categories', icon: '💍' },
   { label: 'Inventory', href: '/dashboard/inventory', icon: '📦' },
   { label: 'Report', href: '/dashboard/report', icon: '📊' },
-  { label: 'Loans', href: '/dashboard/loan', icon: '💍' },
+  // { label: 'Loans', href: '/dashboard/loan', icon: '💍' },
 ];
 
 export default function DashboardLayout({children} : {children:React.ReactNode}){

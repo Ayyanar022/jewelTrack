@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import api from "@/lib/axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { Eye, PenIcon, View } from "lucide-react";
 import { useState } from "react";
 
 
@@ -19,6 +20,7 @@ export default function CustomersPage(){
   const [search, setSearch] = useState('');
   const [showForm ,setShowForm] = useState(false);
   const [error, setError] = useState('')
+  const [editUser , setEditUser] = useState('')
 
   const {data:customer} = useQuery({
       queryKey:['customers',search],
@@ -28,25 +30,66 @@ export default function CustomersPage(){
         gcTime: 5 * 60 * 1000, 
   });
 
+  // create user 
   const {mutate , isPending} = useMutation({
     mutationFn : (data:any) =>api.post('/customer',data),
     onSuccess:()=>{
       queryClient.invalidateQueries({queryKey:['customers']});
-      setForm({ name: '', phone: '', village: '', address: '' });
+      setForm({ name: '', phone: '', village: '', address: '', });
       setShowForm(false);
     },
     onError:(e:any)=>{
-      setError(e?.response?.data?.message || 'Somthing went wrong')
+      setError(e?.response?.data?.message || 'Something went wrong')
     }
 
   });
 
+  // update user 
+  const {mutate :updateUserMutate , isPending:UpdateUserLoading} = useMutation({
+    mutationFn : ({id ,data}:any)=>api.put(`/customer/${id}`,data),
+    onSuccess:()=>{
+      queryClient.invalidateQueries({queryKey:['customers']})
+       setForm({ name: '', phone: '', village: '', address: '', });
+        setShowForm(false);
+        setEditUser('')
+    },
+    onError:(e:any)=>{
+      setError(e?.response?.data?.message || 'Something went wrong'  )
+    }
+  })
+
+  console.log("editUser",editUser)
+
   const handleSubmit = (e :React.FormEvent)=>{
     e.preventDefault();
     setError('');
-    mutate(form);
+    if(editUser ===''){
+      mutate(form);
+    }else{
+      updateUserMutate({id:editUser , data:form})
+    }
+    setEditUser('')
   }
 
+
+
+  // edit User 
+  const handleEdit = (id:string)=>{
+    const user = customer?.find((f:any)=>f.id ===id)
+    console.log("user",user)
+    if(user){
+      setForm(user)
+      setShowForm(true)
+      setEditUser(id)
+    }
+
+  }
+
+  const resetForm = ()=>{
+    setShowForm(false) 
+    setEditUser('');
+    setForm({ name: '', phone: '', village: '', address: '', });
+  }
   
 
 
@@ -103,7 +146,7 @@ return (
                 {isPending ? "Saving...": "Save customer"}
               </Button>
 
-              <Button type="button" variant='outline' onClick={()=>setShowForm(false)} >
+              <Button type="button" variant='outline' onClick={resetForm} >
                 Cancel
               </Button>
             </div>          
@@ -142,6 +185,7 @@ return (
                 <th className="text-left px-5 py-3 text-xs text-muted-foreground font-medium">Phone</th>
                 <th className="text-left px-5 py-3 text-xs text-muted-foreground font-medium">Village</th>
                 <th className="text-left px-5 py-3 text-xs text-muted-foreground font-medium">Address</th>
+                <th className=" px-5 py-3 text-xs text-muted-foreground font-medium">Address</th>
               </tr>
             </thead>
             <tbody>
@@ -151,6 +195,10 @@ return (
                   <td className="px-5 py-3 text-muted-foreground">{c.phone}</td>
                   <td className="px-5 py-3 text-muted-foreground">{c.village}</td>
                   <td className="px-5 py-3 text-muted-foreground">{c.address || '—'}</td>
+                  <td className="px-5 py-3 text-muted-foreground flex justify-around">
+                    <button onClick={()=>handleEdit(c.id)}><PenIcon size={16}/></button>
+                    <button>  <Eye size={16}/></button>
+                  </td>
                 </tr>
               ))}
             </tbody>

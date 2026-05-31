@@ -11,9 +11,12 @@ export class ReportsController {
 
     constructor(private reportService :ReportsService){}
 
+    // bill report
     @Get('/sale-stats')
     saleStats(@Request() req:any){
         return this.reportService.saleStats(req.user.id)
     }
+
+    // @Get()
 
 }

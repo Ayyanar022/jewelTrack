@@ -1,7 +1,8 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import api from "@/lib/axios"
 import { useQuery } from "@tanstack/react-query"
-import { Eye } from "lucide-react"
+import { Eye, PrinterXIcon } from "lucide-react"
+import Link from "next/link"
 
 const Purchase = ({id}:{id:string}) => {
 
@@ -38,8 +39,18 @@ const Purchase = ({id}:{id:string}) => {
                     <TableCell className="text-right px-4">{(bill.total_amount).toLocaleString()}</TableCell>                  
                     <TableCell  className={`text-right px-3 ${bill.is_gst_bill ? 'bg-green-200' : ''} `}>{bill.is_gst_bill ? (bill.totalGST).toLocaleString() :""}</TableCell>                  
                     <TableCell className="text-right px-5 font-semibold">{(bill.payableAmount).toLocaleString()}</TableCell>                  
-                    <TableCell className=" flex justify-center">
-                        <Eye size={15}/>
+                    <TableCell className=" flex justify-around">
+                    <Link href={`/dashboard/billing/${bill.id}`}>
+                        <Eye size={15}/>                         
+                    </Link>
+
+                    <button
+                    onClick={()=>  window.open(`/print/${bill.id}`, '_blank')}
+                    className="p-1.5 cursor-pointer rounded hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition-colors"
+                    title="View bill"
+                >
+                    <PrinterXIcon size={16} strokeWidth={1.5} />
+                </button>   
                     </TableCell>                  
 
                 </TableRow>

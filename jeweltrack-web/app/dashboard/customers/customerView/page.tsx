@@ -20,7 +20,7 @@ const CustomerView = () => {
           </TabsList>
 
           <TabsContent  value="stats">
-           <CustomerStats />
+           <CustomerStats id={id}/>
           </TabsContent>
 
           <TabsContent  value="purchase">

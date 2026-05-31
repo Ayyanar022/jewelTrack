@@ -38,4 +38,9 @@ export class CustomerController {
         return this.customerService.purchaseBills(customerId,req.user.id )
     }
 
+    @Get('stats/:id')
+    stats(@Request() req:any , @Param('id') customerId:string){
+        return this.customerService.stats(customerId , req.user.id)
+    }
+
 }

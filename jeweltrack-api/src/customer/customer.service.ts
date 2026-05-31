@@ -57,4 +57,34 @@ export class CustomerService {
             where:{customer_id:cusId , shop_id:shopId},           
         })
     }
+
+
+    async stats(cusId:string , shopId:string){
+
+        const [billStats , billItemStats] = await Promise.all([
+         this.prisma.bill.aggregate({
+            where :{customer_id:cusId , shop_id:shopId},
+            _count:{id:true},
+            _sum:{payableAmount:true}
+        }) ,
+
+          this.prisma.billItem.groupBy({
+            by:['metal' , 'purity'],
+            where :{
+                 bill:{
+                    customer_id:cusId , shop_id:shopId
+                    }
+        },
+        _sum:{gross_weight:true , net_weight:true , amount:true}
+           
+        }) 
+
+        ])
+
+        return {billStats , billItemStats}
+  
+    }
+
+
+
 }

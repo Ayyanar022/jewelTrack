@@ -11,7 +11,7 @@ const Purchase = ({id}:{id:string}) => {
         queryFn:async()=> api.get(`/customer/purchase/${id}`).then(r=>r.data)
     })
 
-    console.log("bill ", bill)
+    // console.log("bill ", bill)
 
   return (
     <div>

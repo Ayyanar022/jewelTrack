@@ -95,6 +95,7 @@ const NewBillPage = () => {
 
 
 const debouncedSearch = useDebounce(customerSearch.trim() , 300)
+
   const {data:customers} = useQuery({
     queryKey:['customer',debouncedSearch],
     queryFn:()=>debouncedSearch.length>1
@@ -111,6 +112,8 @@ const debouncedSearch = useDebounce(customerSearch.trim() , 300)
 
         queryclient.invalidateQueries({queryKey:['bills']});
         queryclient.invalidateQueries({queryKey:['inventory_ledger']});
+        queryclient.invalidateQueries({queryKey:['customer-stats',]})
+        queryclient.invalidateQueries({queryKey:['CustomerBill',]})
         setSuccess(`Bill ${res.data.bill_number} created successfully!`);
 
         setItems([defaultItem(rate?.rate_22k ?? 0)])

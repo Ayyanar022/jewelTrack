@@ -33,4 +33,9 @@ export class CustomerController {
         return this.customerService.fetchAll(req.user.id)
     }
 
+    @Get('purchase/:id')
+    purchaseBills(@Request() req:any , @Param('id') customerId:string ){
+        return this.customerService.purchaseBills(customerId,req.user.id )
+    }
+
 }

@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import api from "@/lib/axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Eye, PenIcon, View } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 
@@ -14,6 +15,8 @@ import { useState } from "react";
 
 
 export default function CustomersPage(){
+
+  const router = useRouter()
 
   const queryClient = useQueryClient();
   const [ form ,setForm] = useState({ name: '', phone: '', village: '', address: '' })
@@ -58,7 +61,6 @@ export default function CustomersPage(){
     }
   })
 
-  console.log("editUser",editUser)
 
   const handleSubmit = (e :React.FormEvent)=>{
     e.preventDefault();
@@ -76,7 +78,6 @@ export default function CustomersPage(){
   // edit User 
   const handleEdit = (id:string)=>{
     const user = customer?.find((f:any)=>f.id ===id)
-    console.log("user",user)
     if(user){
       setForm(user)
       setShowForm(true)
@@ -197,7 +198,7 @@ return (
                   <td className="px-5 py-3 text-muted-foreground">{c.address || '—'}</td>
                   <td className="px-5 py-3 text-muted-foreground flex justify-around">
                     <button onClick={()=>handleEdit(c.id)}><PenIcon size={16}/></button>
-                    <button>  <Eye size={16}/></button>
+                    <button onClick={()=> router.push(`/dashboard/customers/customerView?id=${c.id}`)}  >  <Eye size={16}/></button>
                   </td>
                 </tr>
               ))}

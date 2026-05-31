@@ -50,4 +50,11 @@ export class CustomerService {
         const customers = await this.prisma.customer.findMany({where:{shop_id:shopId }});
         return customers
     }
+
+    async purchaseBills(cusId:string, shopId:string){
+        
+        return await this.prisma.bill.findMany({
+            where:{customer_id:cusId , shop_id:shopId},           
+        })
+    }
 }

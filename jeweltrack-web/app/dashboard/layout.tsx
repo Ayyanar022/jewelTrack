@@ -1,5 +1,6 @@
 'use client';
 
+import { getPageTitle } from "@/helper/getPageTitle ";
 import { useAuthStore } from "@/store/authStore";
 import Link from "next/link";
 import { usePathname ,useRouter } from "next/navigation";
@@ -101,7 +102,8 @@ return(
           <div className="flex-1 flex flex-col min-2-0">
             {/* Topbar */}
             <header className="bg-white border-b border-gold h-14 flex items-center justify-between px-6 flex-shrink-0">
-                <h1 className="text-sm font-medium text-foreground capitalize">{pathname.split('/').pop() || 'Dashboard'}</h1>
+                {/* <h1 className="text-sm font-medium text-foreground capitalize">{pathname.split('/').pop() || 'Dashboard'}</h1> */}
+                <h1 className="text-sm font-medium text-foreground capitalize">{getPageTitle(pathname)}</h1>
             <div className="bg-gold-light text-gold-dark text-sm  px-4 py-1.5 rounded-full border border-gold/20 font-bold">
                  22K - ₹6,200 · 18K - ₹5,100
             </div>

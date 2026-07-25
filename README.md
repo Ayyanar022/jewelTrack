@@ -3,6 +3,8 @@
 2. npx prisma generate - to gerate prisma client
 3. npx shadcn@latest add button card dialog - shadcn
 
+login = 8248834603, shop00
+
 # JewelTrack
 
 A SaaS application for individual jewellery shop owners in India to manage billing, stock distribution, and gold loans.

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
 import { ReportsService } from './reports.service';
@@ -13,8 +13,8 @@ export class ReportsController {
 
     // bill report
     @Get('/sale-stats')
-    saleStats(@Request() req:any){
-        return this.reportService.saleStats(req.user.id)
+    saleStats(@Query('from') fromDate:string , @Query('to')toDate:string, @Request() req:any){
+        return this.reportService.saleStats( fromDate,toDate,req.user.id)
     }
 
     // @Get()

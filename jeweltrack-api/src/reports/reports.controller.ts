@@ -22,4 +22,9 @@ export class ReportsController {
         return this.reportService.gstReport( fromDate,toDate,req.user.id)
     }
 
+    @Get('item-wise-sales-report')
+      itemWisesalesReport(@Query('from') fromDate:string , @Query('to')toDate:string, @Request() req:any){
+        return this.reportService.itemWisesalesReport( fromDate,toDate,req.user.id)
+    }
+
 }

@@ -132,7 +132,7 @@ const [toDate, setToDate] = useState("");
       </section>
 
         {/* Table data */}
-      <section className="bg-white rounded-xl border border-slate-200 max-w-[700px]  shadow-sm overflow-hidden">
+      <section className="bg-white rounded-xl border border-slate-200  shadow-sm overflow-hidden">
 
         <div className="px-6 py-4 border-b border-slate-200">
           <h2 className="text-lg font-semibold text-slate-800">

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Purity } from '@prisma/client';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 
 @Injectable()
@@ -217,5 +218,102 @@ export class ReportsService {
         }
 
      }
+
+
+    async itemWisesalesReport(fromDate:string , toDate:string ,shopId:string ){
+
+        let from: Date;
+        let to: Date;
+
+        const today = new Date();
+
+        if (!fromDate && !toDate) {
+        // Default: previous month + current month
+        from = new Date(today.getFullYear(), today.getMonth() - 3, 1);
+        to = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        to.setHours(23, 59, 59, 999);
+
+        } else if (fromDate && !toDate) {
+        // From selected date until today
+        from = new Date(fromDate);
+        to = today;
+
+        } else if (!fromDate && toDate) {
+        // Everything up to the selected date
+        // Choose a sensible earliest date for your business
+        from = new Date("2000-01-01");
+        to = new Date(toDate);
+        to.setHours(23, 59, 59, 999);
+
+        } else {
+        // Both dates selected
+        from = new Date(fromDate);
+        to = new Date(toDate);
+        to.setHours(23, 59, 59, 999);
+        }
+
+        const where = {shop_id:shopId ,  created_at :{gte:from ,lte:to}}
+
+        // stats 
+        const [
+            totalGoldAndSilverSale_gm,
+            totalGoldPurityWiseSale_gm,
+            tableData,
+        ] = await Promise.all([
+            // 1. total sales amount
+            this.prisma.billItem.groupBy({
+                by:['metal'],
+                where:{
+                    bill:{
+                        ...where
+                    }
+                },
+                _sum:{
+                    net_weight:true ,gross_weight:true
+                }
+            }),
+
+            // 2. total gram Sale gold and silver 
+            this.prisma.billItem.groupBy({
+                by:['metal','purity'],
+                 where:{
+                    bill:{...where}
+                 },                
+                _sum:{
+                    net_weight:true,
+                    gross_weight:true
+                }
+                
+            }),
+
+              this.prisma.$queryRaw`
+                select 
+                    c.name,
+                    bi.purity,
+                    SUM(bi.net_weight) AS total_net_weight,
+                    SUM(bi.gross_weight) AS total_gross_weight,
+                    SUM(bi.amount) AS total_amount
+                    from "BillItem" bi 
+                    join "JewelleryCategory" c on c.id = bi.category_id
+                    join "Bill" b on b.id = bi.bill_id
+                    where b.shop_id=${shopId} and b.created_at between ${from} and ${to}
+                    group by c.name , bi.purity       
+            `
+        ])
+
+     
+
+
+        return {
+             totalGoldAndSilverSale_gm,
+            totalGoldPurityWiseSale_gm,
+            tableData
+
+        }
+
+     }
+
+
+
 
 }

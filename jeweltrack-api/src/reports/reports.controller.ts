@@ -27,4 +27,9 @@ export class ReportsController {
         return this.reportService.itemWisesalesReport( fromDate,toDate,req.user.id)
     }
 
+    @Get('pending-payments-report')
+      pendingPayments(@Query('from') fromDate:string , @Query('to')toDate:string, @Request() req:any){
+        return this.reportService.pendingPayments( fromDate,toDate,req.user.id)
+    }
+
 }

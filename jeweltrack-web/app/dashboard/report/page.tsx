@@ -1,5 +1,6 @@
 import GstReport from '@/components/app_component/reports/GstRport'
 import ItemWiseSales from '@/components/app_component/reports/ItemWiseSales'
+import PendingPayments from '@/components/app_component/reports/PendingPayments'
 import SalesReport from '@/components/app_component/reports/SalesReport'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import React from 'react'
@@ -13,7 +14,7 @@ const page = () => {
           <TabsTrigger className='px-4' value='sales'>Sales</TabsTrigger>
           <TabsTrigger className='px-4' value='items-wise-sales'>Items wise Sales</TabsTrigger>
           <TabsTrigger className='px-4' value='gst'>GST</TabsTrigger>
-          <TabsTrigger className='px-4' value='payments'>Payments</TabsTrigger>
+          <TabsTrigger className='px-4' value='payments'>Pending Payments</TabsTrigger>
           <TabsTrigger className='px-4' value='stock'>Stock</TabsTrigger>
           <TabsTrigger className='px-4' value='bills'>Bills</TabsTrigger>
         </TabsList>
@@ -27,7 +28,9 @@ const page = () => {
           <TabsContent value='gst'>
             <GstReport />
           </TabsContent>
-          <TabsContent value='payments'></TabsContent>
+          <TabsContent value='payments'>
+            <PendingPayments />
+          </TabsContent>
           <TabsContent value='stock'></TabsContent>
           <TabsContent value='bills'></TabsContent>
        </Tabs>

@@ -7,8 +7,7 @@ import { useQuery } from "@tanstack/react-query"
 
 
 
-const ItemWiseSales = () => {
-
+const PendingPayments = () => {
 
 
 const ROWS_PER_PAGE = 5;
@@ -18,14 +17,21 @@ const [page, setPage] = useState(1);
 const [fromDate, setFromDate] = useState("");
 const [toDate, setToDate] = useState("");
 
-  const {data:itemWiseSaleReport } = useQuery({
-    queryKey:['item-wise-sales-report',fromDate,toDate],
-    queryFn:()=>api.get(`/reports/item-wise-sales-report?from=${fromDate}&to=${toDate}`).then(r=>r.data)
+  const {data: pendingPAyments } = useQuery({
+    queryKey:['pending-payments',fromDate,toDate],
+    queryFn:()=>api.get(`/reports/pending-payments-report?from=${fromDate}&to=${toDate}`).then(r=>r.data)
   })
 
+    const gstCards  = [
+     
+      {title:'Total Pending Amount',data:pendingPAyments?.cardData.totalPendingAmount ||0  , },
+      {title:'Pending Bill Count',data:pendingPAyments?.cardData.pendingBills||0  , },
+      {title:'Customer With Pending',data:pendingPAyments?.cardData.customersWithPending ||0  , },
+    ]
 
-  const totalPages = Math.ceil( (itemWiseSaleReport?.tableData?.length ?? 0) / ROWS_PER_PAGE );
-  const paginatedData = itemWiseSaleReport?.tableData.slice(
+
+  const totalPages = Math.ceil( (pendingPAyments?.tableData?.length ?? 0) / ROWS_PER_PAGE );
+  const paginatedData = pendingPAyments?.tableData.slice(
     (page - 1) * ROWS_PER_PAGE,
     page * ROWS_PER_PAGE
   );
@@ -35,11 +41,11 @@ const [toDate, setToDate] = useState("");
       setPage(1);
     }, [fromDate, toDate]);
 
-    // console.log("gst report",itemWiseSaleReport)
+    // console.log("gst report",pendingPAyments)
 
 
 
-    console.log(itemWiseSaleReport)
+    console.log(pendingPAyments)
 
 
   return (
@@ -94,96 +100,35 @@ const [toDate, setToDate] = useState("");
         
 
         {/* Stats */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5 my-5">
+       <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-5 gap-x-8 my-5">
+ 
 
-        {/* Gold / Silver */}
-        {itemWiseSaleReport?.totalGoldAndSilverSale_gm?.map((item: any, i: number) => (
-            <div
-            key={`metal-${i}`}
-            className={`rounded-xl border shadow-sm hover:shadow-lg transition-all duration-200 p-5
-            ${
-                item.metal === "GOLD"
-                ? "bg-gradient-to-br from-yellow-50 to-amber-100 border-yellow-200"
-                : "bg-gradient-to-br from-slate-50 to-slate-100 border-slate-300"
-            }`}
-            >
-            <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-slate-800">
-                {item.metal}
-                </h2>
+        {gstCards?.map((item:any, i:number) => (
+          <div
+            key={i}
+            className="bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 p-5"
+          >
+            <h2 className="text-2xl font-bold text-slate-900">
+              {item.data} 
+            </h2>
 
-                <span className="text-xs bg-white px-2 py-1 rounded-full font-semibold text-slate-600">
-                Overall
-                </span>
-            </div>
-
-            <div className="mt-6 space-y-3">
-
-                <div className="flex justify-between">
-                <span className="text-slate-500">Gross Weight</span>
-                <span className="font-bold text-slate-800">
-                    {item._sum.gross_weight} gm
-                </span>
-                </div>
-
-                <div className="flex justify-between">
-                <span className="text-slate-500">Net Weight</span>
-                <span className="font-bold text-blue-700">
-                    {item._sum.net_weight} gm
-                </span>
-                </div>
-
-            </div>
-            </div>
+            <p className="mt-2 text-sm text-slate-500 font-medium">
+              {item.title}
+            </p>
+          </div>
         ))}
 
-        {/* Purity */}
-        {itemWiseSaleReport?.totalGoldPurityWiseSale_gm?.map((item: any, i: number) => (
-            <div
-            key={`purity-${i}`}
-            className="rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-white shadow-sm hover:shadow-lg transition-all duration-200 p-5"
-            >
-            <div className="flex items-center justify-between">
+        
+    
 
-                <h2 className="text-lg font-bold text-slate-800">
-                {item.metal}
-                </h2>
-
-                <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-semibold">
-                {item.purity}
-                </span>
-
-            </div>
-
-            <div className="mt-6 space-y-3">
-
-                <div className="flex justify-between">
-                <span className="text-slate-500">Gross Weight</span>
-                <span className="font-bold text-slate-800">
-                    {item._sum.gross_weight} gm
-                </span>
-                </div>
-
-                <div className="flex justify-between">
-                <span className="text-slate-500">Net Weight</span>
-                <span className="font-bold text-green-700">
-                    {item._sum.net_weight} gm
-                </span>
-                </div>
-
-            </div>
-
-            </div>
-        ))}
-
-        </section>
+      </section>
 
         {/* Table data */}
       <section className="bg-white rounded-xl border border-slate-200  shadow-sm overflow-hidden">
 
         <div className="px-6 py-4 border-b border-slate-200">
           <h2 className="text-lg font-semibold text-slate-800">
-            Daily Item Wise Report
+            Pending Payments Report
           </h2>
         </div>
 
@@ -196,12 +141,12 @@ const [toDate, setToDate] = useState("");
               <tr className="text-slate-700">
 
                 <th className="px-5 py-3 text-center ">#</th>
-                <th className="px-5 py-3 text-center">Item Name</th>
-                <th className="px-5 py-3 text-center">Purity</th>
-                <th className="px-5 py-3 text-center">Qty</th>
-                <th className="px-5 py-3 text-center">Total Gross Weight (gm)</th>
-                <th className="px-5 py-3 text-center">Total Net Weight (gm)</th>
-                <th className="px-5 py-3 text-center">Total Sales</th>
+                <th className="px-5 py-3 text-center">Bill No</th>
+                <th className="px-5 py-3 text-center">Customer </th>
+                <th className="px-5 py-3 text-center">Payable Amount</th>
+                <th className="px-5 py-3 text-center">Paid Amount</th>
+                <th className="px-5 py-3 text-center">Pending Amount</th>
+                <th className="px-5 py-3 text-center">Date</th>
 
               </tr>
 
@@ -218,26 +163,27 @@ const [toDate, setToDate] = useState("");
 
 
                         <td className="px-5 py-3 text-center">
-                            {row.name}
+                            {row.bill_number}
                         </td>
 
                         <td className="px-5 py-3 text-center">
-                            {row.purity}
+                            {row.customer_name}
                         </td>
 
                         <td className="px-5 py-3 text-center">
-                            -
+                            {INRFormat(row.payableAmount)}
                         </td>
 
                         <td className="px-5 py-3 text-center">
-                            {row.total_gross_weight} gm
+                            {INRFormat(row.pendingAmount)} 
                         </td>
                         <td className="px-5 py-3 text-center">
-                            {row.total_net_weight} gm
+                            
+                            {INRFormat(row.pendingAmount)}
                         </td>
 
                         <td className="px-5 py-3 text-center text-green-700 font-semibold">
-                            {INRFormat(row.total_amount)}
+                            {row.created_at.split('T')[0]} 
                         </td>
                         </tr>
                     ))}
@@ -281,4 +227,4 @@ const [toDate, setToDate] = useState("");
   )
 }
 
-export default ItemWiseSales
+export default PendingPayments

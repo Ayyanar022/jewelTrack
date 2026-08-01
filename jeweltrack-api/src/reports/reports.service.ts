@@ -347,66 +347,7 @@ export class ReportsService {
         to.setHours(23, 59, 59, 999);
         }
 
-        const where = {shop_id:shopId ,  created_at :{gte:from ,lte:to}}
-
-        // // stats 
-        // const [
-        //     totalGoldAndSilverSale_gm,
-        //     totalGoldPurityWiseSale_gm,
-        //     tableData,
-        // ] = await Promise.all([
-        //     // 1. total sales amount
-        //     this.prisma.billItem.groupBy({
-        //         by:['metal'],
-        //         where:{
-        //             bill:{
-        //                 ...where
-        //             }
-        //         },
-        //         _sum:{
-        //             net_weight:true ,gross_weight:true
-        //         }
-        //     }),
-
-        //     // 2. total gram Sale gold and silver 
-        //     this.prisma.billItem.groupBy({
-        //         by:['metal','purity'],
-        //          where:{
-        //             bill:{...where}
-        //          },                
-        //         _sum:{
-        //             net_weight:true,
-        //             gross_weight:true
-        //         }
-                
-        //     }),      
-
-        //     this.prisma.$queryRaw`
-        //         SELECT
-        //             b.id,
-        //             cu.id,
-        //             cu.name,
-        //             b.bill_number,
-        //             b.created_at,
-        //             b."payableAmount",
-        //             COALESCE(SUM(bp.paid_amount), 0) AS paidAmount,
-        //             b."payableAmount" - COALESCE(SUM(bp.paid_amount), 0) AS pendingAmount
-        //         FROM "Bill" b
-        //         JOIN "Customer" cu ON cu.id = b.customer_id
-        //         LEFT JOIN "BillPaymentsEntry" bp ON bp.bill_id = b.id
-        //         WHERE b.shop_id = ${shopId}
-        //         AND b.created_at BETWEEN ${from} AND ${to}
-        //         GROUP BY
-        //             b.id,
-        //             cu.id,
-        //             cu.name,
-        //             b.bill_number,
-        //             b.created_at,
-        //             b."payableAmount"
-        //         HAVING b."payableAmount" - COALESCE(SUM(bp.paid_amount), 0) > 0;
-        //                     `
-        // ])
-
+     
 
         const tableData = await this.prisma.$queryRaw<
                     {
@@ -483,6 +424,146 @@ export class ReportsService {
             cardData,
             tableData
 
+        }
+
+     }
+
+    async customerWiseSalesReport(fromDate:string , toDate:string ,shopId:string ){
+
+        let from: Date;
+        let to: Date;
+
+        const today = new Date();
+
+        if (!fromDate && !toDate) {
+        // Default: previous month + current month
+        from = new Date(today.getFullYear(), today.getMonth() - 3, 1);
+        to = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        to.setHours(23, 59, 59, 999);
+
+        } else if (fromDate && !toDate) {
+        // From selected date until today
+        from = new Date(fromDate);
+        to = today;
+
+        } else if (!fromDate && toDate) {
+        // Everything up to the selected date
+        // Choose a sensible earliest date for your business
+        from = new Date("2000-01-01");
+        to = new Date(toDate);
+        to.setHours(23, 59, 59, 999);
+
+        } else {
+        // Both dates selected
+        from = new Date(fromDate);
+        to = new Date(toDate);
+        to.setHours(23, 59, 59, 999);
+        }
+
+     
+
+        const tableData1 = await this.prisma.$queryRaw<
+                    {
+                        customer_id: string;
+                        customer_name: string;
+                        billCount :number;
+                        TotalPurchase: number;
+                        paidAmount: number;
+                        pendingAmount: number;
+                        created_at: Date;
+                    }[]
+                    >`
+                    SELECT
+                        b.id AS bill_id,
+                        cu.id AS customer_id,
+                        cu.name AS customer_name,
+                        b.bill_number,
+                        b.created_at,
+                        b."payableAmount",
+
+                        COALESCE(SUM(bp.paid_amount), 0) AS "paidAmount",
+
+                        b."payableAmount" - COALESCE(SUM(bp.paid_amount), 0) AS "pendingAmount"
+
+                    FROM "Bill" b
+
+                    JOIN "Customer" cu
+                        ON cu.id = b.customer_id
+
+                    LEFT JOIN "BillPaymentsEntry" bp
+                        ON bp.bill_id = b.id
+
+                    WHERE
+                        b.shop_id = ${shopId}
+                        AND b.created_at BETWEEN ${from} AND ${to}
+
+                    GROUP BY
+                        b.id,
+                        cu.id,
+                        cu.name,
+                        b.bill_number,
+                        b.created_at,
+                        b."payableAmount"
+
+                    HAVING
+                        b."payableAmount" - COALESCE(SUM(bp.paid_amount),0) > 0
+
+                    ORDER BY b.created_at DESC;
+                    `;
+
+
+                     const tableData = await this.prisma.$queryRaw<
+                    {
+                        customer_id: string;
+                        customer_name: string;
+                        billCount :number;
+                        TotalPurchase: number;
+                        paidAmount: number;
+                        pendingAmount: number;
+                        created_at: Date;
+                    }[]
+                    >`
+                SELECT
+                    cu.id AS customer_id,
+                    cu.name AS customer_name,
+
+                    COUNT(b.id)::int AS "billCount",
+
+                    SUM(b."payableAmount") AS "totalPurchase",
+
+                    COALESCE(SUM(p.totalPaid), 0) AS "paidAmount",
+
+                    SUM(b."payableAmount") - COALESCE(SUM(p.totalPaid), 0) AS "pendingAmount"
+
+                FROM "Customer" cu
+
+                JOIN "Bill" b
+                    ON b.customer_id = cu.id
+
+                LEFT JOIN (
+                    SELECT
+                        bill_id,
+                        SUM(paid_amount) AS totalPaid
+                    FROM "BillPaymentsEntry"
+                    GROUP BY bill_id
+                ) p
+                ON p.bill_id = b.id
+
+                WHERE
+                    b.shop_id = ${shopId}
+                    AND b.created_at BETWEEN ${from} AND ${to}
+
+                GROUP BY
+                    cu.id,
+                    cu.name
+
+                ORDER BY
+                    SUM(b."payableAmount") DESC
+                     `;
+
+
+        return {
+            tableData
         }
 
      }

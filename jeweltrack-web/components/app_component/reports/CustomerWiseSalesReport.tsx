@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query"
 
 
 
-const PendingPayments = () => {
+const CustomerWiseSalesReport = () => {
 
 
 const ROWS_PER_PAGE = 5;
@@ -18,16 +18,16 @@ const [fromDate, setFromDate] = useState("");
 const [toDate, setToDate] = useState("");
 
   const {data: pendingPAyments } = useQuery({
-    queryKey:['pending-payments',fromDate,toDate],
-    queryFn:()=>api.get(`/reports/pending-payments-report?from=${fromDate}&to=${toDate}`).then(r=>r.data)
+    queryKey:['customer-wise-sales-report',fromDate,toDate],
+    queryFn:()=>api.get(`/reports/customer-wise-sales-report?from=${fromDate}&to=${toDate}`).then(r=>r.data)
   })
 
-    const gstCards  = [
+    // const gstCards  = [
      
-      {title:'Total Pending Amount',data:INRFormat(pendingPAyments?.cardData.totalPendingAmount ||0)  , },
-      {title:'Pending Bill Count',data:pendingPAyments?.cardData.pendingBills||0  , },
-      {title:'Customer With Pending',data:pendingPAyments?.cardData.customersWithPending ||0  , },
-    ]
+    //   {title:'Total Pending Amount',data:INRFormat(pendingPAyments?.cardData.totalPendingAmount ||0)  , },
+    //   {title:'Pending Bill Count',data:pendingPAyments?.cardData.pendingBills||0  , },
+    //   {title:'Customer With Pending',data:pendingPAyments?.cardData.customersWithPending ||0  , },
+    // ]
 
 
   const totalPages = Math.ceil( (pendingPAyments?.tableData?.length ?? 0) / ROWS_PER_PAGE );
@@ -100,7 +100,7 @@ const [toDate, setToDate] = useState("");
         
 
         {/* Stats */}
-       <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-5 gap-x-8 my-5">
+       {/* <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-5 gap-x-8 my-5">
  
 
         {gstCards?.map((item:any, i:number) => (
@@ -121,14 +121,14 @@ const [toDate, setToDate] = useState("");
         
     
 
-      </section>
+      </section> */}
 
         {/* Table data */}
       <section className="bg-white rounded-xl border border-slate-200  shadow-sm overflow-hidden">
 
         <div className="px-6 py-4 border-b border-slate-200">
           <h2 className="text-lg font-semibold text-slate-800">
-            Pending Payments Report
+            Customer Wise Sale Report
           </h2>
         </div>
 
@@ -141,16 +141,15 @@ const [toDate, setToDate] = useState("");
               <tr className="text-slate-700">
 
                 <th className="px-5 py-3 text-center ">#</th>
-                <th className="px-5 py-3 text-center">Bill No</th>
-                <th className="px-5 py-3 text-center">Customer </th>
-                <th className="px-5 py-3 text-center">Payable Amount</th>
+                <th className="px-5 py-3 text-left pl-3">Customer </th>
+                <th className="px-5 py-3 text-center">Bill Count</th>
+                <th className="px-5 py-3 text-center">Total Purchase</th>
                 <th className="px-5 py-3 text-center">Paid Amount</th>
                 <th className="px-5 py-3 text-center">Pending Amount</th>
-                <th className="px-5 py-3 text-center">Date</th>
 
               </tr>
 
-            </thead>
+            </thead>    
                     <tbody>
                     {paginatedData?.map((row: any, i: number) => (
                         <tr
@@ -162,29 +161,27 @@ const [toDate, setToDate] = useState("");
                         </td>
 
 
-                        <td className="px-5 py-3 text-center">
-                            {row.bill_number}
-                        </td>
-
-                        <td className="px-5 py-3 text-center">
+                        <td className="px-5 py-3 text-left pl-3">
                             {row.customer_name}
                         </td>
 
                         <td className="px-5 py-3 text-center">
-                            {INRFormat(row.payableAmount)}
+                            {row.billCount}
                         </td>
 
                         <td className="px-5 py-3 text-center">
-                            {INRFormat(row.pendingAmount)} 
+                            {INRFormat(row.totalPurchase)}
+                        </td>
+
+                        <td className="px-5 py-3 text-center">
+                            {INRFormat(row.paidAmount)} 
                         </td>
                         <td className="px-5 py-3 text-center">
                             
                             {INRFormat(row.pendingAmount)}
                         </td>
 
-                        <td className="px-5 py-3 text-center text-green-700 font-semibold">
-                            {row.created_at.split('T')[0]} 
-                        </td>
+                      
                         </tr>
                     ))}
                     </tbody>
@@ -227,4 +224,4 @@ const [toDate, setToDate] = useState("");
   )
 }
 
-export default PendingPayments
+export default CustomerWiseSalesReport

@@ -1,3 +1,4 @@
+import CustomerWiseSalesReport from '@/components/app_component/reports/CustomerWiseSalesReport'
 import GstReport from '@/components/app_component/reports/GstRport'
 import ItemWiseSales from '@/components/app_component/reports/ItemWiseSales'
 import PendingPayments from '@/components/app_component/reports/PendingPayments'
@@ -15,7 +16,7 @@ const page = () => {
           <TabsTrigger className='px-4' value='items-wise-sales'>Items wise Sales</TabsTrigger>
           <TabsTrigger className='px-4' value='gst'>GST</TabsTrigger>
           <TabsTrigger className='px-4' value='payments'>Pending Payments</TabsTrigger>
-          <TabsTrigger className='px-4' value='stock'>Stock</TabsTrigger>
+          <TabsTrigger className='px-4' value='stock'>Customer Wise Sales Report</TabsTrigger>
           <TabsTrigger className='px-4' value='bills'>Bills</TabsTrigger>
         </TabsList>
 
@@ -31,7 +32,9 @@ const page = () => {
           <TabsContent value='payments'>
             <PendingPayments />
           </TabsContent>
-          <TabsContent value='stock'></TabsContent>
+          <TabsContent value='stock'>
+            <CustomerWiseSalesReport />
+          </TabsContent>
           <TabsContent value='bills'></TabsContent>
        </Tabs>
 

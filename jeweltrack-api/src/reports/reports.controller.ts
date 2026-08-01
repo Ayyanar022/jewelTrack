@@ -32,4 +32,9 @@ export class ReportsController {
         return this.reportService.pendingPayments( fromDate,toDate,req.user.id)
     }
 
+    @Get('customer-wise-sales-report')
+      customerWiseSalesReport(@Query('from') fromDate:string , @Query('to')toDate:string, @Request() req:any){
+        return this.reportService.customerWiseSalesReport( fromDate,toDate,req.user.id)
+    }
+
 }

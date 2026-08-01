@@ -12,11 +12,14 @@ export class ReportsController {
     constructor(private reportService :ReportsService){}
 
     // bill report
-    @Get('/sale-stats')
+    @Get('sale-stats')
     saleStats(@Query('from') fromDate:string , @Query('to')toDate:string, @Request() req:any){
         return this.reportService.saleStats( fromDate,toDate,req.user.id)
     }
 
-    // @Get()
+    @Get('gst-report')
+      gstReport(@Query('from') fromDate:string , @Query('to')toDate:string, @Request() req:any){
+        return this.reportService.gstReport( fromDate,toDate,req.user.id)
+    }
 
 }

@@ -135,4 +135,87 @@ export class ReportsService {
 
      }
 
+
+    //  gst report 
+       async gstReport(fromDate:string , toDate:string ,shopId:string ){
+
+     let from: Date;
+        let to: Date;
+
+        const today = new Date();
+
+        if (!fromDate && !toDate) {
+        // Default: previous month + current month
+        from = new Date(today.getFullYear(), today.getMonth() - 3, 1);
+        to = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        to.setHours(23, 59, 59, 999);
+
+        } else if (fromDate && !toDate) {
+        // From selected date until today
+        from = new Date(fromDate);
+        to = today;
+
+        } else if (!fromDate && toDate) {
+        // Everything up to the selected date
+        // Choose a sensible earliest date for your business
+        from = new Date("2000-01-01");
+        to = new Date(toDate);
+        to.setHours(23, 59, 59, 999);
+
+        } else {
+        // Both dates selected
+        from = new Date(fromDate);
+        to = new Date(toDate);
+        to.setHours(23, 59, 59, 999);
+        }
+
+        const where = {shop_id:shopId , is_gst_bill :true , created_at :{gte:from ,lte:to}}
+
+        // stats 
+        const [
+          
+            totalGSTAmount,
+            totalGstBillCount,
+
+        ] = await Promise.all([ 
+
+            //1.total gst
+            this.prisma.bill.aggregate({
+                where,
+                _sum:{
+                    totalGST:true
+                }
+            }),
+
+            // 2. total gst bill count 
+            this.prisma.bill.count({
+                where         
+            }),   
+
+        ])
+
+     
+
+        const tableData  =  await this.prisma.$queryRaw`
+        
+        select 
+         DATE(created_at) as Date ,
+         count(*)::int as gstBillCount , 
+         sum("total_amount") as taxableAmount ,
+         sum("totalGST") as totalGST 
+         from "Bill" 
+         where shop_id = ${shopId}  and is_gst_bill = true and created_at between ${from} and ${to} 
+         group by 
+         Date(created_at) 
+         order by date(created_at) desc 
+        `
+
+        return {           
+            totalGSTAmount,
+            totalGstBillCount,
+            tableData,
+        }
+
+     }
+
 }

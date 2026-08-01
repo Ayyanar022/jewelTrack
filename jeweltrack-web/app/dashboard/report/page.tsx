@@ -1,3 +1,4 @@
+import GstReport from '@/components/app_component/reports/GstRport'
 import SalesReport from '@/components/app_component/reports/SalesReport'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import React from 'react'
@@ -19,8 +20,12 @@ const page = () => {
           <TabsContent value='sales'>
             <SalesReport />
           </TabsContent>
-          <TabsContent value='items'></TabsContent>
-          <TabsContent value='gst'></TabsContent>
+          <TabsContent value='items'>
+            {/* <GstReport /> */}
+          </TabsContent>
+          <TabsContent value='gst'>
+            <GstReport />
+          </TabsContent>
           <TabsContent value='payments'></TabsContent>
           <TabsContent value='stock'></TabsContent>
           <TabsContent value='bills'></TabsContent>

@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query"
 
 
 
-const SalesReport = () => {
+const GstReport = () => {
 
 
 
@@ -18,23 +18,22 @@ const [page, setPage] = useState(1);
 const [fromDate, setFromDate] = useState("");
 const [toDate, setToDate] = useState("");
 
-  const {data:billStats } = useQuery({
-    queryKey:['sale-report',fromDate,toDate],
-    queryFn:()=>api.get(`/reports/sale-stats?from=${fromDate}&to=${toDate}`).then(r=>r.data)
+  const {data:gstReport } = useQuery({
+    queryKey:['gst-report',fromDate,toDate],
+    queryFn:()=>api.get(`/reports/gst-report?from=${fromDate}&to=${toDate}`).then(r=>r.data)
   })
 
-  const billStatsData = [
-    {title:'Sale Amount',data:INRFormat(billStats?.totalSalesAmount._sum.payableAmount ||0)},
-    {title:'Gst Amount',data:INRFormat(billStats?.totalGSTAmount._sum.totalGST ||0), },
-    {title:'Bill Count',data:billStats?.totalBillCount ||0  , },
-    {title:'Gst bill',data:billStats?.totalGstBillCount ||0, },
-    {title:'Non gst bill',data:billStats?.totalNonGstBillCount ||0, },
+  const gstCards  = [
+    {title:'Gst Amount',data:INRFormat(gstReport?.totalGSTAmount._sum.totalGST ||0), },
+    {title:'CGST Amount',data:INRFormat(gstReport?.totalGSTAmount._sum.totalGST/2 ||0), },
+    {title:'SGST Amount',data:INRFormat(gstReport?.totalGSTAmount._sum.totalGST/2 ||0), },
+    {title:'GST Bill Count',data:gstReport?.totalBillCount ||0  , },
   ]
   
 
 
-  const totalPages = Math.ceil( (billStats?.tableData?.length ?? 0) / ROWS_PER_PAGE );
-  const paginatedData = billStats?.tableData.slice(
+  const totalPages = Math.ceil( (gstReport?.tableData?.length ?? 0) / ROWS_PER_PAGE );
+  const paginatedData = gstReport?.tableData.slice(
     (page - 1) * ROWS_PER_PAGE,
     page * ROWS_PER_PAGE
   );
@@ -43,6 +42,8 @@ const [toDate, setToDate] = useState("");
       useEffect(() => {
       setPage(1);
     }, [fromDate, toDate]);
+
+    console.log("gst report",gstReport)
 
 
   return (
@@ -95,10 +96,11 @@ const [toDate, setToDate] = useState("");
 
 
         {/* Stats */}
-{/* Stats */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-5 gap-x-8 my-5">
 
-        {billStatsData.map((item, i) => (
+      <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-5 gap-x-8 my-5">
+ 
+
+        {gstCards.map((item, i) => (
           <div
             key={i}
             className="bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 p-5"
@@ -114,29 +116,16 @@ const [toDate, setToDate] = useState("");
         ))}
 
         
-        {billStats?.totalGramSaleGoldAndSilver?.map((item: any, i: number) => (
-          <div
-            key={i}
-            className="bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 p-5"
-          >
-            <h2 className="text-2xl font-bold text-amber-700">
-              {item._sum.net_weight} <span className="text-sm">gm</span>
-            </h2>
-
-            <p className="mt-2 text-sm font-medium text-slate-600">
-              {item.metal} • {item.purity}
-            </p>
-          </div>
-        ))}
+    
 
       </section>
 
         {/* Table data */}
-      <section className="bg-white rounded-xl border border-slate-200 max-w-[700px]  shadow-sm overflow-hidden">
+      <section className="bg-white rounded-xl border border-slate-200 max-w-[800px]  shadow-sm overflow-hidden">
 
         <div className="px-6 py-4 border-b border-slate-200">
           <h2 className="text-lg font-semibold text-slate-800">
-            Daily Sales Summary
+            Daily GST Report
           </h2>
         </div>
 
@@ -150,9 +139,11 @@ const [toDate, setToDate] = useState("");
 
                 <th className="px-5 py-3 text-center ">#</th>
                 <th className="px-5 py-3 text-center">Date</th>
-                <th className="px-5 py-3 text-center">Bills Count</th>
-                <th className="px-5 py-3 text-center">Sales</th>
-                <th className="px-5 py-3 text-center">GST</th>
+                <th className="px-5 py-3 text-center">Gst Bill Count</th>
+                <th className="px-5 py-3 text-center">Taxable Amount</th>
+                <th className="px-5 py-3 text-center">GST Total</th>
+                <th className="px-5 py-3 text-center">CGST Total</th>
+                <th className="px-5 py-3 text-center">SGST Total</th>
 
               </tr>
 
@@ -176,15 +167,21 @@ const [toDate, setToDate] = useState("");
                   </td>
 
                   <td className="px-5 py-3 text-center font-medium">
-                    {row.billcount}
+                    {row.gstbillcount}
                   </td>
 
                   <td className="px-5 py-3 text-center font-semibold text-green-700">
-                    {INRFormat(row.totalsaleamount)}
+                    {INRFormat(row.taxableamount)}
                   </td>
 
                   <td className="px-5 py-3  text-blue-700 font-medium text-center">
                     {INRFormat(row.totalgst)}
+                  </td>
+                  <td className="px-5 py-3  text-blue-700 font-medium text-center">
+                    {INRFormat(row.totalgst/2)}
+                  </td>
+                  <td className="px-5 py-3  text-blue-700 font-medium text-center">
+                    {INRFormat(row.totalgst/2)}
                   </td>
 
                 </tr>
@@ -231,4 +228,4 @@ const [toDate, setToDate] = useState("");
   )
 }
 
-export default SalesReport
+export default GstReport

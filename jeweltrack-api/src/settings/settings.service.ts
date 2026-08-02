@@ -81,6 +81,29 @@ async updateInvoice(dto: UpdateShopInvoiceDto, shopId: string) {
 }
 
 
+    // logo upload 
+    async uploadLogo(
+        file: Express.Multer.File,
+        shopId: string,
+        ) {
+        const image = `/uploads/logo/${file.filename}`;
+
+        await this.prisma.shopSetting.update({
+            where: {
+            shop_id: shopId,
+            },
+
+            data: {
+            logo_url: image,
+            },
+        });
+
+        return {
+            message: "Logo uploaded successfully",
+            logo_url: image,
+        };
+        }
+
 
 
 

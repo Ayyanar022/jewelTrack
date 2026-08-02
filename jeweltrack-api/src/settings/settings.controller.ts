@@ -1,11 +1,14 @@
 import {
+    BadRequestException,
   Body,
   Controller,
   Get,
   Patch,
   Post,
   Request,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CreateShopSettingDto } from './dto/CreateShopSetting.Dto ';
 import { UpdateShopSettingDto } from './dto/UpdateShopSetting.Dto';
@@ -14,6 +17,10 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
 import { UpdateShopTaxDto } from './dto/UpdateShopTax.dto';
 import { UpdateShopInvoiceDto } from './dto/UpdateShopInvoice.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from "multer";
+import { extname } from "path";
+import type { Express } from "express";
 
 @Controller('settings')
 @ApiBearerAuth('JWT-auth')
@@ -62,6 +69,51 @@ export class SettingController {
     return this.settingService.updateInvoice(dto, req.user.id);
     }
 
+
+
+    @Post("/shop-profile/logo")
+    @UseInterceptors(
+    FileInterceptor("logo", {
+        storage: diskStorage({
+        destination: "./uploads/logo",
+        filename: (req: any, file, cb) => {
+        const ext = extname(file.originalname);
+
+        cb(null, `shop_${req.user?.id}${ext}`);
+        },
+        }),
+
+        limits: {
+        fileSize: 2 * 1024 * 1024,
+        },
+
+        fileFilter(req, file, cb) {
+        if (
+            !file.mimetype.match(
+            /image\/(jpeg|jpg|png|webp)/
+            )
+        ) {
+            return cb(
+            new BadRequestException(
+                "Only JPG, PNG and WEBP are allowed."
+            ),
+            false
+            );
+        }
+
+        cb(null, true);
+        },
+    })
+    )
+    uploadLogo(
+    @UploadedFile() file: Express.Multer.File,
+    @Request() req: any,
+    ) {
+    return this.settingService.uploadLogo(
+        file,
+        req.user.id,
+    );
+    }
 
 
 

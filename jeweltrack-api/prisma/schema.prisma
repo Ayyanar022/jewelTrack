@@ -84,6 +84,7 @@ model Shop{
   inventoryStockEntry InventoryStockEntry[]
   billPaymentsEntry BillPaymentsEntry[]
   oldGoldEntry OldGoldEntry[]
+  shopSetting ShopSetting?
 }
 
 
@@ -314,4 +315,46 @@ model OldGoldEntry{
     weight Float
     rate  Float
     amount Float
+}
+
+
+
+
+model ShopSetting {
+  id        String   @id @default(uuid())   
+
+  shop_id   String   @unique
+  shop      Shop     @relation(fields: [shop_id], references: [id])
+
+  // Basic
+  shop_name   String
+  owner_name  String?
+  address     String?
+  phone       String?
+  whatsapp    String?
+  email       String?
+
+  // Tax
+  gstin       String?
+  pan         String?
+
+  // Invoice
+  invoice_prefix   String? @default("BILL-")
+  estimate_prefix String? @default("EST-")
+  terms_conditions String?
+
+  // Bank
+  bank_name      String?
+  account_name   String?
+  account_number String?
+  ifsc           String?
+  branch         String?
+  upi_id         String?
+
+  // Branding (later)
+  logo_url      String?
+  signature_url String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }

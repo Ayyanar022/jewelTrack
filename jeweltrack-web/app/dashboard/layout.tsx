@@ -8,18 +8,6 @@ import { useState } from "react";
 
 
 
-// const navItems = [
-//   { label: 'Dashboard', href: '/dashboard', icon: '📊' },
-//   { label: 'Gold Rate', href: '/dashboard/rate', icon: '📈' },
-//   { label: 'Estimate Bill', href: '/dashboard/billing/estimate', icon: '📄' },
-//   { label: 'New Bill', href: '/dashboard/billing/new', icon: '➕' },
-//   { label: 'Customers', href: '/dashboard/customers', icon: '👥' },
-//   { label: 'Category', href: '/dashboard/categories', icon: '👥' },
-//   { label: 'Loans', href: '/dashboard/loan', icon: '💍' },
-//   { label: 'inventory', href: '/dashboard/inventory', icon: '📦' },
-//   { label: 'Report', href: '/dashboard/report', icon: '📦' },
-// ];
-
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: '📊' },
   { label: 'Gold Rate', href: '/dashboard/rate', icon: '💰' },
@@ -29,7 +17,7 @@ const navItems = [
   { label: 'Category', href: '/dashboard/categories', icon: '💍' },
   { label: 'Inventory', href: '/dashboard/inventory', icon: '📦' },
   { label: 'Report', href: '/dashboard/report', icon: '📊' },
-  // { label: 'Loans', href: '/dashboard/loan', icon: '💍' },
+ { label: 'Settings', href: '/dashboard/settings', icon: '⚙️' }
 ];
 
 export default function DashboardLayout({children} : {children:React.ReactNode}){

@@ -25,16 +25,19 @@ api.interceptors.request.use((config)=>{
 
 // handle token expiry globally 
 api.interceptors.response.use(
-    (Response)=>Response,
-    (error)=>{
-        if(error.response?.status === 401 ){
-           document.cookie = `token=; path=/; max-age=0`;
-            window.location.href = '/login' ;
+    (Response) => Response,
+    (error) => {
+        const isAuthRequest =
+            error.config?.url?.includes('/auth/login') ||
+            error.config?.url?.includes('/auth/register');
+
+        if (error.response?.status === 401 && !isAuthRequest) {
+            document.cookie = `token=; path=/; max-age=0`;
+            window.location.href = '/login';
         }
-        return Promise.reject(error)
+        return Promise.reject(error);
     }
 )
-
 
 
 export default api;

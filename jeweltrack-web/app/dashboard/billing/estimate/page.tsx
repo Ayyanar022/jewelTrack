@@ -4,6 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/axios';
+import { useAuthStore } from '@/store/authStore';
 
 interface EstimateItem {
   item_name: string;
@@ -35,15 +36,9 @@ const defaultItem = (rate22k = 0): EstimateItem => ({
   wastage_weight: 0, making_charge: 0, amount: 0,
 });
 
-const fmt = (n: number) => n.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+// const user = use
 
-const HISTORY_KEY = 'estimate_history';
-const getHistory = (): HistoryEntry[] => {
-  try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch { return []; }
-};
-const saveToHistory = (e: HistoryEntry) => {
-  localStorage.setItem(HISTORY_KEY, JSON.stringify([e, ...getHistory()].slice(0, 10)));
-};
+
 
 export default function EstimatePage() {
   const [item, setItem] = useState<EstimateItem>(defaultItem());
@@ -52,6 +47,21 @@ export default function EstimatePage() {
   const [printError, setPrintError] = useState('');
   const [showHistory, setShowHistory] = useState(false);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
+   const { shop } = useAuthStore();
+  //  console.log("shop",shop)
+
+
+  const fmt = (n: number) => n.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+
+const HISTORY_KEY = 'estimate_history'+shop?.id;
+const getHistory = (): HistoryEntry[] => {
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch { return []; }
+};
+const saveToHistory = (e: HistoryEntry) => {
+  localStorage.setItem(HISTORY_KEY, JSON.stringify([e, ...getHistory()].slice(0, 10)));
+};
+
+const handleRest = ()=> {localStorage.removeItem(HISTORY_KEY) ;setHistory(getHistory());}
 
   const { data: rate } = useQuery({
     queryKey: ['recent-rate'],
@@ -98,7 +108,7 @@ export default function EstimatePage() {
     setPrintError('');
   };
 
-  const handleReset = () => { setItem(defaultItem(rate?.rate_22k ?? 0)); setDiscount(0); setPrintError(''); };
+  const handleClear = () => { setItem(defaultItem(rate?.rate_22k ?? 0)); setDiscount(0); setPrintError(''); };
 
 
   const handlePrint = useCallback(() => {
@@ -112,7 +122,7 @@ export default function EstimatePage() {
     saveToHistory(entry);
     setHistory(getHistory());
     window.print();
-    handleReset()
+    handleClear()
   }, [item, discount, total]);
 
   useEffect(() => {
@@ -183,12 +193,7 @@ export default function EstimatePage() {
 
         {/* ── TOP BAR (minimal) ── */}
         <div className="flex items-center justify-end mb-3 flex-shrink-0">
-          {/* <div className="flex items-center gap-3">
-            <h1 className="text-base font-semibold text-foreground">Estimate</h1>
-            <span className="text-sm text-muted-foreground">
-              {rate ? `22K -  ₹${fmt(rate.rate_22k)} ·  18K - ₹${fmt(rate.rate_18k)} · Silver ₹${fmt(rate.rate_silver)}` : '...'}
-            </span>
-          </div> */}
+       
           <div className="flex items-center  gap-3">
             <button
               onClick={() => { setHistory(getHistory()); setShowHistory(true); }}
@@ -196,7 +201,7 @@ export default function EstimatePage() {
             >
               History ({history.length})
             </button>
-            <button onClick={handleReset} className="text-xs cursor-pointer text-muted-foreground hover:text-foreground transition-colors">
+            <button onClick={handleRest} className="text-xs cursor-pointer text-muted-foreground hover:text-foreground transition-colors">
               Reset
             </button>
           </div>
@@ -321,7 +326,7 @@ export default function EstimatePage() {
                 Print
               </button>
 
-              <button onClick={handleReset}
+              <button onClick={handleClear}
                 className="w-full flex-1 bg-white  text-red-600 border border-red-600  py-2 rounded-lg text-base font-medium     duration-200 cursor-pointer  hover:shadow-red-300 transition-colors">
                 Clear
               </button>

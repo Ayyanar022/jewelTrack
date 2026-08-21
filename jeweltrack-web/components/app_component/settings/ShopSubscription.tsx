@@ -92,7 +92,7 @@ export default function ShopSubscription() {
   const usage = subscription?.usage;
 
   return (
-    <div className="space-y-5 max-w-6xl mx-auto px-10">
+    <div className="space-y-5 max-w-6xl mx-auto px-10 mt-5">
       {/* 1. Compact Active Subscription Status Bar */}
       <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-amber-950 text-white rounded-2xl p-5 shadow-md border border-gold/30 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="space-y-1.5">

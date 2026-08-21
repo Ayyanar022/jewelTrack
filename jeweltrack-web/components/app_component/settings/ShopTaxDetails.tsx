@@ -67,7 +67,7 @@ const ShopTaxDetails = () => {
   return (
     <form
       onSubmit={handleSubmit((data) => mutation.mutate(data))}
-      className="bg-white border rounded-xl p-6 space-y-5"
+      className="bg-white border rounded-xl p-6 space-y-5 mt-5"
     >
      <div className="grid md:grid-cols-2 gap-5">
 

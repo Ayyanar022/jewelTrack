@@ -34,32 +34,32 @@ function SettingsContent() {
 
   return (
     <div className="space-y-4 max-w-6xl mx-auto">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="bg-slate-100 p-1 rounded-xl h-10 border border-slate-200 shadow-xs flex-wrap">
-          <TabsTrigger className="px-4 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5" value="basic">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-1">
+        <TabsList className="bg-slate-100 p-1 rounded-xl h-16 border border-slate-200 shadow-xs flex-wrap">
+          <TabsTrigger className="p-4 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5" value="basic">
             <Store className="w-3.5 h-3.5 text-slate-500" />
             <span>Shop Profile</span>
           </TabsTrigger>
 
           <TabsTrigger
-            className="px-4 text-xs sm:text-sm font-bold rounded-lg data-[state=active]:bg-gold data-[state=active]:text-white flex items-center gap-1.5 shadow-xs"
+            className="p-4 text-xs sm:text-sm font-bold rounded-lg data-[state=active]:bg-gold data-[state=active]:text-white flex items-center gap-1.5 shadow-xs"
             value="subscription"
           >
             <Crown className="w-3.5 h-3.5" />
             <span>Plan & Billing</span>
           </TabsTrigger>
 
-          <TabsTrigger className="px-4 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5" value="tax">
+          <TabsTrigger className="p-4 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5" value="tax">
             <Receipt className="w-3.5 h-3.5 text-slate-500" />
             <span>Tax & GST</span>
           </TabsTrigger>
 
-          <TabsTrigger className="px-4 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5" value="invoice">
+          <TabsTrigger className="p-4 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5" value="invoice">
             <FileText className="w-3.5 h-3.5 text-slate-500" />
             <span>Invoice Settings</span>
           </TabsTrigger>
 
-          <TabsTrigger className="px-4 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5" value="branding">
+          <TabsTrigger className="p-4 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5" value="branding">
             <ImageIcon className="w-3.5 h-3.5 text-slate-500" />
             <span>Branding & Logo</span>
           </TabsTrigger>
@@ -68,7 +68,7 @@ function SettingsContent() {
         <TabsContent value="basic">
           <ShopBasicDetails />
         </TabsContent>
-        <TabsContent value="subscription">
+        <TabsContent value="subscription" >
           <ShopSubscription />
         </TabsContent>
         <TabsContent value="tax">

@@ -13,11 +13,11 @@ export class SubscriptionController {
 
   @Post()
   subscribe(@Body() dto: CreateSubscriptionDto, @Request() req: any) {
-    return this.subscriptionService.subscribe(dto, req.user.id);
+    return this.subscriptionService.subscribe(dto, req.user.shop_id);
   }
 
   @Get('current')
   getCurrent(@Request() req: any) {
-    return this.subscriptionService.getCurrent(req.user.id);
+    return this.subscriptionService.getCurrent(req.user.shop_id);
   }
 }

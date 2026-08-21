@@ -14,14 +14,15 @@ export class JwtStrategy extends PassportStrategy(Strategy){
         });
     } 
 
-    async validate(payload:{sub:string; phone:string}){
-        const shop = await this.prisma.shop.findUnique({
-            where:{id:payload.sub}
+    async validate(payload:{sub:string; phone:string; role?: string; shopId?: string}){
+        const user = await this.prisma.user.findUnique({
+            where:{id:payload.sub},
+            include:{shop:true}
         })
 
-        if(!shop){
-            throw new UnauthorizedException();
+        if(!user || !user.is_active){
+            throw new UnauthorizedException('User account is inactive or not found');
         }
-        return shop
+        return user;
     }
 }

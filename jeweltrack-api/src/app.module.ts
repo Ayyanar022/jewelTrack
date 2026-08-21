@@ -12,13 +12,24 @@ import { ReportsModule } from './reports/reports.module';
 import { SettingsModule } from './settings/settings.module';
 import { PlanModule } from './plan/plan.module';
 import { SubscriptionModule } from './subscription/subscription.module';
+import { UserModule } from './user/user.module';
 
 @Module({
-  imports: [AuthModule,PrismaModule, RateModule, CustomerModule,
-     BillModule, JewelleryCategoryModule, InventoryModule, ReportsModule ,
-    SettingsModule ,PlanModule,SubscriptionModule],
+  imports: [
+    AuthModule,
+    PrismaModule,
+    RateModule,
+    CustomerModule,
+    BillModule,
+    JewelleryCategoryModule,
+    InventoryModule,
+    ReportsModule,
+    SettingsModule,
+    PlanModule,
+    SubscriptionModule,
+    UserModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
-
 })
 export class AppModule {}

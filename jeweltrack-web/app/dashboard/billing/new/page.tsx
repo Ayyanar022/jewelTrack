@@ -745,7 +745,7 @@
 
 import api from "@/lib/axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useDebounce } from "@/hooks/useDebouce";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BillHistory from "@/components/app_component/BillHistory";
@@ -816,7 +816,7 @@ const NewBillPage = () => {
   const [isPrinting, setIsPrinting] = useState(false);
   const [activeTab, setActiveTab] = useState('new') 
 
-  const firstItemRef = useRef<HTMLInputElement>(null);
+  const firstItemRef = useRef<HTMLSelectElement>(null);
   const customerRef = useRef<HTMLInputElement>(null);
   const tableContainerRef = useRef<HTMLDivElement>(null);
 
@@ -1681,5 +1681,10 @@ const handleTabChange = (tab: string) => {
     </Tabs>
   );
 };
-
-export default NewBillPage;
+export default function NewBillPageWrapper() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-sm text-muted-foreground">Loading billing...</div>}>
+      <NewBillPage />
+    </Suspense>
+  );
+}

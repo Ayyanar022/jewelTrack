@@ -26,9 +26,8 @@ interface HistoryEntry {
   date: string;
 }
 
-const calcAmount = (item: EstimateItem) =>
-  // Math.max(Math.round(item.rate * (item.weight + item.wastage_weight) + item.making_charge), 0);
-  Number(item.rate * (item.weight + item.wastage_weight)+item.making_charge).toFixed(2) 
+const calcAmount = (item: EstimateItem): number =>
+  parseFloat(Number(item.rate * (item.weight + item.wastage_weight) + item.making_charge).toFixed(2)); 
 
 const defaultItem = (rate22k = 0): EstimateItem => ({
   item_name: '', metal: 'GOLD', purity: 'K22',

@@ -6,26 +6,23 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiBearerAuth('JWT-auth')
 @ApiTags('Rate')
- @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('rate')
 export class RateController {
     constructor(private rateService :RateService){}
 
-   
     @Post()
-    newRate(@Body() dto:CreateRateDto ,@Request() req ){
-        return this.rateService.createNewRate(dto,req.user.id)
+    newRate(@Body() dto:CreateRateDto ,@Request() req:any ){
+        return this.rateService.createNewRate(dto, req.user.shop_id)
     }
 
-   
     @Get('rate-history')
-    rateHistory(@Request() req ){
-        return this.rateService.getHistory(req.user.id)
+    rateHistory(@Request() req:any ){
+        return this.rateService.getHistory(req.user.shop_id)
     }
-   
+
     @Get('recent-rate')
-    recentRate(@Request() req ){
-        return this.rateService.getRecentRate(req.user.id)
+    recentRate(@Request() req:any ){
+        return this.rateService.getRecentRate(req.user.shop_id)
     }
-    
 }

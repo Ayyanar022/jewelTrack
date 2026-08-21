@@ -13,7 +13,7 @@ import api from '@/lib/axios';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { setToken ,setShop} = useAuthStore();
+  const { setToken, setUser, setShop } = useAuthStore();
   const [form, setForm] = useState({ phone: '', password: '' });
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -21,18 +21,27 @@ export default function LoginPage() {
   const { mutate, isPending } = useMutation({
     mutationFn: (data: typeof form) => api.post('/auth/login', data),
     onSuccess: (res) => {
-      // Defensive check — this is what was silently crashing before
       const token = res?.data?.access_token;
+      const user = res?.data?.user;
       if (!token) {
         setError('Login failed. Unexpected response from server.');
         toast.error('Login failed. Please try again.');
         return;
       }
       setToken(token);
-      // console.log("login data ",res.data)
-      setShop(res?.data?.shop||null)
-      toast.success('Logged in successfully');
-      router.push('/dashboard');
+      if (user) {
+        setUser(user);
+      } else {
+        setShop(res?.data?.shop || null);
+      }
+
+      toast.success(`Welcome back, ${user?.name || 'User'}!`);
+      
+      if (user?.role === 'SUPER_ADMIN') {
+        router.push('/admin/plans');
+      } else {
+        router.push('/dashboard');
+      }
     },
     onError: (e: any) => {
       console.log(e);

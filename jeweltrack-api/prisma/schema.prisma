@@ -11,6 +11,13 @@ datasource db {
 // db start
 
 
+enum Role {
+  SUPER_ADMIN
+  SHOP_OWNER
+  MANAGER
+  CASHIER
+}
+
 enum PartyType{
   SMALL_SHOP 
   KARIGAR
@@ -58,31 +65,51 @@ enum subscriptionStatus {
 }
 
 
-model Shop{
-  id   String @id @default(uuid())
-  name  String
-  owner_name  String
-  phone  String?
-  password   String
-  hallmark_rate  Float @default(0.005)
-  subscription_plan String @default("TRIAL")
-  subscription_status  subscriptionStatus @default(TRIAL)
-  created_at  DateTime @default(now())
-
+model User {
+  id                  String                @id @default(uuid())
+  shop_id             String?
+  shop                Shop?                 @relation(fields: [shop_id], references: [id], onDelete: Cascade)
   
-  customer Customer[] 
-  party Party[]
-  rate Rate[]
-  bill Bill[]
-  jewelleryCategory JewelleryCategory[]
-  stockTransaction StockTransaction[]
-  metalPayment MetalPayment[]
-  goldLoan JewelLoan[]
+  name                String
+  phone               String                @unique
+  email               String?               @unique
+  password            String
+  role                Role                  @default(SHOP_OWNER)
+  is_active           Boolean               @default(true)
+  
+  created_at          DateTime              @default(now())
+  updated_at          DateTime              @updatedAt
+
+  createdBills        Bill[]                @relation("BillCreatedByUser")
+  createdPayments     BillPaymentsEntry[]   @relation("PaymentCreatedByUser")
+  createdStockEntries InventoryStockEntry[] @relation("StockCreatedByUser")
+
+  @@index([shop_id])
+  @@index([phone])
+}
+
+model Shop{
+  id                  String             @id @default(uuid())
+  name                String
+  hallmark_rate       Float              @default(0.005)
+  subscription_plan   String             @default("TRIAL")
+  subscription_status subscriptionStatus @default(TRIAL)
+  created_at          DateTime           @default(now())
+
+  users               User[]
+  customer            Customer[] 
+  party               Party[]
+  rate                Rate[]
+  bill                Bill[]
+  jewelleryCategory   JewelleryCategory[]
+  stockTransaction    StockTransaction[]
+  metalPayment        MetalPayment[]
+  goldLoan            JewelLoan[]
   inventoryStockEntry InventoryStockEntry[]
-  billPaymentsEntry BillPaymentsEntry[]
-  oldGoldEntry OldGoldEntry[]
-  shopSetting ShopSetting?
-  subscription Subscription[] 
+  billPaymentsEntry   BillPaymentsEntry[]
+  oldGoldEntry        OldGoldEntry[]
+  shopSetting         ShopSetting?
+  subscription        Subscription[] 
 }
 
 
@@ -132,29 +159,30 @@ model Rate{
 }
 
 model Bill{
-  id  String @id @default(uuid())
-  shop_id String 
-  shop Shop @relation(fields:[shop_id] , references:[id])
-  customer_id String
-  customer Customer @relation(fields:[customer_id] ,references:[id])
-  bill_number String
-  is_gst_bill Boolean  @default(false)
-  total_amount Float 
-  discount Float? @default(0)
-  totalGST Float? @default(0)
-  payableAmount Float
-  notes  String?
+  id                  String             @id @default(uuid())
+  shop_id             String 
+  shop                Shop               @relation(fields:[shop_id] , references:[id])
+  customer_id         String
+  customer            Customer           @relation(fields:[customer_id] ,references:[id])
+  bill_number         String
+  is_gst_bill         Boolean            @default(false)
+  total_amount        Float 
+  discount            Float?             @default(0)
+  totalGST            Float?             @default(0)
+  payableAmount       Float
+  notes               String?
+  created_by_user_id  String?
+  created_by          User?              @relation("BillCreatedByUser", fields: [created_by_user_id], references: [id])
 
-  created_at DateTime @default(now())
+  created_at          DateTime           @default(now())
 
-  billItem BillItem[]
-  billPaymentsEntry BillPaymentsEntry[]
-  oldGoldEntry OldGoldEntry[]
+  billItem            BillItem[]
+  billPaymentsEntry   BillPaymentsEntry[]
+  oldGoldEntry        OldGoldEntry[]
 
   @@index([shop_id])
   @@index([customer_id])
-
-
+  @@index([created_by_user_id])
 }
 
 model BillItem{
@@ -286,30 +314,38 @@ model StockTransaction {
 //----------------------------
 
   model InventoryStockEntry{
-    id String @id @default(uuid())
-    shop_id String 
-    shop Shop @relation(fields:[shop_id], references:[id])
-    category_id String
-    category JewelleryCategory @relation(fields:[category_id] , references:[id])
-    type Type
-    weight Float
-    purity Purity
-    stockType StockType
-    reference ReferenceType
-    reference_id String?
-    created_at DateTime @default(now())
+    id                  String             @id @default(uuid())
+    shop_id             String 
+    shop                Shop               @relation(fields:[shop_id], references:[id])
+    category_id         String
+    category            JewelleryCategory  @relation(fields:[category_id] , references:[id])
+    type                Type
+    weight              Float
+    purity              Purity
+    stockType           StockType
+    reference           ReferenceType
+    reference_id        String?
+    created_by_user_id  String?
+    created_by          User?              @relation("StockCreatedByUser", fields: [created_by_user_id], references: [id])
+    created_at          DateTime           @default(now())
 
     @@index([shop_id])
+    @@index([created_by_user_id])
   }
 
 model BillPaymentsEntry{
-  id String @id @default(uuid())
-  shop_id String 
-  shop Shop @relation(fields:[shop_id] , references:[id])
-  bill_id String
-  bill Bill @relation(fields:[bill_id], references : [id])
-  paid_amount Float 
-  created_at DateTime @default(now())
+  id                  String             @id @default(uuid())
+  shop_id             String 
+  shop                Shop               @relation(fields:[shop_id] , references:[id])
+  bill_id             String
+  bill                Bill               @relation(fields:[bill_id], references : [id])
+  paid_amount         Float 
+  created_by_user_id  String?
+  created_by          User?              @relation("PaymentCreatedByUser", fields: [created_by_user_id], references: [id])
+  created_at          DateTime           @default(now())
+
+  @@index([shop_id])
+  @@index([created_by_user_id])
 }
 
 model OldGoldEntry{

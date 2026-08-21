@@ -9,26 +9,25 @@ import { CreateJewelleryCatdto } from './dto/create_jewell_category.dto';
 @UseGuards(JwtAuthGuard)
 @Controller('jewellery-category')
 export class JewelleryCategoryController {
-
     constructor (private jwellerycategoryService :JewelleryCategoryService){}
 
     @Post()
-    craete(@Body() dto:CreateJewelleryCatdto , @Request() req ){
-        return this.jwellerycategoryService.create(dto, req.user.id)
+    craete(@Body() dto:CreateJewelleryCatdto , @Request() req:any ){
+        return this.jwellerycategoryService.create(dto, req.user.shop_id)
     }
 
     @Get()
-    fetchAll(@Request() req){
-        return this.jwellerycategoryService.getAll(req.user.id);
+    fetchAll(@Request() req:any){
+        return this.jwellerycategoryService.getAll(req.user.shop_id);
     }
 
     @Patch(':id')
-    update(@Body() dto:CreateJewelleryCatdto , @Param('id') catId:string,   @Request() req){
-        return this.jwellerycategoryService.update(dto,catId, req.user.id)
+    update(@Body() dto:CreateJewelleryCatdto , @Param('id') catId:string,   @Request() req:any){
+        return this.jwellerycategoryService.update(dto,catId, req.user.shop_id)
     }
 
     @Delete(':id')
-    delete(@Param('id') catId:string , @Request() req){
-        return this.jwellerycategoryService.delete(catId,req.user.id)
+    delete(@Param('id') catId:string , @Request() req:any){
+        return this.jwellerycategoryService.delete(catId, req.user.shop_id)
     }
 }

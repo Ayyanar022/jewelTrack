@@ -11,7 +11,8 @@ export class FeatureGuard implements CanActivate {
     if (!feature) return true;
 
     const req = ctx.switchToHttp().getRequest();
-    const has = await this.subscriptionService.hasFeature(req.user.id, feature);
+    const shopId = req.user?.shop_id || req.user?.id;
+    const has = await this.subscriptionService.hasFeature(shopId, feature);
     if (!has) throw new ForbiddenException(`Upgrade required for "${feature}"`);
     return true;
   }

@@ -6,19 +6,17 @@ import { PrismaService } from 'src/common/prisma/prisma.service';
 export class InventoryService {
     constructor(private prisma:PrismaService){}
 
-    async stockIn(dto:In_out_adj_dto,shopId:string){
+    async stockIn(dto:In_out_adj_dto, shopId:string, userId?: string){
       return  this.prisma.inventoryStockEntry.create({
-            // where :shopId,
             data:{
                 shop_id :shopId ,
                 category_id :dto.category_id,
                 type :dto.type,
                 weight :dto.weight ,
                 purity :dto.purity ,
-                // stockType :dto.stockType ,
                 reference :dto.reference,
-                 stockType: "OWN" // or "BORROW",
-                // ...(dto.reference_id && {reference_id:dto.reference_id})  ,
+                stockType: "OWN",
+                created_by_user_id: userId || null,
             }
         })
     }

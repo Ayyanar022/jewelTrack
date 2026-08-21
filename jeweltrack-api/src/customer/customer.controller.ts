@@ -13,34 +13,31 @@ export class CustomerController {
 
     @Post()
     create(@Body()dto:CreateCustomerDto , @Request() req:any){
-        return this.customerService.create(dto,req.user.id)
+        return this.customerService.create(dto, req.user.shop_id)
     }
 
     @Put(':id')
     updateCustomer(@Body() dto :UpdateCustomerDto , @Param('id') customerID:string , @Request() req:any) {
-        return this.customerService.updateCustomer(dto ,customerID , req.user.id )
+        return this.customerService.updateCustomer(dto ,customerID , req.user.shop_id )
     }
-
 
     @Get('search')
-    search(@Query('q') query:string , @Request() req){
-        return this.customerService.search(query, req.user.id)
+    search(@Query('q') query:string , @Request() req:any){
+        return this.customerService.search(query, req.user.shop_id)
     }
 
-
     @Get('all')
-    fetchAll(@Request() req){
-        return this.customerService.fetchAll(req.user.id)
+    fetchAll(@Request() req:any){
+        return this.customerService.fetchAll(req.user.shop_id)
     }
 
     @Get('purchase/:id')
     purchaseBills(@Request() req:any , @Param('id') customerId:string ){
-        return this.customerService.purchaseBills(customerId,req.user.id )
+        return this.customerService.purchaseBills(customerId, req.user.shop_id )
     }
 
     @Get('stats/:id')
     stats(@Request() req:any , @Param('id') customerId:string){
-        return this.customerService.stats(customerId , req.user.id)
+        return this.customerService.stats(customerId , req.user.shop_id)
     }
-
 }

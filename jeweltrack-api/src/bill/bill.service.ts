@@ -11,8 +11,7 @@ export class BillService {
     ){}
 
   
-    async create(dto:CreateBillDto,shopId:string){
-
+    async create(dto:CreateBillDto, shopId:string, userId?: string){
           // ---- plan limit check (before transaction, keeps txn light) ----
         const limit = await this.subscriptionService.checkLimit(shopId, 'max_invoices_per_month');
 
@@ -35,15 +34,14 @@ export class BillService {
         //-------------------------------------
 
        return await this.prisma.$transaction(async (tx)=>{
-
-               // existing bill count 
-        const count =await tx.bill.count({
-            where:{shop_id:shopId}
-            })
+         // existing bill count 
+         const count = await tx.bill.count({
+             where:{shop_id:shopId}
+         })
             
-        const bill_number = `BILL-${String(count+1).padStart(3,'0')}`        
+         const bill_number = `BILL-${String(count+1).padStart(3,'0')}`        
     
-        const bill = await tx.bill.create({
+         const bill = await tx.bill.create({
             data:{
                 shop_id:shopId,
                 customer_id:dto.customer_id,
@@ -54,9 +52,10 @@ export class BillService {
                 notes:dto.notes,
                 totalGST:dto.totalGST??0,
                 payableAmount:dto.payableAmount,
+                created_by_user_id: userId || null,
                 billItem:{
                     create:dto.billItem.map(item=>({
-                       purity: item.purity,
+                        purity: item.purity,
                         gross_weight: item.gross_weight,
                         net_weight: item.net_weight,
                         stone: item.stone,
@@ -68,7 +67,7 @@ export class BillService {
                         category: {
                             connect: { id: item.category_id }
                         }
-                                            }))
+                    }))
                 },
                 ...(dto.oldJewelItem?.length>0 && {
                     oldGoldEntry : {
@@ -82,17 +81,14 @@ export class BillService {
                         }))
                     }
                 })
-                
             },
             include:{
                 billItem:true,
                 customer:true
             }
-        })
-
-       
+         })
         
-        // ledger out entry 
+         // ledger out entry 
          await tx.inventoryStockEntry.createMany({
             data:dto.billItem.filter(i=>i.metal!=="SILVER").map((out:any)=>({
                     shop_id : shopId ,
@@ -103,83 +99,67 @@ export class BillService {
                     stockType : "OWN" ,
                     reference :"BILL" ,
                     reference_id : bill_number ,
+                    created_by_user_id: userId || null,
             }))
+         })
 
-        })
-
-        // Entry Payment 
-        await tx.billPaymentsEntry.create({
+         // Entry Payment 
+         await tx.billPaymentsEntry.create({
             data: {
                 shop_id : shopId ,
                 bill_id : bill.id,
                 paid_amount :dto.paid_amount ,
-
+                created_by_user_id: userId || null,
             }
-        })
+         })
 
-        // Entry old Stock 
-        // await tx.oldGoldEntry.create({
-        //     data:{
-        //          shop_id : shopId ,
-        //         bill_id : bill.id,
-
-        //     }
-
-        // })
-
-// console.log("bill")
-        return {id:bill.id}
-        })
-
+         return {id:bill.id}
+       })
     }
 
-
-
     async findOne(billId:string, shopId:string ){
-
         const bill = await this.prisma.bill.findFirst({
             where:{id:billId , shop_id:shopId},
-            include:{billItem:{include:{category:{select:{name:true}}}},customer:true}
+            include:{
+                billItem:{include:{category:{select:{name:true}}}},
+                customer:true,
+                created_by:{select:{id:true, name:true, role:true}}
+            }
         })
-    //    console.dir(bill, { depth: null });
         return bill
     }
     
     async findBillDetaile(billId:string, shopId:string ){
-
         const bill = await this.prisma.bill.findFirst({
             where:{id:billId , shop_id:shopId},
-            include:{billItem:{include:{category:{select:{name:true}}}},
-            customer:{select:{
-                id:true,
-                name:true,
-                village:true,
-                address:true,
-                phone:true
-
-            }} ,
-            billPaymentsEntry:{select:{
-                id:true , paid_amount:true , created_at:true
-            }},
-            oldGoldEntry:{select:{
-                id:true,
-                amount:true ,
-                item_name:true ,
-                purity:true,
-                rate:true ,
-                 weight:true
-            }}
-        },
-
-            
+            include:{
+                billItem:{include:{category:{select:{name:true}}}},
+                customer:{select:{
+                    id:true,
+                    name:true,
+                    village:true,
+                    address:true,
+                    phone:true
+                }},
+                created_by:{select:{id:true, name:true, role:true, phone:true}},
+                billPaymentsEntry:{
+                    select:{
+                        id:true , paid_amount:true , created_at:true,
+                        created_by:{select:{id:true, name:true, role:true}}
+                    }
+                },
+                oldGoldEntry:{select:{
+                    id:true,
+                    amount:true ,
+                    item_name:true ,
+                    purity:true,
+                    rate:true ,
+                    weight:true
+                }}
+            },
         })
-
-        // console.log(billId)
-        // console.log(bill)
-    //    console.dir(bill, { depth: null });
         return bill
     }
-
 
     async findAll(search:string , shopId:string ,page:string , limit:string){
         const pageNumber = Number(page) || 1 ;
@@ -205,12 +185,13 @@ export class BillService {
                             bill_number:{contains:search}
                         }
                     ]
-                }
-                    
-                ),
-                
+                }),
             },
-            include:{billItem:true ,customer:true},
+            include:{
+                billItem:true,
+                customer:true,
+                created_by:{select:{id:true, name:true, role:true}}
+            },
             skip,
             take,
             orderBy:{created_at:'desc'}
@@ -219,18 +200,14 @@ export class BillService {
         return bill
     }
 
-
-    async AddPayment(billId:string , dto:any , shopId:string){
-        // console.log("amount",dto ,shopId , billId)
+    async AddPayment(billId:string , dto:any , shopId:string, userId?: string){
         return this.prisma.billPaymentsEntry.create({
             data:{
                 shop_id:shopId,
                 bill_id:billId,
-               paid_amount: Number(dto.addPayment)
+                paid_amount: Number(dto.addPayment),
+                created_by_user_id: userId || null,
             }
         })
     }
-
-
-
 }

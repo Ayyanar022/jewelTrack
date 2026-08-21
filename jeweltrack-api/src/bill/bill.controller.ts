@@ -8,19 +8,17 @@ import { CreateBillDto } from './dto/craete-bill.dto';
 @ApiTags('Bills')
 @Controller('bill')
 @UseGuards(JwtAuthGuard)
-// @RequireFeature('advanced_reports')
 export class BillController {
-
     constructor(private billService : BillService){}
 
     @Post()
     create(@Body() dto:CreateBillDto , @Request() req:any ){
-        return this.billService.create(dto , req.user.id)
+        return this.billService.create(dto , req.user.shop_id, req.user.id)
     }
 
     @Get('search')
-    fetch(@Query('q') billId:string ,@Request() req ){
-        return this.billService.findOne(billId , req.user.id)
+    fetch(@Query('q') billId:string ,@Request() req:any ){
+        return this.billService.findOne(billId , req.user.shop_id)
     }
 
     @Get('all')
@@ -28,27 +26,23 @@ export class BillController {
         @Query('search') search:string ,
         @Query('page') page:string ,
         @Query('limit') limit:string ,
-        @Request() req 
+        @Request() req:any 
     ){
-        return this.billService.findAll(search ,req.user.id,page,limit)
+        return this.billService.findAll(search ,req.user.shop_id,page,limit)
     }
 
     @Get(':id')
-    findOne(@Param('id') billId:string,@Request() req){
-        return this.billService.findOne(billId , req.user.id)
+    findOne(@Param('id') billId:string,@Request() req:any){
+        return this.billService.findOne(billId , req.user.shop_id)
     }
 
     @Get('bill-detail-payment-entry/:id')
-    findBillDetaile(@Param('id') billId:string,@Request() req){
-        return this.billService.findBillDetaile(billId , req.user.id)
+    findBillDetaile(@Param('id') billId:string,@Request() req:any){
+        return this.billService.findBillDetaile(billId , req.user.shop_id)
     }
 
     @Post('payment/bill-add-entry/:id')
-    postBillPayment(@Param('id') billId:string ,@Body() data , @Request() req){
-        return this.billService.AddPayment(billId,data , req.user.id )
+    postBillPayment(@Param('id') billId:string ,@Body() data:any , @Request() req:any){
+        return this.billService.AddPayment(billId,data , req.user.shop_id, req.user.id )
     }
-
-    
-
-
 }

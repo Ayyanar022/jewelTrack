@@ -41,16 +41,17 @@
 
 
 
-'use client'
+'use client';
 
-import CustomerStats from "@/components/app_component/customer/CustomerStats"
-import Purchase from "@/components/app_component/customer/Purchase"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useSearchParams } from "next/navigation"
+import { Suspense } from 'react';
+import CustomerStats from "@/components/app_component/customer/CustomerStats";
+import Purchase from "@/components/app_component/customer/Purchase";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useSearchParams } from "next/navigation";
 
 const CustomerView = () => {
-  const searchParm = useSearchParams()
-  const id = searchParm.get('id')
+  const searchParm = useSearchParams();
+  const id = searchParm.get('id');
 
   return (
     <div className="flex flex-col gap-4">
@@ -91,7 +92,13 @@ const CustomerView = () => {
         </TabsContent>
       </Tabs>
     </div>
-  )
-}
+  );
+};
 
-export default CustomerView
+export default function CustomerViewWrapper() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-sm text-muted-foreground">Loading customer details...</div>}>
+      <CustomerView />
+    </Suspense>
+  );
+}

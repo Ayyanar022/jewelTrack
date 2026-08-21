@@ -31,14 +31,14 @@ export class SettingController {
 
   @Get('shop-profile')
   getShopProfile(@Request() req: any) {
-    return this.settingService.getShopProfile(req.user.id);
+    return this.settingService.getShopProfile(req.user.shop_id);
   }
 
   @Post('shop-profile')
   createShopProfile(
     @Body() dto: CreateShopSettingDto,    @Request() req: any,
   ) {
-    return this.settingService.createShopProfile(dto, req.user.id);
+    return this.settingService.createShopProfile(dto, req.user.shop_id);
   }
 
   @Patch('shop-profile')
@@ -46,7 +46,7 @@ export class SettingController {
     @Body() dto: UpdateShopSettingDto,
     @Request() req: any,
   ) {
-    return this.settingService.updateShopProfile(dto, req.user.id);
+    return this.settingService.updateShopProfile(dto, req.user.shop_id);
   }
 
 
@@ -56,7 +56,7 @@ export class SettingController {
     @Body() dto: UpdateShopTaxDto,
     @Request() req: any,
     ) {
-    return this.settingService.updateTax(dto, req.user.id);
+    return this.settingService.updateTax(dto, req.user.shop_id);
     }
 
 
@@ -66,7 +66,7 @@ export class SettingController {
     @Body() dto: UpdateShopInvoiceDto,
     @Request() req: any,
     ) {
-    return this.settingService.updateInvoice(dto, req.user.id);
+    return this.settingService.updateInvoice(dto, req.user.shop_id);
     }
 
 
@@ -79,7 +79,7 @@ export class SettingController {
         filename: (req: any, file, cb) => {
         const ext = extname(file.originalname);
 
-        cb(null, `shop_${req.user?.id}${ext}`);
+        cb(null, `shop_${req.user?.shop_id}${ext}`);
         },
         }),
 
@@ -111,19 +111,7 @@ export class SettingController {
     ) {
     return this.settingService.uploadLogo(
         file,
-        req.user.id,
+        req.user.shop_id,
     );
     }
-
-
-
-
-
-
-
-
-
-
-
-
 }

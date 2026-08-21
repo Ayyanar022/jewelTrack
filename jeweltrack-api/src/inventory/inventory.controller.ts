@@ -12,21 +12,17 @@ export class InventoryController {
     constructor(private invenToryService:InventoryService ){}
 
     @Post('in')
-    stockIn(@Body() dto:In_out_adj_dto , @Request() req){
-        console.log("hello---------")
-        return this.invenToryService.stockIn(dto,req.user.id)
+    stockIn(@Body() dto:In_out_adj_dto , @Request() req:any){
+        return this.invenToryService.stockIn(dto, req.user.shop_id, req.user.id)
     }
 
     @Get('inventory-total')
-    inventoryTotal( @Request() req){
-        return this.invenToryService.inventoryStatus(req.user.id)
+    inventoryTotal( @Request() req:any){
+        return this.invenToryService.inventoryStatus(req.user.shop_id)
     }
-
-  
 
     @Get('inventory-ledger')
-    getLedger(@Query('page') page , @Request() req){
-        return this.invenToryService.getLedger(page ,req.user.id)
+    getLedger(@Query('page') page:any , @Request() req:any){
+        return this.invenToryService.getLedger(page , req.user.shop_id)
     }
-    
 }

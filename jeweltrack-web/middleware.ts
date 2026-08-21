@@ -9,18 +9,17 @@ export function middleware(request:NextRequest){
     const isAuthPage = pathname.startsWith('/login') ||
                         pathname.startsWith('/register');
     
-    const isDashboardPage = pathname.startsWith('/dashboard') 
+    const isProtectedPage = pathname.startsWith('/dashboard') || pathname.startsWith('/admin');
 
-    // no token + trying to  access dashboard - redirect to login
-    if(!token && isDashboardPage){
+    // no token + trying to access protected page -> redirect to login
+    if (!token && isProtectedPage) {
         return NextResponse.redirect(new URL('/login', request.url));
     }
 
-    // has token + trying to access login / register - > redirect to dashboard
-    if(token && isAuthPage){
-        return NextResponse.redirect(new URL('/dashboard',request.url));
+    // has token + trying to access login / register -> redirect to dashboard
+    if (token && isAuthPage) {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
     }
-
 
     return NextResponse.next();
 

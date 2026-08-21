@@ -8,6 +8,7 @@ import { CreateBillDto } from './dto/craete-bill.dto';
 @ApiTags('Bills')
 @Controller('bill')
 @UseGuards(JwtAuthGuard)
+// @RequireFeature('advanced_reports')
 export class BillController {
 
     constructor(private billService : BillService){}

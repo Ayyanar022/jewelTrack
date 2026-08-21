@@ -751,6 +751,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BillHistory from "@/components/app_component/BillHistory";
 import { Edit2, MapPin, Phone, Search, User, X, Loader2, Printer, Plus, History } from "lucide-react";
 import { toast } from "sonner";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 interface BillItem {
   item_name: string;
@@ -818,6 +819,15 @@ const NewBillPage = () => {
   const firstItemRef = useRef<HTMLInputElement>(null);
   const customerRef = useRef<HTMLInputElement>(null);
   const tableContainerRef = useRef<HTMLDivElement>(null);
+
+  const searchParams = useSearchParams();
+  const router = useRouter()
+  const activeCurrentTab = searchParams.get('tab') || 'new' ; 
+    const pathname = usePathname(); // '/dashboard/billing/new'
+
+  useEffect(()=>{
+    setActiveTab(activeCurrentTab)
+  },[activeCurrentTab])
 
   const { data: rate, isLoading: rateLoading } = useQuery({
     queryKey: ['recent-rate'],
@@ -1115,16 +1125,24 @@ const NewBillPage = () => {
     );
   }
 
-  
+
+
+const handleTabChange = (tab: string) => {
+  router.replace(`${pathname}?tab=${tab}`, { scroll: false });
+};
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-1 ">
 
 
-        <div className="bg-white p-3 rounded-lg border shadow-sm">
+    
+
+      <TabsContent value="new" className="space-y-4">
+    
+          <div className="bg-white p-3 rounded-lg border shadow-sm">
         <div className="flex items-center justify-between gap-4">
           {/* Left side - Customer Search */}
-          <div className="flex items-center gap-4 flex-1">
+         <div className="flex items-center gap-4 flex-1">
             {selectedCustomer ? (
               <div className="flex items-center gap-4 bg-green-50 border border-green-200 rounded-lg px-3 py-1.5 flex-1">
                 <User size={16} className="text-green-600" />
@@ -1238,11 +1256,10 @@ const NewBillPage = () => {
               History
             </button>
           </div>
+
+        
         </div>
       </div>
-
-      <TabsContent value="new" className="space-y-4">
-    
 
         {/* Bill Items Table - Full Width with Large Font */}
         <div className="bg-white border rounded-lg shadow-sm overflow-hidden">
@@ -1634,7 +1651,32 @@ const NewBillPage = () => {
       </TabsContent>
 
       <TabsContent value="history">
-        <BillHistory />
+       
+            {/* <div className="flex items-center gap-1 bg-gray-100 p-0.5 rounded-lg">
+            <button
+              onClick={() => setActiveTab('new')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
+                activeTab === 'new' 
+                  ? 'bg-white shadow-sm text-amber-700' 
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              <Plus size={15} />
+              New Bill
+            </button>
+            <button
+              onClick={() => setActiveTab('history')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
+                activeTab === 'history' 
+                  ? 'bg-white shadow-sm text-amber-700' 
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              <History size={15} />
+              History
+            </button>
+          </div> */}
+        <BillHistory activeTab={activeTab} newBill={()=>setActiveTab('new')}  history={()=>setActiveTab('history')} />
       </TabsContent>
     </Tabs>
   );

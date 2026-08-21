@@ -1,13 +1,38 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateBillDto, OldGoldEntryDto } from './dto/craete-bill.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
+import { SubscriptionService } from 'src/subscription/subscription.service';
 
 @Injectable()
 export class BillService {
-    constructor (private prisma:PrismaService){}
+    constructor (
+        private prisma:PrismaService ,
+        private subscriptionService:SubscriptionService
+    ){}
 
   
     async create(dto:CreateBillDto,shopId:string){
+
+          // ---- plan limit check (before transaction, keeps txn light) ----
+        const limit = await this.subscriptionService.checkLimit(shopId, 'max_invoices_per_month');
+
+        if (limit !== null) {
+            const startOfMonth = new Date();
+            startOfMonth.setDate(1);
+            startOfMonth.setHours(0, 0, 0, 0);
+
+            const monthlyCount = await this.prisma.bill.count({
+                where: { shop_id: shopId, created_at: { gte: startOfMonth } },
+            });
+
+            if (monthlyCount >= limit) {
+                throw new ForbiddenException(
+                    `Monthly bill limit (${limit}) reached. Please upgrade your plan.`,
+                );
+            }
+        }
+
+        //-------------------------------------
 
        return await this.prisma.$transaction(async (tx)=>{
 

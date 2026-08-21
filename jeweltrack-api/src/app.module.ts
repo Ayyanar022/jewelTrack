@@ -10,11 +10,13 @@ import { JewelleryCategoryModule } from './jewellery-category/jewellery-category
 import { InventoryModule } from './inventory/inventory.module';
 import { ReportsModule } from './reports/reports.module';
 import { SettingsModule } from './settings/settings.module';
+import { PlanModule } from './plan/plan.module';
+import { SubscriptionModule } from './subscription/subscription.module';
 
 @Module({
   imports: [AuthModule,PrismaModule, RateModule, CustomerModule,
      BillModule, JewelleryCategoryModule, InventoryModule, ReportsModule ,
-    SettingsModule ],
+    SettingsModule ,PlanModule,SubscriptionModule],
   controllers: [AppController],
   providers: [AppService],
 

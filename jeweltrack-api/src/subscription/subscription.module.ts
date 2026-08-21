@@ -5,7 +5,8 @@ import { SubscriptionService } from "./subscription.service";
 
 @Module({
     controllers:[SubscriptionController],
-    providers:[SubscriptionService]
+    providers:[SubscriptionService],
+    exports:[SubscriptionService]
 })
 
 export class SubscriptionModule {}

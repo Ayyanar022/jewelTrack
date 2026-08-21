@@ -39,7 +39,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     shop: getStoredUser()?.shop || null,
 
     setToken: (token: string) => {
-        document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 24 * 7}`;
+        document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
         if (typeof window !== 'undefined') {
             localStorage.setItem('token', token);
         }
@@ -50,8 +50,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         if (typeof window !== 'undefined') {
             if (user) {
                 localStorage.setItem('jeweltrack_user', JSON.stringify(user));
+                document.cookie = `user_role=${user.role}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
             } else {
                 localStorage.removeItem('jeweltrack_user');
+                document.cookie = `user_role=; path=/; max-age=0`;
             }
         }
         set({ user, shop: user?.shop || null });
@@ -63,6 +65,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     logout: () => {
         document.cookie = `token=; path=/; max-age=0`;
+        document.cookie = `user_role=; path=/; max-age=0`;
         if (typeof window !== 'undefined') {
             localStorage.removeItem('token');
             localStorage.removeItem('jeweltrack_user');
@@ -81,4 +84,4 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     isShopOwner: () => {
         return get().user?.role === 'SHOP_OWNER';
     },
-}));
+}));

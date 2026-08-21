@@ -26,12 +26,36 @@ export class AuthService {
         // 2. Hash password
         const hashPassword = await bcrypt.hash(dto.password, 10);
 
-        // 3. Create Shop + User + initial ShopSetting in a transaction
+        // 3. Get trial duration from PlatformConfig (default 14 days)
+        const trialConfig = await this.prisma.platformConfig.findUnique({
+            where: { key: 'DEFAULT_TRIAL_DAYS' }
+        });
+        const trialDays = trialConfig ? parseInt(trialConfig.value, 10) || 14 : 14;
+
+        // 4. Find default trial plan (read from PlatformConfig, default to PRO)
+        const trialPlanConfig = await this.prisma.platformConfig.findUnique({
+            where: { key: 'DEFAULT_TRIAL_PLAN' }
+        });
+        const configuredPlanName = trialPlanConfig?.value || 'PRO';
+
+        const trialPlan = (await this.prisma.plan.findUnique({ where: { name: configuredPlanName } }))
+            || (await this.prisma.plan.findUnique({ where: { name: 'PRO' } }))
+            || (await this.prisma.plan.findFirst({ where: { is_active: true } }));
+
+        if (!trialPlan) {
+            throw new ConflictException('System setup incomplete: Default subscription plan not found');
+        }
+
+        const trialStart = new Date();
+        const trialEnd = new Date();
+        trialEnd.setDate(trialEnd.getDate() + trialDays);
+
+        // 5. Create Shop + User + Trial Subscription + initial ShopSetting in a transaction
         const result = await this.prisma.$transaction(async (tx) => {
             const shop = await tx.shop.create({
                 data: {
                     name: dto.name,
-                    subscription_plan: 'TRIAL',
+                    subscription_plan: trialPlan.name,
                     subscription_status: 'TRIAL',
                 }
             });
@@ -43,6 +67,20 @@ export class AuthService {
                     phone: dto.phone,
                     password: hashPassword,
                     role: Role.SHOP_OWNER,
+                }
+            });
+
+            // Create 14-day trial subscription record
+            await tx.subscription.create({
+                data: {
+                    shop_id: shop.id,
+                    plan_id: trialPlan.id,
+                    duration_months: 1,
+                    amount_paid: 0,
+                    discount_percent: 0,
+                    status: 'TRIAL',
+                    current_period_start: trialStart,
+                    current_period_end: trialEnd,
                 }
             });
 

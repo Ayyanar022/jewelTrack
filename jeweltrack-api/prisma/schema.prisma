@@ -440,3 +440,10 @@ model Subscription {
   @@index([status])
   @@index([plan_id])
 }
+
+model PlatformConfig {
+  key         String   @id
+  value       String
+  description String?
+  updated_at  DateTime @updatedAt
+}

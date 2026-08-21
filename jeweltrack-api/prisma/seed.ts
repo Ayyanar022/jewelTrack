@@ -75,6 +75,18 @@ async function main() {
   }
   console.log('✓ Default plans seeded');
 
+  // Platform Config
+  await prisma.platformConfig.upsert({
+    where: { key: 'DEFAULT_TRIAL_DAYS' },
+    update: {},
+    create: {
+      key: 'DEFAULT_TRIAL_DAYS',
+      value: '14',
+      description: 'Default free trial duration in days for newly registered shops',
+    },
+  });
+  console.log('✓ Platform config seeded (DEFAULT_TRIAL_DAYS = 14)');
+
   // 2. Create Super Admin User
   const adminPhone = '9999999999';
   const adminPassword = await bcrypt.hash('AdminPassword123', 10);

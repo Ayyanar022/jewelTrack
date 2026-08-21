@@ -34,6 +34,52 @@ export default function AdminPlansPage() {
     },
   });
 
+  // Fetch Global Default Trial Days
+  const { data: trialDays = 14 } = useQuery<number>({
+    queryKey: ['admin-trial-days'],
+    queryFn: async () => {
+      const res = await api.get('/subscription/config/trial-days');
+      return res.data;
+    },
+  });
+
+  // Fetch Global Default Trial Plan Tier (e.g. "PRO")
+  const { data: trialPlan = 'PRO' } = useQuery<string>({
+    queryKey: ['admin-trial-plan'],
+    queryFn: async () => {
+      const res = await api.get('/subscription/config/trial-plan');
+      return res.data;
+    },
+  });
+
+  // Update Trial Days Mutation
+  const updateTrialDaysMutation = useMutation({
+    mutationFn: async (days: number) => {
+      return api.patch('/subscription/config/trial-days', { days });
+    },
+    onSuccess: (_, days) => {
+      toast.success(`Default free trial updated to ${days} days!`);
+      queryClient.invalidateQueries({ queryKey: ['admin-trial-days'] });
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || 'Failed to update trial days');
+    },
+  });
+
+  // Update Trial Plan Mutation
+  const updateTrialPlanMutation = useMutation({
+    mutationFn: async (planName: string) => {
+      return api.patch('/subscription/config/trial-plan', { plan_name: planName });
+    },
+    onSuccess: (_, planName) => {
+      toast.success(`Default trial plan updated to ${planName}!`);
+      queryClient.invalidateQueries({ queryKey: ['admin-trial-plan'] });
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || 'Failed to update trial plan');
+    },
+  });
+
   // Fetch all plans (including inactive ones)
   const { data: plans = [], isLoading } = useQuery<Plan[]>({
     queryKey: ['admin-plans'],
@@ -184,6 +230,67 @@ export default function AdminPlansPage() {
           <Plus className="w-4 h-4" />
           <span>Create New Plan</span>
         </Button>
+      </div>
+
+      {/* Free Trial Platform Settings Card */}
+      <div className="bg-gradient-to-r from-amber-500/10 via-gold/10 to-amber-500/10 border border-gold/30 rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-gold" />
+            <h2 className="text-sm font-bold text-slate-900">New Shop Registration Trial Policy</h2>
+          </div>
+          <p className="text-xs text-slate-600">
+            Configure the subscription tier and duration automatically assigned to newly registered jewellery shops.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-gold/20">
+          {/* Trial Plan Tier */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="text-xs font-bold text-slate-800">1. Assigned Trial Tier:</span>
+            {['BASIC', 'PRO', 'ENTERPRISE'].map((planName) => {
+              const isSelected = trialPlan === planName;
+              return (
+                <button
+                  key={planName}
+                  type="button"
+                  disabled={updateTrialPlanMutation.isPending}
+                  onClick={() => updateTrialPlanMutation.mutate(planName)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    isSelected
+                      ? 'bg-slate-900 text-white shadow-sm ring-2 ring-gold'
+                      : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
+                  }`}
+                >
+                  {planName}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Trial Duration */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="text-xs font-bold text-slate-800">2. Trial Duration:</span>
+            {[7, 14, 30, 60, 90].map((days) => {
+              const isSelected = trialDays === days;
+              return (
+                <button
+                  key={days}
+                  type="button"
+                  disabled={updateTrialDaysMutation.isPending}
+                  onClick={() => updateTrialDaysMutation.mutate(days)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    isSelected
+                      ? 'bg-gold text-white shadow-sm'
+                      : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
+                  }`}
+                >
+                  {days === 30 ? '1 Month (30d)' : days === 90 ? '3 Months (90d)' : `${days} Days`}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* Plans Grid */}

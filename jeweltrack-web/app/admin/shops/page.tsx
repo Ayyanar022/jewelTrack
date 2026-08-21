@@ -6,7 +6,7 @@ import api from '@/lib/axios';
 import { Shop } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Search, Store, Users, FileText, Calendar, ShieldCheck, Loader2 } from 'lucide-react';
+import { Search, Store, Users, FileText, Calendar, ShieldCheck, Loader2, Clock } from 'lucide-react';
 
 export default function AdminShopsPage() {
   const [search, setSearch] = useState('');
@@ -107,6 +107,15 @@ export default function AdminShopsPage() {
                 {filteredShops.map((shop) => {
                   const owner = shop.users?.find((u) => u.role === 'SHOP_OWNER') || shop.users?.[0];
                   const staffCount = shop.users?.length || 0;
+                  const latestSub = (shop as any).subscription?.[0];
+                  const planName = latestSub?.plan?.name || (shop.subscription_plan === 'TRIAL' ? 'PRO' : shop.subscription_plan);
+                  const isTrial = shop.subscription_status === 'TRIAL' || latestSub?.status === 'TRIAL';
+                  const isExpired = shop.subscription_status === 'EXPIRED' || latestSub?.status === 'EXPIRED';
+
+                  const now = new Date();
+                  const endDate = latestSub?.current_period_end ? new Date(latestSub.current_period_end) : null;
+                  const daysRemaining = endDate ? Math.max(0, Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))) : null;
+
                   return (
                     <tr key={shop.id} className="hover:bg-slate-50/70 transition-colors">
                       {/* Shop & Owner */}
@@ -126,22 +135,30 @@ export default function AdminShopsPage() {
 
                       {/* Plan & Status */}
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-xs uppercase px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-200">
-                            {shop.subscription_plan}
-                          </span>
-                          <Badge
-                            variant="outline"
-                            className={`text-[10px] font-semibold px-2 py-0.5 uppercase ${
-                              shop.subscription_status === 'ACTIVE'
-                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                : shop.subscription_status === 'TRIAL'
-                                ? 'bg-amber-50 text-amber-700 border-amber-200'
-                                : 'bg-rose-50 text-rose-700 border-rose-200'
-                            }`}
-                          >
-                            {shop.subscription_status}
-                          </Badge>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-xs uppercase px-2.5 py-0.5 rounded bg-slate-900 text-white shadow-sm">
+                              {planName}
+                            </span>
+                            <Badge
+                              variant="outline"
+                              className={`text-[10px] font-bold px-2 py-0.5 uppercase ${
+                                isTrial
+                                  ? 'bg-amber-50 text-amber-800 border-amber-300'
+                                  : isExpired
+                                  ? 'bg-rose-50 text-rose-800 border-rose-300'
+                                  : 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                              }`}
+                            >
+                              {isTrial ? 'Free Trial' : isExpired ? 'Expired' : 'Active'}
+                            </Badge>
+                          </div>
+                          {isTrial && daysRemaining !== null && (
+                            <div className="text-[11px] text-amber-700 font-medium flex items-center gap-1">
+                              <Clock className="w-3 h-3 text-amber-600" />
+                              <span>{daysRemaining} days left</span>
+                            </div>
+                          )}
                         </div>
                       </td>
 

@@ -123,6 +123,11 @@ export class UserService {
             is_active: true,
           },
         },
+        subscription: {
+          orderBy: { created_at: 'desc' },
+          take: 1,
+          include: { plan: true },
+        },
         _count: {
           select: {
             bill: true,

@@ -9,13 +9,10 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import {
-  Sparkles,
   Check,
-  Zap,
   Users,
   FileText,
   Building2,
-  Calendar,
   Clock,
   ArrowRight,
   ShieldCheck,
@@ -78,13 +75,13 @@ export default function ShopSubscription() {
     { duration: 1, label: '1 Month', badge: null },
     { duration: 3, label: '3 Months', badge: '5% OFF' },
     { duration: 6, label: '6 Months', badge: '10% OFF' },
-    { duration: 12, label: 'Annual (12 Months)', badge: '20% OFF 🌟' },
+    { duration: 12, label: 'Annual (12 Mos)', badge: '20% OFF 🌟' },
   ];
 
   if (subLoading || plansLoading) {
     return (
-      <div className="flex items-center justify-center py-24">
-        <Loader2 className="w-10 h-10 animate-spin text-gold" />
+      <div className="flex items-center justify-center py-16">
+        <Loader2 className="w-8 h-8 animate-spin text-gold" />
       </div>
     );
   }
@@ -95,136 +92,85 @@ export default function ShopSubscription() {
   const usage = subscription?.usage;
 
   return (
-    <div className="space-y-12 max-w-6xl mx-auto py-4">
-      {/* 1. Current Active Plan Hero Card */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-amber-950 text-white rounded-3xl p-8 lg:p-10 shadow-2xl border border-gold/40">
-        <div className="absolute -right-12 -bottom-12 w-80 h-80 bg-gold/15 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8 relative z-10">
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 flex-wrap">
-              <span className="text-xs uppercase tracking-widest font-extrabold text-gold px-3.5 py-1.5 rounded-full bg-gold/20 border border-gold/40">
-                Current Subscription
-              </span>
-              <Badge
-                variant="outline"
-                className={`text-xs font-bold px-3.5 py-1 uppercase tracking-wide ${
-                  isTrial
-                    ? 'bg-amber-500/20 text-amber-300 border-amber-400/50'
-                    : isExpired
-                    ? 'bg-rose-500/20 text-rose-300 border-rose-400/50'
-                    : 'bg-emerald-500/20 text-emerald-300 border-emerald-400/50'
-                }`}
-              >
-                {isTrial ? 'Free Trial' : subscription?.status}
-              </Badge>
-            </div>
-
-            <div className="flex items-baseline gap-4 flex-wrap">
-              <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-white flex items-center gap-3">
-                <Crown className="w-8 h-8 text-gold inline flex-shrink-0" />
-                <span>{subscription?.plan?.name || 'PRO'} Plan</span>
-              </h2>
-              <span className="text-base text-slate-300 font-medium">
-                {isTrial
-                  ? '(14-Day Full Feature Preview)'
-                  : `₹${(subscription?.amount_paid / 100).toLocaleString('en-IN')} paid`}
-              </span>
-            </div>
-
-            {/* Countdown / Expiration */}
-            <div className="flex items-center gap-2.5 text-base text-slate-200 pt-1">
-              <Clock className="w-5 h-5 text-gold flex-shrink-0" />
-              {isExpired ? (
-                <span className="text-rose-300 font-bold">Subscription Expired. Please choose a plan below to continue.</span>
-              ) : isTrial ? (
-                <span>
-                  <strong className="text-gold font-extrabold text-lg">{daysLeft} Days</strong> remaining in your free trial (Valid till:{' '}
-                  <strong>
-                    {new Date(subscription?.current_period_end).toLocaleDateString('en-IN', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
-                  </strong>
-                  )
-                </span>
-              ) : (
-                <span>
-                  Active until{' '}
-                  <strong>
-                    {new Date(subscription?.current_period_end).toLocaleDateString('en-IN', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
-                  </strong>
-                </span>
-              )}
-            </div>
+    <div className="space-y-5 max-w-6xl mx-auto">
+      {/* 1. Compact Active Subscription Status Bar */}
+      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-amber-950 text-white rounded-2xl p-5 shadow-md border border-gold/30 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-3 flex-wrap">
+            <h2 className="text-xl font-black text-white flex items-center gap-2">
+              <Crown className="w-5 h-5 text-gold inline flex-shrink-0" />
+              <span>{subscription?.plan?.name || 'PRO'} Plan</span>
+            </h2>
+            <Badge
+              variant="outline"
+              className={`text-xs font-bold px-2.5 py-0.5 uppercase ${
+                isTrial
+                  ? 'bg-amber-500/20 text-amber-300 border-amber-400/50'
+                  : isExpired
+                  ? 'bg-rose-500/20 text-rose-300 border-rose-400/50'
+                  : 'bg-emerald-500/20 text-emerald-300 border-emerald-400/50'
+              }`}
+            >
+              {isTrial ? 'Free Trial' : subscription?.status}
+            </Badge>
           </div>
 
-          {/* Live Usage Meters */}
-          {usage && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 bg-black/40 backdrop-blur-md p-5 rounded-2xl border border-white/15 min-w-[320px]">
-              <div className="space-y-1.5">
-                <div className="text-xs text-slate-300 font-semibold flex items-center gap-1.5">
-                  <Users className="w-4 h-4 text-gold" /> Staff Logins
-                </div>
-                <div className="text-xl font-extrabold text-white">
-                  {usage.users_count} <span className="text-slate-400 text-sm font-normal">/ {usage.max_users}</span>
-                </div>
-                <div className="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
-                  <div
-                    className="bg-gold h-full rounded-full transition-all"
-                    style={{ width: `${Math.min(100, (usage.users_count / usage.max_users) * 100)}%` }}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <div className="text-xs text-slate-300 font-semibold flex items-center gap-1.5">
-                  <FileText className="w-4 h-4 text-gold" /> Month Bills
-                </div>
-                <div className="text-xl font-extrabold text-white">
-                  {usage.monthly_bills_count}{' '}
-                  <span className="text-slate-400 text-sm font-normal">/ {usage.max_invoices_per_month ?? '∞'}</span>
-                </div>
-                <div className="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
-                  <div
-                    className="bg-gold h-full rounded-full transition-all"
-                    style={{
-                      width: usage.max_invoices_per_month
-                        ? `${Math.min(100, (usage.monthly_bills_count / usage.max_invoices_per_month) * 100)}%`
-                        : '25%',
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5 col-span-2 sm:col-span-1">
-                <div className="text-xs text-slate-300 font-semibold flex items-center gap-1.5">
-                  <Building2 className="w-4 h-4 text-gold" /> Showroom
-                </div>
-                <div className="text-xl font-extrabold text-white">{usage.max_branches} Branch</div>
-                <div className="text-xs text-emerald-400 font-bold">✓ Included</div>
-              </div>
-            </div>
-          )}
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-300">
+            <Clock className="w-4 h-4 text-gold flex-shrink-0" />
+            {isExpired ? (
+              <span className="text-rose-300 font-bold">Subscription Expired. Choose a plan below to continue.</span>
+            ) : isTrial ? (
+              <span>
+                <strong className="text-gold font-bold">{daysLeft} Days</strong> left in free trial (Valid till:{' '}
+                {new Date(subscription?.current_period_end).toLocaleDateString('en-IN', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+                )
+              </span>
+            ) : (
+              <span>
+                Valid till{' '}
+                {new Date(subscription?.current_period_end).toLocaleDateString('en-IN', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+              </span>
+            )}
+          </div>
         </div>
+
+        {/* Compact Usage Meters */}
+        {usage && (
+          <div className="flex items-center gap-4 bg-black/40 px-4 py-2 rounded-xl border border-white/10 text-xs flex-wrap">
+            <div>
+              <span className="text-slate-400">Staff: </span>
+              <strong className="text-white font-bold">{usage.users_count} / {usage.max_users}</strong>
+            </div>
+            <div className="h-4 w-px bg-slate-700" />
+            <div>
+              <span className="text-slate-400">Bills/mo: </span>
+              <strong className="text-white font-bold">{usage.monthly_bills_count} / {usage.max_invoices_per_month ?? '∞'}</strong>
+            </div>
+            <div className="h-4 w-px bg-slate-700" />
+            <div>
+              <span className="text-slate-400">Branch: </span>
+              <strong className="text-emerald-400 font-bold">{usage.max_branches} Included</strong>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* 2. Pricing & Upgrade Section Header */}
-      <div className="text-center space-y-4 pt-2">
-        <h3 className="text-3xl font-black text-slate-900 tracking-tight">
-          Choose a Subscription Plan
-        </h3>
-        <p className="text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
-          Unlock multi-staff billing, comprehensive GST reporting, and automated inventory management.
-        </p>
+      {/* 2. Compact Billing Duration Switcher */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+        <div>
+          <h3 className="text-sm font-bold text-slate-900">Choose Subscription Tier</h3>
+          <p className="text-xs text-slate-500">Pick a billing cycle to preview duration discounts.</p>
+        </div>
 
-        {/* Duration / Billing Cycle Switcher */}
-        <div className="inline-flex p-1.5 bg-slate-100 rounded-2xl border border-slate-300 shadow-inner mt-4">
+        <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200 flex-wrap">
           {durationButtons.map(({ duration, label, badge }) => {
             const isSelected = selectedDuration === duration;
             return (
@@ -232,16 +178,16 @@ export default function ShopSubscription() {
                 key={duration}
                 type="button"
                 onClick={() => setSelectedDuration(duration)}
-                className={`relative px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 flex items-center gap-2 ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
                   isSelected
-                    ? 'bg-white text-slate-900 shadow-md border border-slate-300 scale-102 ring-1 ring-gold/40'
+                    ? 'bg-white text-slate-900 shadow-xs border border-slate-200 font-black'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 <span>{label}</span>
                 {badge && (
                   <span
-                    className={`text-xs font-black px-2 py-0.5 rounded-md ${
+                    className={`text-[10px] font-black px-1.5 py-0.5 rounded ${
                       isSelected
                         ? 'bg-amber-100 text-amber-900'
                         : 'bg-emerald-100 text-emerald-800'
@@ -256,8 +202,8 @@ export default function ShopSubscription() {
         </div>
       </div>
 
-      {/* 3. Pricing Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-2">
+      {/* 3. Space-Optimized Pricing Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {pricingPlans.map((plan) => {
           const pricingOption =
             plan.pricing_options?.find((opt: any) => opt.duration_months === selectedDuration) ||
@@ -269,56 +215,50 @@ export default function ShopSubscription() {
           return (
             <div
               key={plan.id}
-              className={`relative bg-white rounded-3xl border-2 transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-md hover:shadow-2xl ${
+              className={`relative bg-white rounded-2xl border-2 transition-all flex flex-col justify-between overflow-hidden shadow-xs hover:shadow-md ${
                 isPopular
-                  ? 'border-gold shadow-gold/20 ring-2 ring-gold/50 scale-102 z-10'
-                  : 'border-slate-200 hover:border-slate-400'
+                  ? 'border-gold shadow-gold/15 ring-1 ring-gold/40'
+                  : 'border-slate-200 hover:border-slate-300'
               }`}
             >
-              {/* Popular Ribbon */}
               {isPopular && (
-                <div className="bg-gradient-to-r from-gold via-amber-500 to-gold text-white text-xs font-black uppercase tracking-widest text-center py-2 shadow-sm">
-                  ★ Most Popular for Showrooms
+                <div className="bg-gradient-to-r from-gold via-amber-500 to-gold text-white text-[11px] font-bold uppercase tracking-wider text-center py-1">
+                  ★ Recommended for Showrooms
                 </div>
               )}
 
-              <div className="p-8 space-y-6 flex-1 flex flex-col">
-                {/* Plan Header */}
-                <div className="space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xl font-black uppercase tracking-wide text-slate-900">
-                      {plan.name} Plan
-                    </span>
-                    {isCurrentPlan && (
-                      <Badge className="bg-emerald-100 text-emerald-800 border-emerald-300 text-xs font-bold uppercase px-2.5 py-1">
-                        Active Plan
-                      </Badge>
-                    )}
-                  </div>
-                  <p className="text-sm text-slate-600 leading-relaxed min-h-[44px]">{plan.note}</p>
+              <div className="p-5 space-y-4 flex-1 flex flex-col">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                  <span className="text-base font-black uppercase tracking-wide text-slate-900">
+                    {plan.name}
+                  </span>
+                  {isCurrentPlan && (
+                    <Badge className="bg-emerald-50 text-emerald-800 border-emerald-200 text-[10px] font-bold uppercase">
+                      Current Plan
+                    </Badge>
+                  )}
                 </div>
 
-                {/* Pricing & Strikethrough Display */}
-                <div className="space-y-2 pt-4 border-t border-slate-200">
-                  <div className="flex items-baseline gap-2.5 flex-wrap">
-                    {/* Strikethrough regular price if discount applies */}
+                {/* Price Display */}
+                <div className="space-y-1 pt-1 border-t border-slate-100">
+                  <div className="flex items-baseline gap-2 flex-wrap">
                     {pricingOption?.discount_percent > 0 && (
-                      <span className="text-lg text-slate-400 line-through font-bold">
+                      <span className="text-sm text-slate-400 line-through font-bold">
                         ₹{(plan.base_price_inr).toLocaleString('en-IN')}
                       </span>
                     )}
-                    <span className="text-4xl font-black text-slate-900 tracking-tight">
+                    <span className="text-3xl font-black text-slate-900">
                       ₹{pricingOption?.monthly_equivalent_inr?.toLocaleString('en-IN') || plan.base_price_inr}
                     </span>
-                    <span className="text-sm font-bold text-slate-500">/ month</span>
+                    <span className="text-xs font-semibold text-slate-500">/ mo</span>
                   </div>
 
-                  {/* Total billed & Savings */}
                   {selectedDuration > 1 && (
-                    <div className="text-xs font-bold text-slate-700 bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex items-center justify-between">
-                      <span>Billed ₹{pricingOption?.offer_price_inr?.toLocaleString('en-IN')} for {selectedDuration} mos</span>
+                    <div className="text-[11px] font-bold text-slate-600 bg-slate-50 px-2 py-1 rounded-md border border-slate-200 flex items-center justify-between">
+                      <span>₹{pricingOption?.offer_price_inr?.toLocaleString('en-IN')} for {selectedDuration} mos</span>
                       {pricingOption?.savings_inr > 0 && (
-                        <span className="text-emerald-800 font-black bg-emerald-100 px-2 py-0.5 rounded text-xs">
+                        <span className="text-emerald-700 font-bold text-[10px]">
                           Save ₹{pricingOption.savings_inr.toLocaleString('en-IN')}
                         </span>
                       )}
@@ -326,54 +266,39 @@ export default function ShopSubscription() {
                   )}
                 </div>
 
-                {/* Quotas & Features */}
-                <div className="space-y-4 pt-4 border-t border-slate-200 flex-1">
-                  <div className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
-                    Plan Specifications & Quotas
+                {/* Specs Checklist */}
+                <div className="space-y-2.5 pt-2 border-t border-slate-100 flex-1 text-xs text-slate-800">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-gold flex-shrink-0" />
+                    <span><strong>{plan.max_users}</strong> Staff Login {plan.max_users > 1 ? 'Accounts' : 'Account'}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-gold flex-shrink-0" />
+                    <span><strong>{plan.max_invoices_per_month ?? 'Unlimited'}</strong> Monthly Bills</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-gold flex-shrink-0" />
+                    <span><strong>{plan.max_branches}</strong> Branch</span>
                   </div>
 
-                  <div className="space-y-3 text-sm text-slate-800">
-                    <div className="flex items-center gap-3">
-                      <Users className="w-5 h-5 text-gold flex-shrink-0" />
-                      <span>
-                        <strong>{plan.max_users}</strong> Staff Login {plan.max_users > 1 ? 'Accounts' : 'Account'}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <FileText className="w-5 h-5 text-gold flex-shrink-0" />
-                      <span>
-                        <strong>{plan.max_invoices_per_month ?? 'Unlimited'}</strong> Monthly Invoices
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <Building2 className="w-5 h-5 text-gold flex-shrink-0" />
-                      <span>
-                        <strong>{plan.max_branches}</strong> Showroom Branch
-                      </span>
-                    </div>
-
-                    {/* Features checklist */}
-                    {Object.entries(plan.features || {}).map(([key, enabled]) => (
-                      <div key={key} className="flex items-center gap-3">
-                        <div
-                          className={`w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0 ${
-                            enabled ? 'bg-emerald-100 text-emerald-800 font-black' : 'bg-slate-100 text-slate-400'
-                          }`}
-                        >
-                          {enabled ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : '×'}
-                        </div>
-                        <span className={enabled ? 'text-slate-800 font-semibold' : 'text-slate-400 line-through'}>
-                          {key.replace('_', ' ').toUpperCase()}
-                        </span>
+                  {Object.entries(plan.features || {}).map(([key, enabled]) => (
+                    <div key={key} className="flex items-center gap-2">
+                      <div
+                        className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] flex-shrink-0 ${
+                          enabled ? 'bg-emerald-100 text-emerald-800 font-bold' : 'bg-slate-100 text-slate-400'
+                        }`}
+                      >
+                        {enabled ? <Check className="w-2.5 h-2.5 stroke-[3]" /> : '×'}
                       </div>
-                    ))}
-                  </div>
+                      <span className={enabled ? 'text-slate-800 font-medium' : 'text-slate-400 line-through'}>
+                        {key.replace('_', ' ').toUpperCase()}
+                      </span>
+                    </div>
+                  ))}
                 </div>
 
                 {/* Upgrade Button */}
-                <div className="pt-6">
+                <div className="pt-2">
                   <Button
                     type="button"
                     onClick={() =>
@@ -382,14 +307,14 @@ export default function ShopSubscription() {
                         selectedOption: pricingOption,
                       })
                     }
-                    className={`w-full h-12 text-sm font-extrabold tracking-wide transition-all shadow-md ${
+                    className={`w-full h-10 text-xs font-bold shadow-xs ${
                       isPopular
-                        ? 'bg-gold hover:bg-gold/90 text-white shadow-gold/30 hover:scale-102'
+                        ? 'bg-gold hover:bg-gold/90 text-white'
                         : 'bg-slate-900 hover:bg-slate-800 text-white'
                     }`}
                   >
-                    <span>{isCurrentPlan ? 'Renew / Change Duration' : `Upgrade to ${plan.name}`}</span>
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    <span>{isCurrentPlan ? 'Renew Duration' : `Upgrade to ${plan.name}`}</span>
+                    <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                   </Button>
                 </div>
               </div>
@@ -398,54 +323,50 @@ export default function ShopSubscription() {
         })}
       </div>
 
-      {/* 4. Upgrade Confirmation Dialog */}
+      {/* Confirmation Dialog */}
       <Dialog open={!!selectedPlanForUpgrade} onOpenChange={(open) => !open && setSelectedPlanForUpgrade(null)}>
-        <DialogContent className="max-w-md p-6">
+        <DialogContent className="max-w-md p-5">
           <DialogHeader>
-            <DialogTitle className="text-xl font-extrabold text-slate-900 flex items-center gap-2.5">
-              <ShieldCheck className="w-6 h-6 text-gold" />
+            <DialogTitle className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-gold" />
               Confirm Plan Activation
             </DialogTitle>
           </DialogHeader>
 
           {selectedPlanForUpgrade && (
-            <div className="space-y-5 pt-3">
-              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
-                <div className="flex justify-between items-center text-base">
-                  <span className="text-slate-600 font-medium">Selected Plan:</span>
-                  <span className="font-extrabold text-slate-900 uppercase text-lg">{selectedPlanForUpgrade.name}</span>
+            <div className="space-y-4 pt-2">
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2 text-sm">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500">Plan:</span>
+                  <span className="font-bold text-slate-900 uppercase">{selectedPlanForUpgrade.name}</span>
                 </div>
-                <div className="flex justify-between items-center text-base">
-                  <span className="text-slate-600 font-medium">Duration:</span>
-                  <span className="font-bold text-slate-900">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500">Duration:</span>
+                  <span className="font-semibold text-slate-900">
                     {selectedPlanForUpgrade.selectedOption.duration_months} Month(s)
                   </span>
                 </div>
                 {selectedPlanForUpgrade.selectedOption.discount_percent > 0 && (
-                  <div className="flex justify-between items-center text-base text-emerald-700 font-bold">
-                    <span>Discount Applied ({selectedPlanForUpgrade.selectedOption.discount_percent}%):</span>
+                  <div className="flex justify-between items-center text-emerald-700 font-semibold">
+                    <span>Discount:</span>
                     <span>-₹{selectedPlanForUpgrade.selectedOption.savings_inr.toLocaleString('en-IN')}</span>
                   </div>
                 )}
-                <div className="pt-3 border-t border-slate-200 flex justify-between items-center text-lg font-black text-slate-900">
-                  <span>Total Payable:</span>
-                  <span className="text-gold text-2xl">
+                <div className="pt-2 border-t border-slate-200 flex justify-between items-center font-extrabold text-base">
+                  <span>Total:</span>
+                  <span className="text-gold text-lg">
                     ₹{selectedPlanForUpgrade.selectedOption.offer_price_inr.toLocaleString('en-IN')}
                   </span>
                 </div>
               </div>
 
-              <div className="text-sm text-slate-700 bg-amber-50 p-4 rounded-xl border border-amber-200">
-                ⚡ <strong>Instant Activation:</strong> Your shop subscription and feature quotas will be updated
-                immediately upon confirmation.
-              </div>
-
-              <DialogFooter className="pt-3 flex gap-2">
-                <Button variant="outline" className="h-11 px-5 text-sm font-semibold" onClick={() => setSelectedPlanForUpgrade(null)}>
+              <DialogFooter className="pt-2 flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => setSelectedPlanForUpgrade(null)}>
                   Cancel
                 </Button>
                 <Button
                   type="button"
+                  size="sm"
                   disabled={upgradeMutation.isPending}
                   onClick={() =>
                     upgradeMutation.mutate({
@@ -453,15 +374,9 @@ export default function ShopSubscription() {
                       duration: selectedPlanForUpgrade.selectedOption.duration_months,
                     })
                   }
-                  className="bg-gold hover:bg-gold/90 text-white font-extrabold h-11 px-6 text-sm shadow-md"
+                  className="bg-gold hover:bg-gold/90 text-white font-bold px-5"
                 >
-                  {upgradeMutation.isPending ? (
-                    <span className="flex items-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin" /> Activating...
-                    </span>
-                  ) : (
-                    'Activate Subscription'
-                  )}
+                  {upgradeMutation.isPending ? 'Activating...' : 'Activate Subscription'}
                 </Button>
               </DialogFooter>
             </div>

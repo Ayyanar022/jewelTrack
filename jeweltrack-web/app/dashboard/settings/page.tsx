@@ -33,34 +33,34 @@ function SettingsContent() {
   });
 
   return (
-    <div className="lg:px-4 py-3">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-        <TabsList className="bg-slate-100 p-1.5 rounded-2xl h-12 border border-slate-200 shadow-xs flex-wrap">
-          <TabsTrigger className="px-5 text-sm font-semibold rounded-xl flex items-center gap-2" value="basic">
-            <Store className="w-4 h-4 text-slate-500" />
+    <div className="space-y-4 max-w-6xl mx-auto">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList className="bg-slate-100 p-1 rounded-xl h-10 border border-slate-200 shadow-xs flex-wrap">
+          <TabsTrigger className="px-4 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5" value="basic">
+            <Store className="w-3.5 h-3.5 text-slate-500" />
             <span>Shop Profile</span>
           </TabsTrigger>
 
           <TabsTrigger
-            className="px-5 text-sm font-bold rounded-xl data-[state=active]:bg-gold data-[state=active]:text-white flex items-center gap-2 shadow-xs"
+            className="px-4 text-xs sm:text-sm font-bold rounded-lg data-[state=active]:bg-gold data-[state=active]:text-white flex items-center gap-1.5 shadow-xs"
             value="subscription"
           >
-            <Crown className="w-4 h-4" />
+            <Crown className="w-3.5 h-3.5" />
             <span>Plan & Billing</span>
           </TabsTrigger>
 
-          <TabsTrigger className="px-5 text-sm font-semibold rounded-xl flex items-center gap-2" value="tax">
-            <Receipt className="w-4 h-4 text-slate-500" />
+          <TabsTrigger className="px-4 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5" value="tax">
+            <Receipt className="w-3.5 h-3.5 text-slate-500" />
             <span>Tax & GST</span>
           </TabsTrigger>
 
-          <TabsTrigger className="px-5 text-sm font-semibold rounded-xl flex items-center gap-2" value="invoice">
-            <FileText className="w-4 h-4 text-slate-500" />
+          <TabsTrigger className="px-4 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5" value="invoice">
+            <FileText className="w-3.5 h-3.5 text-slate-500" />
             <span>Invoice Settings</span>
           </TabsTrigger>
 
-          <TabsTrigger className="px-5 text-sm font-semibold rounded-xl flex items-center gap-2" value="branding">
-            <ImageIcon className="w-4 h-4 text-slate-500" />
+          <TabsTrigger className="px-4 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5" value="branding">
+            <ImageIcon className="w-3.5 h-3.5 text-slate-500" />
             <span>Branding & Logo</span>
           </TabsTrigger>
         </TabsList>

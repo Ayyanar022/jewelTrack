@@ -5,7 +5,7 @@ import { useAuthStore } from "@/store/authStore";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Crown, Sparkles, ChevronDown, ChevronRight, Settings } from "lucide-react";
+import { Crown, Sparkles, ChevronDown, ChevronRight, Settings, Gem, LogOut } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/axios";
 
@@ -87,6 +87,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     staleTime: 60 * 1000,
   });
 
+  // Query latest daily metal rates for header badge
+  const { data: recentRate } = useQuery({
+    queryKey: ['recent-rate'],
+    queryFn: () => api.get('/rate/recent-rate').then((r) => r.data),
+    enabled: mounted && !!user && !isSuperAdmin(),
+    staleTime: 60 * 1000,
+  });
+
   const handleLogout = () => {
     logout();
     router.push('/login');
@@ -105,6 +113,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const isTrial = subscription?.status === 'TRIAL';
   const isExpired = subscription?.is_expired;
   const daysLeft = subscription?.days_remaining ?? 0;
+  const isExpiringSoon = !isTrial && !isExpired && daysLeft <= 10 && daysLeft > 0;
+  const isBillsNearingLimit =
+    subscription?.usage?.max_invoices_per_month &&
+    subscription.usage.max_invoices_per_month > 0 &&
+    subscription.usage.monthly_bills_count >= subscription.usage.max_invoices_per_month * 0.85;
 
   if (mounted && user?.role === 'SUPER_ADMIN') {
     return (
@@ -127,19 +140,42 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           collapsed ? "w-16" : "w-56"
         } flex-shrink-0 select-none`}
       >
-        {/* Logo */}
-        <div className="flex items-center justify-between px-4 py-3.5 border-b border-gold/10 h-14 flex-shrink-0">
+        {/* Logo / Brand Header */}
+        <div
+          className={`flex items-center border-b border-gold/10 h-14 flex-shrink-0 px-3.5 ${
+            collapsed ? 'justify-center' : 'justify-between'
+          }`}
+        >
+          <Link href="/dashboard" className="flex items-center gap-2.5 overflow-hidden group">
+            {/* JewelTrack Brand Gem with Gentle Glowing Ring Animation */}
+            <div className="relative flex items-center justify-center w-8 h-8 flex-shrink-0">
+              {/* Soft Golden Ambient Glow */}
+              <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-r from-amber-400/30 via-gold/40 to-amber-600/30 blur-[3px] opacity-60 group-hover:opacity-100 transition-opacity duration-500 animate-pulse" />
+
+              {/* Inner Badge */}
+              <div className="relative w-8 h-8 rounded-xl bg-slate-900 border border-gold/40 flex items-center justify-center shadow-xs transition-all duration-300 group-hover:scale-105 group-hover:border-gold">
+                <span className="text-base leading-none select-none transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12">
+                  💎
+                </span>
+              </div>
+            </div>
+
+            {!collapsed && (
+              <span className="text-gold-text font-black text-base tracking-wide transition-all duration-300 whitespace-nowrap">
+                JewelTrack
+              </span>
+            )}
+          </Link>
+
           {!collapsed && (
-            <span className="text-gold-text font-bold text-base tracking-wide transition-all duration-500">
-              JewelTrack
-            </span>
+            <button
+              onClick={() => setCollapsed(!collapsed)}
+              className="text-muted-foreground hover:text-gold-text text-base ml-auto cursor-pointer p-1 transition-colors"
+              title="Collapse sidebar"
+            >
+              ←
+            </button>
           )}
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="text-muted-foreground hover:text-gold-text text-base ml-auto cursor-pointer p-1"
-          >
-            {collapsed ? '→' : '←'}
-          </button>
         </div>
 
         {/* Navigation Items (Compact single-viewport fit) */}
@@ -249,15 +285,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           )}
         </nav>
 
-        {/* Logout (Compact) */}
+        {/* Logout (Compact & Centered when Collapsed) */}
         <div className="px-2 py-3 border-t border-gold/10 flex-shrink-0">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 px-2.5 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-300 hover:text-gold-text hover:bg-sidebar-active/60 w-full cursor-pointer"
+            className={`flex items-center gap-3 px-2.5 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all w-full cursor-pointer group ${
+              collapsed ? 'justify-center' : ''
+            }`}
             title="Logout"
           >
-            <span className="text-base">🚪</span>
-            {!collapsed && <span className="text-xs sm:text-sm font-medium">Logout</span>}
+            <LogOut className="w-4 h-4 text-slate-400 group-hover:text-rose-400 transition-colors flex-shrink-0" />
+            {!collapsed && (
+              <span className="text-xs sm:text-sm font-medium text-slate-300 group-hover:text-rose-400">
+                Logout
+              </span>
+            )}
           </button>
         </div>
       </aside>
@@ -270,35 +312,82 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {getPageTitle(pathname)}
           </h1>
 
-          <div className="flex items-center gap-4">
-            {/* Free Trial / Expiry Banner */}
+          <div className="flex items-center gap-3">
+            {/* Free Trial Status */}
             {mounted && subscription && isTrial && (
               <Link
                 href="/dashboard/settings?tab=subscription"
-                className="flex items-center gap-2 bg-gradient-to-r from-amber-500/10 via-gold/15 to-amber-500/10 text-amber-900 border border-gold/40 px-3.5 py-1 rounded-full text-xs sm:text-sm font-semibold hover:bg-gold/20 transition-all shadow-xs group"
+                className="flex items-center gap-1.5 bg-amber-50 text-amber-900 border border-amber-200 px-3 py-1 rounded-xl text-xs font-bold hover:bg-amber-100 transition-all shadow-xs group"
+                title="Free Trial Active"
               >
                 <Sparkles className="w-3.5 h-3.5 text-gold animate-pulse flex-shrink-0" />
                 <span>Trial: <strong>{daysLeft}d left</strong></span>
-                <span className="text-xs font-bold text-amber-700 underline ml-0.5 group-hover:text-amber-900">
-                  Upgrade
-                </span>
+                <span className="underline ml-0.5 text-amber-950 font-black">Upgrade</span>
               </Link>
             )}
 
+            {/* Plan Expired Alert */}
             {mounted && subscription && isExpired && (
               <Link
                 href="/dashboard/settings?tab=subscription"
-                className="flex items-center gap-2 bg-rose-50 text-rose-700 border border-rose-200 px-3.5 py-1 rounded-full text-xs sm:text-sm font-semibold hover:bg-rose-100 transition-all shadow-xs"
+                className="flex items-center gap-1.5 bg-rose-50 text-rose-800 border border-rose-200 px-3 py-1 rounded-xl text-xs font-bold hover:bg-rose-100 transition-all shadow-xs"
+                title="Subscription Expired"
               >
-                <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping flex-shrink-0" />
-                <span>Trial Expired</span>
-                <span className="text-xs font-bold underline ml-0.5 text-rose-800">Pick Plan</span>
+                <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping flex-shrink-0" />
+                <span>Plan Expired</span>
+                <span className="underline ml-0.5 text-rose-900 font-black">Renew</span>
+              </Link>
+            )}
+
+            {/* Expiring Soon Alert (<= 10 days) */}
+            {mounted && subscription && isExpiringSoon && (
+              <Link
+                href="/dashboard/settings?tab=subscription"
+                className="flex items-center gap-1.5 bg-amber-50 text-amber-900 border border-amber-300 px-3 py-1 rounded-xl text-xs font-bold hover:bg-amber-100 transition-all shadow-xs"
+                title="Subscription Expiring Soon"
+              >
+                <span>⚠️ Expires in <strong>{daysLeft}d</strong></span>
+                <span className="underline ml-0.5 text-amber-950 font-black">Renew</span>
+              </Link>
+            )}
+
+            {/* Bills Limit Nearing Warning (>= 85% used) */}
+            {mounted && isBillsNearingLimit && (
+              <Link
+                href="/dashboard/settings?tab=subscription"
+                className="hidden lg:flex items-center gap-1.5 bg-amber-50 text-amber-900 border border-amber-300 px-3 py-1 rounded-xl text-xs font-bold hover:bg-amber-100 transition-all shadow-xs"
+                title="Monthly Invoice Limit Almost Reached"
+              >
+                <span>Bills: <strong>{subscription.usage.monthly_bills_count}/{subscription.usage.max_invoices_per_month}</strong></span>
+                <span className="underline ml-0.5 text-amber-950 font-black">Upgrade</span>
+              </Link>
+            )}
+
+            {/* Dynamic Live Bullion Rates Badge */}
+            {mounted && !isSuperAdmin() && (
+              <Link
+                href="/dashboard/rate"
+                className="hidden sm:flex items-center gap-2 bg-slate-900 text-white hover:bg-slate-800 transition-all px-3 py-1.5 rounded-xl border border-slate-700 shadow-xs text-xs group cursor-pointer"
+                title="Today's Metal Rates — Click to update"
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
+                {recentRate?.rate_22k ? (
+                  <span className="font-bold tracking-tight text-slate-200">
+                    22K: <strong className="text-white">₹{recentRate.rate_22k.toLocaleString('en-IN')}</strong>
+                    <span className="mx-1 text-slate-500">·</span>
+                    18K: <strong className="text-slate-300">₹{(recentRate.rate_18k || 0).toLocaleString('en-IN')}</strong>
+                    <span className="mx-1 text-slate-500">·</span>
+                    Silver: <strong className="text-slate-300">₹{(recentRate.rate_silver || 0).toLocaleString('en-IN')}</strong>
+                  </span>
+                ) : (
+                  <span className="text-amber-400 font-bold">Rates Not Set Today · Update</span>
+                )}
               </Link>
             )}
 
             {/* User & Role Badge */}
             {mounted && user && (
-              <div className="flex items-center gap-2.5 text-sm bg-slate-50 border border-slate-200 px-3 py-1 rounded-xl shadow-xs">
+              <div className="flex items-center gap-2 text-sm bg-slate-50 border border-slate-200 px-3 py-1 rounded-xl shadow-xs">
                 <div className="w-6 h-6 rounded-full bg-gold/20 text-gold font-bold flex items-center justify-center text-xs">
                   {user.name?.charAt(0) || 'U'}
                 </div>
@@ -329,10 +418,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <span>Admin Portal</span>
               </Link>
             )}
-
-            <div className="bg-gold-light text-gold-dark text-xs sm:text-sm px-3.5 py-1 rounded-full border border-gold/20 font-bold hidden sm:block">
-              22K - ₹6,200 · 18K - ₹5,100
-            </div>
           </div>
         </header>
 

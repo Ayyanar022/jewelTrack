@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import api from '@/lib/axios';
 import { useQuery } from '@tanstack/react-query';
-import { Coins, ArrowRight, TrendingUp } from 'lucide-react';
+import { Coins, ArrowRight, Sparkles, AlertCircle, Clock, ShieldCheck } from 'lucide-react';
 
 export default function DashboardPage() {
   const { data: recentRate } = useQuery({
@@ -22,12 +22,27 @@ export default function DashboardPage() {
     queryFn: () => api.get('/loan/stats?period=TODAY').then((r) => r.data),
   });
 
+  // Fetch Subscription & Quotas
+  const { data: subscription } = useQuery({
+    queryKey: ['shop-current-subscription'],
+    queryFn: () => api.get('/subscription/current').then((r) => r.data),
+    staleTime: 60 * 1000,
+  });
+
   const stats = [
     { label: "Today's Bills", value: bills?.length ?? 0, sub: 'total created' },
-    { label: '22K Rate', value: recentRate ? `₹${recentRate.rate_22k}` : '—', sub: 'per gram' },
-    { label: '18K Rate', value: recentRate ? `₹${recentRate.rate_18k}` : '—', sub: 'per gram' },
-    { label: 'Silver Rate', value: recentRate ? `₹${recentRate.rate_silver}` : '—', sub: 'per gram' },
+    { label: '22K Rate', value: recentRate?.rate_22k ? `₹${recentRate.rate_22k.toLocaleString('en-IN')}` : '—', sub: 'per gram' },
+    { label: '18K Rate', value: recentRate?.rate_18k ? `₹${recentRate.rate_18k.toLocaleString('en-IN')}` : '—', sub: 'per gram' },
+    { label: 'Silver Rate', value: recentRate?.rate_silver ? `₹${recentRate.rate_silver.toLocaleString('en-IN')}` : '—', sub: 'per gram' },
   ];
+
+  const isTrial = subscription?.status === 'TRIAL';
+  const isExpired = subscription?.is_expired;
+  const daysLeft = subscription?.days_remaining ?? 0;
+  const isExpiringSoon = !isTrial && !isExpired && daysLeft <= 10 && daysLeft > 0;
+  const billsUsed = subscription?.usage?.monthly_bills_count ?? 0;
+  const maxBills = subscription?.usage?.max_invoices_per_month ?? 0;
+  const isBillsNearLimit = maxBills > 0 && billsUsed >= maxBills * 0.85;
 
   return (
     <div className="flex flex-col gap-6 max-w-7xl mx-auto">
@@ -35,6 +50,68 @@ export default function DashboardPage() {
         <h1 className="text-xl font-bold text-foreground">Dashboard</h1>
         <p className="text-sm text-muted-foreground mt-0.5">Welcome to JewelTrack</p>
       </div>
+
+      {/* Subscription Expiry / Trial Notification Card for Store Owners */}
+      {(isTrial || isExpired || isExpiringSoon || isBillsNearLimit) && subscription && (
+        <div
+          className={`border rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs ${
+            isExpired
+              ? 'bg-rose-50 border-rose-200 text-rose-950'
+              : isExpiringSoon || isBillsNearLimit
+              ? 'bg-amber-50 border-amber-300 text-amber-950'
+              : 'bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border-amber-300 text-amber-950'
+          }`}
+        >
+          <div className="flex items-center gap-3.5">
+            <div
+              className={`w-10 h-10 rounded-xl flex items-center justify-center font-black flex-shrink-0 ${
+                isExpired
+                  ? 'bg-rose-500 text-white'
+                  : 'bg-amber-500 text-white'
+              }`}
+            >
+              {isExpired ? <AlertCircle className="w-5 h-5" /> : isTrial ? <Sparkles className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
+            </div>
+            <div>
+              <div className="text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+                <span>{subscription.plan?.name || 'Subscription Plan'}</span>
+                <span
+                  className={`text-[10px] px-2 py-0.5 rounded-full font-extrabold ${
+                    isExpired
+                      ? 'bg-rose-200 text-rose-900'
+                      : isTrial
+                      ? 'bg-amber-200 text-amber-900'
+                      : 'bg-amber-200 text-amber-900'
+                  }`}
+                >
+                  {isExpired ? 'Expired' : isTrial ? 'Free Trial' : 'Active Plan'}
+                </span>
+              </div>
+              <div className="text-sm font-semibold mt-0.5">
+                {isExpired ? (
+                  <span>Your subscription period has expired. Renew your plan to continue uninterrupted billing & inventory.</span>
+                ) : isTrial ? (
+                  <span>
+                    Free trial active: <strong>{daysLeft} days remaining</strong> (Valid until {new Date(subscription.current_period_end).toLocaleDateString('en-IN')})
+                  </span>
+                ) : (
+                  <span>
+                    Valid until <strong>{new Date(subscription.current_period_end).toLocaleDateString('en-IN')}</strong> ({daysLeft} days left) · Monthly Bills: <strong>{billsUsed}/{maxBills || 'Unlimited'}</strong>
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <Link
+            href="/dashboard/settings?tab=subscription"
+            className="inline-flex items-center gap-1.5 text-xs font-black bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl shadow-xs transition-all self-start sm:self-auto flex-shrink-0 cursor-pointer"
+          >
+            <span>{isExpired ? 'Renew Plan Now' : isTrial ? 'Upgrade Plan' : 'Renew / Upgrade'}</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      )}
 
       {/* Top Stat Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -99,28 +176,26 @@ export default function DashboardPage() {
           <table className="w-full text-sm">
             <thead className="bg-slate-50 border-b border-slate-100 text-xs font-bold text-slate-600 uppercase">
               <tr>
-                <th className="text-left px-5 py-3">Bill No</th>
-                <th className="text-left px-5 py-3">Customer</th>
-                <th className="text-left px-5 py-3">Amount</th>
-                <th className="text-left px-5 py-3">Type</th>
+                <th className="text-left px-5 py-3">Bill Number</th>
+                <th className="text-left px-5 py-3">Date</th>
+                <th className="text-left px-5 py-3">Total Amount</th>
+                <th className="text-left px-5 py-3">Payable</th>
+                <th className="text-left px-5 py-3">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
-              {bills?.slice(0, 5).map((bill: any) => (
-                <tr key={bill.id} className="hover:bg-slate-50/60 transition-colors">
-                  <td className="px-5 py-3 font-mono font-bold text-slate-900">{bill.bill_number}</td>
-                  <td className="px-5 py-3 font-semibold text-slate-900">{bill.customer?.name}</td>
-                  <td className="px-5 py-3 font-bold text-slate-900">₹{bill.total_amount.toLocaleString('en-IN')}</td>
+            <tbody>
+              {bills.slice(0, 5).map((b: any) => (
+                <tr key={b.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50">
+                  <td className="px-5 py-3 font-medium text-foreground">{b.bill_number}</td>
+                  <td className="px-5 py-3 text-muted-foreground">
+                    {new Date(b.created_at).toLocaleDateString('en-IN')}
+                  </td>
+                  <td className="px-5 py-3 text-muted-foreground">₹{b.total_amount}</td>
+                  <td className="px-5 py-3 font-semibold text-foreground">₹{b.payableAmount}</td>
                   <td className="px-5 py-3">
-                    <span
-                      className={`text-xs font-bold px-2 py-0.5 rounded-md ${
-                        bill.is_gst_bill
-                          ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                          : 'bg-amber-50 text-amber-800 border border-amber-200'
-                      }`}
-                    >
-                      {bill.is_gst_bill ? 'GST' : 'Normal'}
-                    </span>
+                    <Link href={`/dashboard/billing/${b.id}`} className="text-xs font-bold text-gold hover:underline">
+                      View
+                    </Link>
                   </td>
                 </tr>
               ))}

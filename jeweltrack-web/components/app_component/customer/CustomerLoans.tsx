@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/axios';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Coins, Eye, Printer, CreditCard, Clock, Loader2 } from 'lucide-react';
+import { Coins, Eye, Printer, CreditCard, Loader2 } from 'lucide-react';
 
 import RepayLoanModal from '@/components/app_component/loan/RepayLoanModal';
 import ViewLoanModal from '@/components/app_component/loan/ViewLoanModal';
@@ -70,52 +70,52 @@ export default function CustomerLoans({ customerId }: CustomerLoansProps) {
   return (
     <div className="space-y-4">
       {/* Customer Loan Summary Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
           <div className="text-xs text-slate-500 font-bold uppercase tracking-wider">Active Pledges</div>
-          <div className="text-lg font-black text-slate-900 mt-1">{activeLoans.length} Loans</div>
+          <div className="text-xl font-black font-mono text-slate-900 mt-1">{activeLoans.length} Loans</div>
         </div>
 
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
           <div className="text-xs text-slate-500 font-bold uppercase tracking-wider">Outstanding Principal</div>
-          <div className="text-lg font-black text-emerald-800 mt-1">
+          <div className="text-xl font-black font-mono text-emerald-800 mt-1">
             ₹{totalPrincipal.toLocaleString('en-IN')}
           </div>
         </div>
 
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
           <div className="text-xs text-slate-500 font-bold uppercase tracking-wider">Pending Interest</div>
-          <div className="text-lg font-black text-rose-700 mt-1">
+          <div className="text-xl font-black font-mono text-rose-700 mt-1">
             ₹{totalPendingInterest.toLocaleString('en-IN')}
           </div>
         </div>
 
-        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-col justify-center">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center">
           <div className="text-xs text-slate-500 font-bold uppercase tracking-wider">Pledged Weight</div>
-          <div className="text-xs font-black text-slate-900 mt-1 flex justify-between">
-            <span className="text-amber-900">🪙 Gold: {totalGoldWeight.toFixed(2)}g</span>
-            <span className="text-slate-600">⚪ Silver: {totalSilverWeight.toFixed(2)}g</span>
+          <div className="text-sm font-bold font-mono text-slate-900 mt-1 flex justify-between">
+            <span className="text-amber-950">🪙 Gold: {totalGoldWeight.toFixed(2)}g</span>
+            <span className="text-slate-700">⚪ Silver: {totalSilverWeight.toFixed(2)}g</span>
           </div>
         </div>
       </div>
 
       {/* Filter Header */}
-      <div className="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-        <div className="text-sm font-bold text-slate-800 flex items-center gap-2">
-          <Coins className="w-4 h-4 text-gold" />
-          <span>Customer Gold & Silver Pledges</span>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <div className="text-sm font-bold text-slate-900 flex items-center gap-2">
+          <Coins className="w-4 h-4 text-amber-700" />
+          <span>Customer Gold & Silver Pledges ({loans.length})</span>
         </div>
 
-        <div className="inline-flex p-0.5 bg-slate-100 rounded-lg border border-slate-200 text-xs font-bold">
+        <div className="inline-flex p-1 bg-slate-100 rounded-lg border border-slate-200 text-sm font-bold">
           {(['ALL', 'ACTIVE', 'CLOSED'] as const).map((st) => (
             <button
               key={st}
               type="button"
               onClick={() => setStatusFilter(st)}
-              className={`px-3 py-1 rounded-md transition-all ${
+              className={`px-3.5 py-1.5 rounded-md transition-all cursor-pointer ${
                 statusFilter === st
-                  ? 'bg-white text-slate-900 shadow-xs font-black'
-                  : 'text-slate-500 hover:text-slate-900'
+                  ? 'bg-white text-slate-900 shadow-xs font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               {st === 'ALL' ? 'All Loans' : st === 'ACTIVE' ? 'Active' : 'Closed'}
@@ -125,137 +125,177 @@ export default function CustomerLoans({ customerId }: CustomerLoansProps) {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         {isLoading ? (
-          <div className="flex items-center justify-center py-16">
-            <Loader2 className="w-6 h-6 animate-spin text-gold" />
+          <div className="flex flex-col items-center justify-center py-16 gap-2">
+            <Loader2 className="w-6 h-6 animate-spin text-slate-800" />
+            <span className="text-sm font-medium text-slate-500">Loading customer pledges...</span>
           </div>
         ) : loans.length === 0 ? (
-          <div className="text-center py-14 text-slate-400 space-y-1.5">
-            <Coins className="w-10 h-10 mx-auto opacity-30 text-gold" />
-            <p className="text-sm font-bold text-slate-700">No pledges found for this customer</p>
+          <div className="text-center py-14 text-slate-400 space-y-2">
+            <Coins className="w-10 h-10 mx-auto opacity-30 text-amber-700" />
+            <p className="text-base font-bold text-slate-800">No pledges found for this customer</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-xs border-b border-slate-200">
+            <table className="w-full text-left text-sm border-collapse">
+              <thead className="bg-slate-100 uppercase tracking-wider text-slate-700 font-bold text-xs border-b border-slate-200">
                 <tr>
-                  <th className="px-4 py-3">#</th>
-                  <th className="px-4 py-3">Loan #</th>
-                  <th className="px-4 py-3">Pledged Ornaments</th>
-                  <th className="px-4 py-3 text-right">Net Wt</th>
-                  <th className="px-4 py-3 text-right">Principal</th>
-                  <th className="px-4 py-3 text-right">Rate</th>
-                  <th className="px-4 py-3 text-right">Pending Interest</th>
-                  <th className="px-4 py-3 text-center">Status</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
+                  <th className="px-3.5 py-3 w-12 text-center border border-slate-200">#</th>
+                  <th className="px-4 py-3 border border-slate-200">Loan No</th>
+                  <th className="px-4 py-3 border border-slate-200">Pledged Ornaments</th>
+                  <th className="px-4 py-3 text-right border border-slate-200">Net Wt</th>
+                  <th className="px-4 py-3 text-right border border-slate-200">Principal</th>
+                  <th className="px-4 py-3 text-right border border-slate-200">Rate / Mo</th>
+                  <th className="px-4 py-3 text-right border border-slate-200">Pending Interest</th>
+                  <th className="px-4 py-3 text-center border border-slate-200 w-24">Status</th>
+                  <th className="px-4 py-3 text-center border border-slate-200 w-36">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {loans.map((loan,i) => {
+                {loans.map((loan, i) => {
                   const isActive = loan.status === 'ACTIVE';
 
                   return (
-                    <tr key={loan.id} className="hover:bg-slate-50/80 transition-colors">
-                      <td className='px-3  w-10 text-cen'>{i+1}</td>
-                      <td className="px-4 py-3.5">
-                        <div className="font-mono text-gold-dark font-black text-base">{loan.loan_number}</div>
-                        <div className="text-[13px] text-slate-500">
-                          {new Date(loan.loan_date).toLocaleDateString('en-IN')}
+                    <tr key={loan.id} className="hover:bg-slate-50 transition-colors">
+                      {/* Index */}
+                      <td className="px-3.5 py-3.5 text-center text-sm font-medium text-slate-500 font-mono border border-slate-200">
+                        {i + 1}
+                      </td>
+
+                      {/* Loan # & Date */}
+                      <td className="px-4 py-3.5 border border-slate-200">
+                        <span className="font-mono text-gold-dark font-black text-base bg-amber-50/80 px-2.5 py-0.5 rounded border border-amber-200 block w-fit">
+                          {loan.loan_number}
+                        </span>
+                        <div className="text-xs text-slate-500 font-medium mt-1">
+                          {new Date(loan.loan_date).toLocaleDateString('en-IN', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          })}
                         </div>
                       </td>
 
-                      <td className="px-4 py-3.5">
-                        <div className="text-slate-900 font-semibold text-sm max-w-[200px] truncate space-x-1">
-                          {loan.loanCollateralItem?.map((i: any, idx: number) => (
-                            <span key={idx} className="inline-block">
-                              <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded mr-1 ${i.metal === 'SILVER' ? 'bg-slate-200 text-slate-800' : 'bg-amber-100 text-amber-900'}`}>
-                                {i.metal === 'SILVER' ? 'Silver' : 'Gold'}
+                      {/* Pledged Ornaments (Single Item with Coin + Count badge) */}
+                      <td className="px-4 py-3.5 border border-slate-200 w-[190px]">
+                        {loan.loanCollateralItem?.[0] ? (
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span
+                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold border ${
+                                loan.loanCollateralItem[0].metal === 'SILVER'
+                                  ? 'bg-slate-100 text-slate-800 border-slate-200'
+                                  : 'bg-amber-50 text-amber-950 border-amber-300'
+                              }`}
+                            >
+                              <span>{loan.loanCollateralItem[0].metal === 'SILVER' ? '⚪' : '🪙'}</span>
+                              <span className="font-bold">
+                                {loan.loanCollateralItem[0].pieces > 1 ? `${loan.loanCollateralItem[0].pieces}x ` : ''}
+                                {loan.loanCollateralItem[0].description}
                               </span>
-                              {i.pieces > 1 ? `${i.pieces}x ` : ''}{i.description}
-                              {idx < loan.loanCollateralItem.length - 1 ? ', ' : ''}
                             </span>
-                          )) || 'Jewellery'}
-                        </div>
+                            {loan.loanCollateralItem.length > 1 && (
+                              <span
+                                className="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-300 cursor-pointer"
+                                title={loan.loanCollateralItem.map((it: any) => `${it.metal} ${it.description} (${it.net_weight}g)`).join(', ')}
+                              >
+                                +{loan.loanCollateralItem.length - 1}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-slate-400 text-xs">—</span>
+                        )}
                       </td>
 
-                      <td className="px-4 py-3.5 text-right font-black text-slate-900">
+                      {/* Net Wt */}
+                      <td className="px-4 py-3.5 text-right font-bold text-slate-900 text-base border border-slate-200 font-mono">
                         {loan.net_weight} g
                       </td>
 
-                      <td className="px-4 py-3.5 text-right font-black text-slate-900">
-                        ₹{loan.loan_amount.toLocaleString('en-IN')}
+                      {/* Principal */}
+                      <td className="px-4 py-3.5 text-right font-bold text-slate-900 text-base border border-slate-200 font-mono">
+                        <div>₹{loan.loan_amount.toLocaleString('en-IN')}</div>
                         {loan.current_principal_balance < loan.loan_amount && (
-                          <div className="text-xs text-emerald-700 font-bold">
+                          <div className="text-xs text-emerald-800 font-bold">
                             Bal: ₹{loan.current_principal_balance.toLocaleString('en-IN')}
                           </div>
                         )}
                       </td>
 
-                      <td className="px-4 py-3.5 text-right text-slate-800 font-medium">
-                        <span className="font-bold text-slate-900">{loan.interest_rate}%</span> / mo
+                      {/* Rate / Mo */}
+                      <td className="px-4 py-3.5 text-right border border-slate-200 text-base w-[130px] font-mono">
+                        <div className=" font-bold text-slate-900">
+                          {loan.interest_rate}% <span className=" text-slate-800 font-normal"> - ₹{loan.monthly_interest_amount?.toLocaleString('en-IN')}</span>
+                        </div>
+                        {/* <div className="text-xs text-slate-600">
+                          ₹{loan.monthly_interest_amount?.toLocaleString('en-IN')}
+                        </div> */}
                       </td>
 
-                      <td className="px-4 py-3.5 text-right">
+                      {/* Pending Interest */}
+                      <td className="px-4 py-3.5 text-right border border-slate-200 font-mono">
                         {isActive ? (
-                          <>
-                            <div className="font-black text-rose-700">
+                          <div>
+                            <div className="text-base font-black text-rose-700">
                               ₹{loan.pending_interest?.toLocaleString('en-IN')}
                             </div>
-                            <div className="text-xs text-slate-500 font-medium flex items-center justify-end gap-1">
-                              <Clock className="w-3 h-3 text-slate-400" />
-                              <span>{loan.months_elapsed} Mo ({loan.days_elapsed}d)</span>
+                            <div className="text-xs text-slate-600 font-sans font-bold">
+                              {loan.months_elapsed} {loan.months_elapsed === 1 ? 'Mo' : 'Mo'} ({loan.days_elapsed}d)
                             </div>
-                          </>
+                          </div>
                         ) : (
-                          <span className="text-emerald-700 font-bold text-xs">Settled</span>
+                          <span className="text-emerald-800 font-bold text-xs bg-emerald-50 px-2.5 py-1 rounded border border-emerald-300">
+                            Settled
+                          </span>
                         )}
                       </td>
 
-                      <td className="px-4 py-3.5 text-center">
+                      {/* Status */}
+                      <td className="px-4 py-3.5 text-center border border-slate-200">
                         <Badge
                           variant="outline"
-                          className={`text-xs font-bold px-2.5 py-0.5 uppercase ${
+                          className={`text-xs font-bold px-2.5 py-1 rounded-md ${
                             isActive
-                              ? 'bg-amber-50 text-amber-800 border-amber-300'
-                              : 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                              ? 'bg-amber-50 text-amber-900 border-amber-300'
+                              : 'bg-slate-100 text-slate-800 border-slate-300'
                           }`}
                         >
                           {isActive ? 'Active' : 'Closed'}
                         </Badge>
                       </td>
 
-                      <td className="px-4 py-3.5 text-right space-x-1">
-                        {isActive && (
-                          <Button
-                            size="sm"
-                            onClick={() => setSelectedLoanForRepay(loan)}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-7 px-2.5 text-xs rounded-lg"
+                      {/* Actions */}
+                      <td className="px-4 py-3.5 border border-slate-200">
+                        <div className="flex items-center justify-center gap-2">
+                          {isActive && (
+                            <Button
+                              size="sm"
+                              onClick={() => setSelectedLoanForRepay(loan)}
+                              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-8 px-3 text-xs rounded-lg shadow-xs flex items-center gap-1 cursor-pointer"
+                              title="Repay / Settle Loan"
+                            >
+                              <CreditCard className="w-3.5 h-3.5" />
+                              <span>Pay</span>
+                            </Button>
+                          )}
+
+                          <button
+                            onClick={() => setSelectedLoanForView(loan)}
+                            className="h-8 w-8 rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 flex items-center justify-center cursor-pointer transition-colors shadow-2xs"
+                            title="View Loan Details"
                           >
-                            <CreditCard className="w-3 h-3 mr-1" />
-                            Pay
-                          </Button>
-                        )}
+                            <Eye className="w-4 h-4" />
+                          </button>
 
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setSelectedLoanForView(loan)}
-                          className="h-7 w-7 p-0 rounded-lg text-slate-700 hover:text-slate-900"
-                          title="View"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                        </Button>
-
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setSelectedLoanForPrint(loan)}
-                          className="h-7 w-7 p-0 rounded-lg text-gold hover:text-gold/90"
-                          title="Print"
-                        >
-                          <Printer className="w-3.5 h-3.5" />
-                        </Button>
+                          <button
+                            onClick={() => setSelectedLoanForPrint(loan)}
+                            className="h-8 w-8 rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 flex items-center justify-center cursor-pointer transition-colors shadow-2xs"
+                            title="Print Pawn Slip"
+                          >
+                            <Printer className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );

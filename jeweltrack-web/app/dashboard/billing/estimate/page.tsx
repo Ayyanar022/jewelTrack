@@ -1,3 +1,5 @@
+
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -198,7 +200,7 @@ export default function EstimatePage() {
       `}</style>
 
       {/* 100% Single-Screen Viewport without Scroll */}
-      <div className="h-[calc(100vh-108px)] flex flex-col max-w-7xl mx-auto px-8 overflow-hidden gap-2.5">
+      <div className="h-[calc(100vh-108px)] flex flex-col max-w-7xl mx-auto px-10 overflow-hidden gap-2.5">
         {/* Compact Header Bar */}
         <div className="flex items-center justify-between bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-xs flex-shrink-0">
           <div className="flex items-center gap-3">
@@ -241,7 +243,7 @@ export default function EstimatePage() {
         {/* 2-Column POS Layout Filling 100% Height */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 flex-1 min-h-0">
           {/* Left Form: 7 Cols */}
-          <div className="lg:col-span-7 bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-col justify-between overflow-hidden">
+          <div className="lg:col-span-7 bg-white border border-slate-200 rounded-2xl p-5 px-7 shadow-xs flex flex-col justify-between overflow-hidden">
             <div className="space-y-3.5">
               {/* Row 1: Category + Item Name */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -419,7 +421,7 @@ export default function EstimatePage() {
           </div>
 
           {/* Right Panel: Clean, Simple Estimate Summary (5 Cols) */}
-          <div className="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-col justify-between overflow-hidden">
+          <div className="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-7 pb-10 shadow-xs flex flex-col justify-between overflow-hidden">
             <div className="space-y-1">
               <div className="flex items-center justify-between pb-2 border-b border-slate-200">
                 <span className="text-sm font-black text-slate-900">Estimate Calculation</span>
@@ -470,66 +472,68 @@ export default function EstimatePage() {
         </div>
       </div>
 
-      {/* History Slide-over Drawer */}
-      {showHistory && (
-        <>
-          <div
-            className="fixed inset-0 bg-black/40 z-40 backdrop-blur-xs transition-opacity"
+      {/* Smooth History Slide-over Drawer */}
+      <div
+        className={`fixed inset-0 bg-black/40 z-40 backdrop-blur-xs transition-opacity duration-300 ${
+          showHistory ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={() => setShowHistory(false)}
+      />
+      <div
+        className={`fixed right-0 top-0 h-full w-80 bg-white border-l border-slate-200 z-50 flex flex-col shadow-2xl transition-transform duration-300 ease-in-out ${
+          showHistory ? 'translate-x-0' : 'translate-x-full pointer-events-none'
+        }`}
+      >
+        <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+          <span className="text-sm font-black text-slate-900">Recent Estimates</span>
+          <button
             onClick={() => setShowHistory(false)}
-          />
-          <div className="fixed right-0 top-0 h-full w-80 bg-white border-l border-slate-200 z-50 flex flex-col shadow-2xl">
-            <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
-              <span className="text-sm font-black text-slate-900">Recent Estimates</span>
-              <button
-                onClick={() => setShowHistory(false)}
-                className="text-slate-400 hover:text-slate-700 p-1 rounded-lg"
+            className="text-slate-400 hover:text-slate-700 p-1 rounded-lg cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
+          {history.length === 0 ? (
+            <div className="px-5 py-12 text-center text-sm text-slate-400">No recent estimates yet</div>
+          ) : (
+            history.map((entry) => (
+              <div
+                key={entry.id}
+                onClick={() => {
+                  setItem(entry.item);
+                  setShowHistory(false);
+                  setPrintError('');
+                }}
+                className="p-4 hover:bg-slate-50 cursor-pointer transition-colors space-y-1"
               >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
-              {history.length === 0 ? (
-                <div className="px-5 py-12 text-center text-sm text-slate-400">No recent estimates yet</div>
-              ) : (
-                history.map((entry) => (
-                  <div
-                    key={entry.id}
-                    onClick={() => {
-                      setItem(entry.item);
-                      setShowHistory(false);
-                      setPrintError('');
-                    }}
-                    className="p-4 hover:bg-slate-50 cursor-pointer transition-colors space-y-1"
-                  >
-                    <div className="flex justify-between items-center">
-                      <span className="font-bold text-slate-900 text-sm">{entry.item.item_name || 'Ornament'}</span>
-                      <span className="font-black text-emerald-900 text-sm">₹{fmt(entry.total)}</span>
-                    </div>
-                    <div className="text-xs text-slate-600 font-medium flex items-center justify-between">
-                      <span>{entry.item.weight}g · {entry.item.metal === 'GOLD' ? entry.item.purity : 'Silver'}</span>
-                      <span>{entry.time}</span>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            {history.length > 0 && (
-              <div className="p-4 border-t border-slate-200">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleResetHistory}
-                  className="w-full text-xs text-rose-600 hover:bg-rose-50 border-rose-200 font-bold"
-                >
-                  Clear All History
-                </Button>
+                <div className="flex justify-between items-center">
+                  <span className="font-bold text-slate-900 text-sm">{entry.item.item_name || 'Ornament'}</span>
+                  <span className="font-black text-emerald-900 text-sm">₹{fmt(entry.total)}</span>
+                </div>
+                <div className="text-xs text-slate-600 font-medium flex items-center justify-between">
+                  <span>{entry.item.weight}g · {entry.item.metal === 'GOLD' ? entry.item.purity : 'Silver'}</span>
+                  <span>{entry.time}</span>
+                </div>
               </div>
-            )}
+            ))
+          )}
+        </div>
+
+        {history.length > 0 && (
+          <div className="p-4 border-t border-slate-200">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleResetHistory}
+              className="w-full text-xs text-rose-600 hover:bg-rose-50 border-rose-200 font-bold cursor-pointer"
+            >
+              Clear All History
+            </Button>
           </div>
-        </>
-      )}
+        )}
+      </div>
 
       {/* Super-Compact Thermal Print Slip (48mm / 50mm) - No Date, No Shop Info */}
       <div id="print-bill">

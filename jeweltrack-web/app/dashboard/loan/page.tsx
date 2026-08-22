@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/axios';
 import { Button } from '@/components/ui/button';
@@ -186,7 +187,13 @@ export default function GoldLoanPage() {
 
                         {/* Customer */}
                         <td className="px-5 py-4">
-                          <div className="font-black text-slate-900 text-base">{loan.customer?.name}</div>
+                          <Link
+                            href={`/dashboard/customers/customerView?id=${loan.customer_id}`}
+                            className="font-black text-slate-900 text-base hover:text-gold hover:underline transition-colors block"
+                            title="View Customer Profile"
+                          >
+                            {loan.customer?.name}
+                          </Link>
                           <div className="text-xs text-slate-600 font-mono font-medium">
                             {loan.customer?.phone} {loan.customer?.village ? `• ${loan.customer?.village}` : ''}
                           </div>

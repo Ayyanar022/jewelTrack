@@ -40,4 +40,9 @@ export class CustomerController {
     stats(@Request() req:any , @Param('id') customerId:string){
         return this.customerService.stats(customerId , req.user.shop_id)
     }
+
+    @Get(':id')
+    findById(@Request() req:any, @Param('id') customerId:string){
+        return this.customerService.findById(customerId, req.user.shop_id);
+    }
 }

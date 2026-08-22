@@ -66,8 +66,22 @@ export class LoanService {
     const totalDiscountGiven = (loan.loanRepayment || []).reduce((sum: number, r: any) => sum + (r.discount_amount || 0), 0);
     const currentPrincipalBalance = Math.max(0, loan.loan_amount - totalPrincipalPaid);
 
+    // Exact Indian Jeweller Month-by-Month Interest Accrual:
+    // For each running month cycle, interest is charged based on the principal balance at the START of that month cycle.
+    // If a principal repayment is made during a month, the reduced balance takes effect from the NEXT month cycle onward.
+    let totalAccruedInterest = 0;
+    for (let m = 1; m <= elapsedMonths; m++) {
+      const monthStartDate = new Date(startYear, startMonth + (m - 1), startDay);
+      const principalPaidBeforeMonth = (loan.loanRepayment || [])
+        .filter((r: any) => new Date(r.payment_date || r.created_at) < monthStartDate)
+        .reduce((sum: number, r: any) => sum + (r.principal_paid || 0), 0);
+
+      const principalAtMonthStart = Math.max(0, loan.loan_amount - principalPaidBeforeMonth);
+      const monthInterest = Math.round((principalAtMonthStart * loan.interest_rate) / 100);
+      totalAccruedInterest += monthInterest;
+    }
+
     const monthlyInterestAmount = Math.round((currentPrincipalBalance * loan.interest_rate) / 100);
-    const totalAccruedInterest = monthlyInterestAmount * elapsedMonths;
     const pendingInterest = Math.max(0, totalAccruedInterest - totalInterestPaid - totalDiscountGiven);
 
     return {
@@ -136,12 +150,13 @@ export class LoanService {
     });
   }
 
-  // 2. List All Loans with Pagination, Date Filter, and Search
+  // 2. List All Loans with Pagination, Date Filter, Customer ID, and Search
   async getLoans(
     shopId: string,
     status?: LoanStatus,
     search?: string,
     period?: string,
+    customerId?: string,
     page: number = 1,
     limit: number = 10,
   ) {
@@ -150,6 +165,9 @@ export class LoanService {
     const where: any = { shop_id: shopId };
     if (status) {
       where.status = status;
+    }
+    if (customerId) {
+      where.customer_id = customerId;
     }
     const dateFilter = getDateFilter(period);
     if (dateFilter) {
@@ -243,8 +261,9 @@ export class LoanService {
       throw new BadRequestException('This gold loan is already closed and settled');
     }
 
-    const totalPrincipalPaidSoFar = loan.loanRepayment.reduce((sum, r) => sum + (r.principal_paid || 0), 0);
-    const currentPrincipalBalance = Math.max(0, loan.loan_amount - totalPrincipalPaidSoFar);
+    const calculations = this.calculateLoanInterest(loan);
+    const currentPrincipalBalance = calculations.current_principal_balance;
+    const pendingInterest = calculations.pending_interest;
 
     const principalPaidNow = Number(dto.principal_paid) || 0;
     const interestPaidNow = Number(dto.interest_paid) || 0;
@@ -254,6 +273,13 @@ export class LoanService {
     if (principalPaidNow > currentPrincipalBalance) {
       throw new BadRequestException(
         `Principal repayment (₹${principalPaidNow.toLocaleString('en-IN')}) cannot exceed outstanding principal balance (₹${currentPrincipalBalance.toLocaleString('en-IN')})`,
+      );
+    }
+
+    // Strict validation: Interest paid cannot exceed accrued pending interest (unless 0)
+    if (interestPaidNow > pendingInterest && pendingInterest >= 0) {
+      throw new BadRequestException(
+        `Interest payment (₹${interestPaidNow.toLocaleString('en-IN')}) cannot exceed accrued pending interest (₹${pendingInterest.toLocaleString('en-IN')})`,
       );
     }
 
@@ -270,6 +296,7 @@ export class LoanService {
     });
 
     // 2. Check if loan should be closed
+    const totalPrincipalPaidSoFar = calculations.total_principal_paid;
     const newTotalPrincipalPaid = totalPrincipalPaidSoFar + principalPaidNow;
     const shouldClose = dto.is_closing || newTotalPrincipalPaid >= loan.loan_amount;
 

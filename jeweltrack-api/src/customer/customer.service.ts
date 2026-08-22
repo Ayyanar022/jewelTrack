@@ -51,6 +51,12 @@ export class CustomerService {
         return customers
     }
 
+    async findById(customerId: string, shopId: string) {
+        return this.prisma.customer.findFirst({
+            where: { id: customerId, shop_id: shopId },
+        });
+    }
+
     async purchaseBills(cusId:string, shopId:string){
         
         return await this.prisma.bill.findMany({

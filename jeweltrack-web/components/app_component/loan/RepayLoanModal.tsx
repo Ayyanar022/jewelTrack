@@ -34,7 +34,7 @@ export default function RepayLoanModal({ loan, open, onOpenChange }: RepayLoanMo
 
   useEffect(() => {
     if (loan) {
-      setInterestPaid(String(loan.pending_interest || loan.monthly_interest_amount || ''));
+      setInterestPaid(String(loan.pending_interest ?? 0));
       setPrincipalPaid('');
       setDiscountAmount('');
       setRepayNotes('');
@@ -54,6 +54,8 @@ export default function RepayLoanModal({ loan, open, onOpenChange }: RepayLoanMo
       );
       queryClient.invalidateQueries({ queryKey: ['loans'] });
       queryClient.invalidateQueries({ queryKey: ['loan-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['loan-stats-today'] });
+      queryClient.invalidateQueries({ queryKey: ['customer-loans'] });
       onOpenChange(false);
     },
     onError: (err: any) => {
@@ -72,6 +74,13 @@ export default function RepayLoanModal({ loan, open, onOpenChange }: RepayLoanMo
     if (principalNum > loan.current_principal_balance) {
       toast.error(
         `Principal payment (₹${principalNum.toLocaleString('en-IN')}) cannot exceed remaining balance (₹${loan.current_principal_balance.toLocaleString('en-IN')})`,
+      );
+      return;
+    }
+
+    if (interestNum > loan.pending_interest && loan.pending_interest >= 0) {
+      toast.error(
+        `Interest payment (₹${interestNum.toLocaleString('en-IN')}) cannot exceed accrued pending interest (₹${loan.pending_interest.toLocaleString('en-IN')})`,
       );
       return;
     }

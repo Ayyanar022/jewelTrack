@@ -22,7 +22,7 @@ export class LoanController {
     return this.loanService.getLoanStats(req.user.shop_id, period);
   }
 
-  // 2. List all loans with status, search, date period, and pagination
+  // 2. List all loans with status, search, date period, customer_id, and pagination
   @Roles(Role.SHOP_OWNER, Role.MANAGER)
   @Get()
   getLoans(
@@ -30,10 +30,11 @@ export class LoanController {
     @Query('status') status?: LoanStatus,
     @Query('search') search?: string,
     @Query('period') period?: string,
+    @Query('customer_id') customerId?: string,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
   ) {
-    return this.loanService.getLoans(req.user.shop_id, status, search, period, page, limit);
+    return this.loanService.getLoans(req.user.shop_id, status, search, period, customerId, page, limit);
   }
 
   // 3. Single loan details with collateral items & repayments

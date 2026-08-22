@@ -11,10 +11,13 @@ export default function DashboardPage() {
     queryFn: () => api.get('/rate/recent-rate').then((r) => r.data),
   });
 
-  const { data: bills } = useQuery({
+  const { data: billsData } = useQuery({
     queryKey: ['bills'],
-    queryFn: () => api.get('/bill/all').then((r) => r.data),
+    queryFn: () => api.get('/bill/all?limit=5').then((r) => r.data),
   });
+
+  const billList = Array.isArray(billsData) ? billsData : (billsData?.items || []);
+  const totalBills = billsData?.total ?? billList.length;
 
   // Fetch Today's Gold Loan Summary
   const { data: todayLoanStats } = useQuery({
@@ -30,7 +33,7 @@ export default function DashboardPage() {
   });
 
   const stats = [
-    { label: "Today's Bills", value: bills?.length ?? 0, sub: 'total created' },
+    { label: "Today's Bills", value: totalBills, sub: 'total created' },
     { label: '22K Rate', value: recentRate?.rate_22k ? `₹${recentRate.rate_22k.toLocaleString('en-IN')}` : '—', sub: 'per gram' },
     { label: '18K Rate', value: recentRate?.rate_18k ? `₹${recentRate.rate_18k.toLocaleString('en-IN')}` : '—', sub: 'per gram' },
     { label: 'Silver Rate', value: recentRate?.rate_silver ? `₹${recentRate.rate_silver.toLocaleString('en-IN')}` : '—', sub: 'per gram' },
@@ -168,7 +171,7 @@ export default function DashboardPage() {
             View All Bills
           </Link>
         </div>
-        {bills?.length === 0 || !bills ? (
+        {billList.length === 0 ? (
           <div className="px-5 py-8 text-center text-sm text-muted-foreground">
             No bills yet — create your first bill
           </div>
@@ -184,14 +187,14 @@ export default function DashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {bills.slice(0, 5).map((b: any) => (
+              {billList.slice(0, 5).map((b: any) => (
                 <tr key={b.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50">
                   <td className="px-5 py-3 font-medium text-foreground">{b.bill_number}</td>
                   <td className="px-5 py-3 text-muted-foreground">
                     {new Date(b.created_at).toLocaleDateString('en-IN')}
                   </td>
-                  <td className="px-5 py-3 text-muted-foreground">₹{b.total_amount}</td>
-                  <td className="px-5 py-3 font-semibold text-foreground">₹{b.payableAmount}</td>
+                  <td className="px-5 py-3 text-muted-foreground">₹{Number(b.total_amount || 0).toLocaleString('en-IN')}</td>
+                  <td className="px-5 py-3 font-semibold text-foreground">₹{Number(b.payableAmount || 0).toLocaleString('en-IN')}</td>
                   <td className="px-5 py-3">
                     <Link href={`/dashboard/billing/${b.id}`} className="text-xs font-bold text-gold hover:underline">
                       View

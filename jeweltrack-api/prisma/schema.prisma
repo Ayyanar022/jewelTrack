@@ -7,9 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 // db start
-
 
 enum Role {
   SUPER_ADMIN
@@ -18,39 +16,33 @@ enum Role {
   CASHIER
 }
 
-enum PartyType{
-  SMALL_SHOP 
-  KARIGAR
-  INDIVIDUAL
-}
-
-enum Purity{
+enum Purity {
   K22
   K18
   K24
-  }
+}
 
-  enum Metal{
-    GOLD 
-    SILVER
-  }
+enum Metal {
+  GOLD
+  SILVER
+}
 
-  enum LoanStatus{
-    ACTIVE
-    CLOSED
-  }
+enum LoanStatus {
+  ACTIVE
+  CLOSED
+}
 
-  enum Type{
-    IN
-    OUT
-  }
+enum Type {
+  IN
+  OUT
+}
 
-  enum StockType{
-    OWN 
-    BORROW
-  }
+enum StockType {
+  OWN
+  BORROW
+}
 
-  enum ReferenceType {
+enum ReferenceType {
   BILL
   ADJUSTMENT
   ADD
@@ -63,7 +55,6 @@ enum subscriptionStatus {
   CANCELLED
   PAST_DUE
 }
-
 
 model User {
   id                  String                @id @default(uuid())
@@ -88,22 +79,18 @@ model User {
   @@index([phone])
 }
 
-model Shop{
+model Shop {
   id                  String             @id @default(uuid())
   name                String
-  hallmark_rate       Float              @default(0.005)
   subscription_plan   String             @default("TRIAL")
   subscription_status subscriptionStatus @default(TRIAL)
   created_at          DateTime           @default(now())
 
   users               User[]
   customer            Customer[] 
-  party               Party[]
   rate                Rate[]
   bill                Bill[]
   jewelleryCategory   JewelleryCategory[]
-  stockTransaction    StockTransaction[]
-  metalPayment        MetalPayment[]
   goldLoan            JewelLoan[]
   inventoryStockEntry InventoryStockEntry[]
   billPaymentsEntry   BillPaymentsEntry[]
@@ -112,69 +99,50 @@ model Shop{
   subscription        Subscription[] 
 }
 
-
-model Customer  {
-  id  String  @id @default(uuid())
-  shop_id  String 
-  shop  Shop  @relation(fields : [shop_id] ,references:[id])
-  name  String 
-  phone  String
-  village String
-  address String?
+model Customer {
+  id         String   @id @default(uuid())
+  shop_id    String 
+  shop       Shop     @relation(fields: [shop_id], references: [id])
+  name       String 
+  phone      String
+  village    String
+  address    String?
   created_at DateTime @default(now())
 
-  bill Bill[]
-  goldLoan JewelLoan[]
+  bill       Bill[]
+  goldLoan   JewelLoan[]
 
   @@index([shop_id])
 }
 
-
-model Party{
-  id  String  @id @default(uuid())
-  shop_id String 
-  shop Shop @relation(fields:[shop_id] , references:[id])
-  name String 
-  phone String?
-  address String?
-  type PartyType  @default(SMALL_SHOP)
-  contact_person String?
-  created_at DateTime  @default(now())
-
-   stockTransaction StockTransaction[]
-   metalPayment MetalPayment[]
-}
-
-
-model Rate{
-  id  String @id @default(uuid())
-  shop_id String 
-  shop Shop @relation(fields:[shop_id] ,references:[id])
-  rate_22k Int 
-  rate_18k Int
-  rate_999 Int?
+model Rate {
+  id          String   @id @default(uuid())
+  shop_id     String 
+  shop        Shop     @relation(fields: [shop_id], references: [id])
+  rate_22k    Int 
+  rate_18k    Int
+  rate_999    Int?
   rate_silver Int
-  created_at DateTime  @default(now())
-
+  created_at  DateTime @default(now())
 }
 
-model Bill{
-  id                  String             @id @default(uuid())
+model Bill {
+  id                  String              @id @default(uuid())
   shop_id             String 
-  shop                Shop               @relation(fields:[shop_id] , references:[id])
+  shop                Shop                @relation(fields: [shop_id], references: [id])
   customer_id         String
-  customer            Customer           @relation(fields:[customer_id] ,references:[id])
+  customer            Customer            @relation(fields: [customer_id], references: [id])
   bill_number         String
-  is_gst_bill         Boolean            @default(false)
+  is_gst_bill         Boolean             @default(false)
   total_amount        Float 
-  discount            Float?             @default(0)
-  totalGST            Float?             @default(0)
+  discount            Float?              @default(0)
+  totalGST            Float?              @default(0)
   payableAmount       Float
   notes               String?
   created_by_user_id  String?
-  created_by          User?              @relation("BillCreatedByUser", fields: [created_by_user_id], references: [id])
+  created_by          User?               @relation("BillCreatedByUser", fields: [created_by_user_id], references: [id])
 
-  created_at          DateTime           @default(now())
+  created_at          DateTime            @default(now())
 
   billItem            BillItem[]
   billPaymentsEntry   BillPaymentsEntry[]
@@ -185,260 +153,208 @@ model Bill{
   @@index([created_by_user_id])
 }
 
-model BillItem{
-  id String @id @default(uuid())
-  bill_id String 
-  bill Bill @relation(fields:[bill_id],references:[id] )
-  category_id String 
-   category JewelleryCategory @relation(fields:[category_id] , references:[id])
-  purity Purity? @default(K22)
-  metal Metal @default(GOLD)
-  gross_weight Float @default(0)
-  net_weight Float @default(0)
-  stone Float? @default(0)
-  wastage Float?
-  rate Float
+model BillItem {
+  id            String            @id @default(uuid())
+  bill_id       String 
+  bill          Bill              @relation(fields: [bill_id], references: [id])
+  category_id   String 
+  category      JewelleryCategory @relation(fields: [category_id], references: [id])
+  purity        Purity?           @default(K22)
+  metal         Metal             @default(GOLD)
+  gross_weight  Float             @default(0)
+  net_weight    Float             @default(0)
+  stone         Float?            @default(0)
+  wastage       Float?
+  rate          Float
   making_charge Float
-  amount Float 
-
+  amount        Float 
 }
 
-model JewelleryCategory{
-  id String @id @default(uuid())
-  shop_id String
-  shop Shop @relation(fields:[shop_id] ,references:[id])
-  name String
-  metal Metal @default(GOLD)
-  default_wastage Float?
+model JewelleryCategory {
+  id                    String                @id @default(uuid())
+  shop_id               String
+  shop                  Shop                  @relation(fields: [shop_id], references: [id])
+  name                  String
+  metal                 Metal                 @default(GOLD)
+  default_wastage       Float?
   default_making_charge Float?
-  touch_22k Float?
-  touch_18k Float?
-  touch_24k Float?
-  created_at DateTime @default(now())
+  touch_22k             Float?
+  touch_18k             Float?
+  touch_24k             Float?
+  created_at            DateTime              @default(now())
 
-  stockTransaction StockTransaction[]
-  inventoryStockEntry InventoryStockEntry[]
-  billItem BillItem[]
+  inventoryStockEntry   InventoryStockEntry[]
+  billItem              BillItem[]
 }
 
-model StockTransaction {
-  id String  @id @default(uuid())
-  shop_id  String 
-  shop Shop @relation(fields:[shop_id],references:[id])
-  party_id  String 
-  party  Party  @relation(fields:[party_id],references:[id])
-  category_id String
-  category  JewelleryCategory  @relation(fields:[category_id] ,references:[id])
-  piece_weight  Float
-  purity  Purity  @default(K18)
-  given_pieces  Int   @default(0)
-  given_weight  Float  @default(0)
-  returned_pieces  Int   @default(0)
-  returned_weight  Float @default(0)
-  fixed_touch Float 
-  actual_touch  Float
-  hallmark_rate Float
-  give_at  DateTime?
-  returned_at DateTime?
-  is_locked Boolean @default(false)
-  created_at  DateTime      @default(now())
+// Gold / Silver Loan ------------------------------
 
-  @@index([shop_id])
-  
-  
-}
-
-
-
-  model MetalPayment {
-  id String @id @default(uuid())
-  shop_id String 
-  shop Shop @relation(fields:[shop_id], references:[id])
-  party_id String 
-  party Party  @relation(fields:[party_id],references:[id])
-  weight Float
-  purity Float
-  pure_metal Float
-  notes String?
-  payment_date DateTime 
-  created_at DateTime @default(now())
-  }
-
-
-  // gold lean ------------------------------
-
-  model JewelLoan {
-    id String @id @default(uuid())
-     shop_id String 
-     shop Shop @relation(fields:[shop_id], references:[id])
-     customer_id String 
-     customer Customer @relation(fields:[customer_id], references:[id])
-     loan_number String
-     loan_amount  Int
-     interest_rate Float
-     gross_weight Float 
-     net_weight Float
-     jewellery_photo_url  String?
-     customer_photo_url String?
-     status LoanStatus @default(ACTIVE)
-     loan_date DateTime @default(now())
-     notes String?
-     created_at DateTime @default(now())
-
-  loanCollateralItem LoanCollateralItem[]
-  loanRepayment LoanRepayment[]
-  }
-
-
-  model LoanCollateralItem {
-    id String  @id @default(uuid())
-    loan_id String 
-    loan JewelLoan @relation(fields:[loan_id] , references:[id], onDelete: Cascade) 
-    metal Metal @default(GOLD)
-    description  String 
-    purity  Purity?   
-    pieces  Int @default(1)
-    gross_weight Float? @default(0)
-    net_weight Float? @default(0)
-  }
-
-
-  model LoanRepayment{
-    id String @id @default(uuid())
-    loan_id String 
-    loan JewelLoan @relation(fields:[loan_id] , references:[id], onDelete: Cascade) 
-    principal_paid Int
-    interest_paid Int 
-    discount_amount Int? @default(0)
-    payment_date DateTime
-    notes String?
-    created_at DateTime @default(now())
-  }
-
-//----------------------------
-
-  model InventoryStockEntry{
-    id                  String             @id @default(uuid())
-    shop_id             String 
-    shop                Shop               @relation(fields:[shop_id], references:[id])
-    category_id         String
-    category            JewelleryCategory  @relation(fields:[category_id] , references:[id])
-    type                Type
-    weight              Float
-    purity              Purity
-    stockType           StockType
-    reference           ReferenceType
-    reference_id        String?
-    created_by_user_id  String?
-    created_by          User?              @relation("StockCreatedByUser", fields: [created_by_user_id], references: [id])
-    created_at          DateTime           @default(now())
-
-    @@index([shop_id])
-    @@index([created_by_user_id])
-  }
-
-model BillPaymentsEntry{
-  id                  String             @id @default(uuid())
+model JewelLoan {
+  id                  String               @id @default(uuid())
   shop_id             String 
-  shop                Shop               @relation(fields:[shop_id] , references:[id])
-  bill_id             String
-  bill                Bill               @relation(fields:[bill_id], references : [id])
-  paid_amount         Float 
-  created_by_user_id  String?
-  created_by          User?              @relation("PaymentCreatedByUser", fields: [created_by_user_id], references: [id])
-  created_at          DateTime           @default(now())
+  shop                Shop                 @relation(fields: [shop_id], references: [id])
+  customer_id         String 
+  customer            Customer             @relation(fields: [customer_id], references: [id])
+  loan_number         String
+  loan_amount         Int
+  interest_rate       Float
+  gross_weight        Float 
+  net_weight          Float
+  jewellery_photo_url String?
+  customer_photo_url  String?
+  status              LoanStatus           @default(ACTIVE)
+  loan_date           DateTime             @default(now())
+  notes               String?
+  created_at          DateTime             @default(now())
+
+  loanCollateralItem  LoanCollateralItem[]
+  loanRepayment       LoanRepayment[]
+}
+
+model LoanCollateralItem {
+  id           String    @id @default(uuid())
+  loan_id      String 
+  loan         JewelLoan @relation(fields: [loan_id], references: [id], onDelete: Cascade) 
+  metal        Metal     @default(GOLD)
+  description  String 
+  purity       Purity?   
+  pieces       Int       @default(1)
+  gross_weight Float?    @default(0)
+  net_weight   Float?    @default(0)
+}
+
+model LoanRepayment {
+  id              String    @id @default(uuid())
+  loan_id         String 
+  loan            JewelLoan @relation(fields: [loan_id], references: [id], onDelete: Cascade) 
+  principal_paid  Int
+  interest_paid   Int 
+  discount_amount Int?      @default(0)
+  payment_date    DateTime
+  notes           String?
+  created_at      DateTime  @default(now())
+}
+
+// Inventory & Payments ----------------------------
+
+model InventoryStockEntry {
+  id                 String            @id @default(uuid())
+  shop_id            String 
+  shop               Shop              @relation(fields: [shop_id], references: [id])
+  category_id        String
+  category           JewelleryCategory @relation(fields: [category_id], references: [id])
+  type               Type
+  weight             Float
+  purity             Purity
+  stockType          StockType
+  reference          ReferenceType
+  reference_id       String?
+  created_by_user_id String?
+  created_by         User?             @relation("StockCreatedByUser", fields: [created_by_user_id], references: [id])
+  created_at         DateTime          @default(now())
 
   @@index([shop_id])
   @@index([created_by_user_id])
 }
 
-model OldGoldEntry{
-    id String @id @default(uuid())
-    shop_id String
-    shop Shop @relation(fields:[shop_id],references:[id])
-    bill_id String
-    bill Bill @relation(fields:[bill_id] , references :[id])
-    item_name String
-    purity String
-    weight Float
-    rate  Float
-    amount Float
+model BillPaymentsEntry {
+  id                 String   @id @default(uuid())
+  shop_id            String 
+  shop               Shop     @relation(fields: [shop_id], references: [id])
+  bill_id            String
+  bill               Bill     @relation(fields: [bill_id], references: [id])
+  paid_amount        Float 
+  created_by_user_id String?
+  created_by         User?    @relation("PaymentCreatedByUser", fields: [created_by_user_id], references: [id])
+  created_at         DateTime @default(now())
+
+  @@index([shop_id])
+  @@index([created_by_user_id])
 }
 
-
-
+model OldGoldEntry {
+  id        String @id @default(uuid())
+  shop_id   String
+  shop      Shop   @relation(fields: [shop_id], references: [id])
+  bill_id   String
+  bill      Bill   @relation(fields: [bill_id], references: [id])
+  item_name String
+  purity    String
+  weight    Float
+  rate      Float
+  amount    Float
+}
 
 model ShopSetting {
-  id        String   @id @default(uuid())   
+  id               String   @id @default(uuid())   
 
-  shop_id   String   @unique
-  shop      Shop     @relation(fields: [shop_id], references: [id])
+  shop_id          String   @unique
+  shop             Shop     @relation(fields: [shop_id], references: [id])
 
   // Basic
-  shop_name   String
-  owner_name  String?
-  address     String?
-  phone       String?
-  whatsapp    String?
-  email       String?
+  shop_name        String
+  owner_name       String?
+  address          String?
+  phone            String?
+  whatsapp         String?
+  email            String?
 
   // Tax
-  gstin       String?
-  pan         String?
+  gstin            String?
+  pan              String?
 
   // Invoice
-  invoice_prefix   String? @default("BILL-")
-  estimate_prefix String? @default("EST-")
+  invoice_prefix   String?  @default("BILL-")
+  estimate_prefix  String?  @default("EST-")
   terms_conditions String?
 
   // Bank
-  bank_name      String?
-  account_name   String?
-  account_number String?
-  ifsc           String?
-  branch         String?
-  upi_id         String?
+  bank_name        String?
+  account_name     String?
+  account_number   String?
+  ifsc             String?
+  branch           String?
+  upi_id           String?
 
-  // Branding (later)
-  logo_url      String?
-  signature_url String?
+  // Branding
+  logo_url         String?
+  signature_url    String?
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
 }
 
 model Plan {
-  id     String @id @default(uuid())
-  name   String @unique   // "BASIC", "PRO"
-  price  Int              // monthly price only, in paise
-  max_users Int @default(1)
+  id                     String         @id @default(uuid())
+  name                   String         @unique
+  price                  Int            // monthly price in paise
+  max_users              Int            @default(1)
   max_invoices_per_month Int?
-  max_branches Int @default(1)
-  features Json?
-  note String?
-  is_active Boolean @default(true)
-   subscriptions Subscription[]
+  max_branches           Int            @default(1)
+  features               Json?
+  note                   String?
+  is_active              Boolean        @default(true)
+  subscriptions          Subscription[]
 }
 
-
 model Subscription {
-  id               String @id @default(uuid())
-  shop_id          String
-  shop             Shop @relation(fields: [shop_id], references: [id])
-  plan_id          String
-  plan             Plan @relation(fields: [plan_id], references: [id])
+  id                       String             @id @default(uuid())
+  shop_id                  String
+  shop                     Shop               @relation(fields: [shop_id], references: [id])
+  plan_id                  String
+  plan                     Plan               @relation(fields: [plan_id], references: [id])
 
-  duration_months  Int      // 1, 3, 6, 12
-  amount_paid      Int      // plan.price * duration - discount
-  discount_percent Int      @default(0)
+  duration_months          Int
+  amount_paid              Int
+  discount_percent         Int                @default(0)
 
-  razorpay_subscription_id String? @unique
-  status                   subscriptionStatus  @default(TRIAL)
+  razorpay_subscription_id String?            @unique
+  status                   subscriptionStatus @default(TRIAL)
   current_period_start     DateTime?
   current_period_end       DateTime?
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at               DateTime           @default(now())
+  updated_at               DateTime           @updatedAt
 
   @@index([shop_id])
   @@index([status])

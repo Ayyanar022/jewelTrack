@@ -1,10 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsArray, IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Min, ValidateNested } from 'class-validator';
-import { Purity } from '@prisma/client';
+import { Purity, Metal } from '@prisma/client';
 
 export class CollateralItemDto {
-  @ApiProperty({ example: 'Gold Chain' })
+  @ApiProperty({ enum: Metal, required: false, default: Metal.GOLD })
+  @IsOptional()
+  @IsEnum(Metal)
+  metal?: Metal;
+
+  @ApiProperty({ example: 'Gold Chain / Silver Anklet' })
   @IsString()
   @IsNotEmpty()
   description: string;
@@ -14,10 +19,11 @@ export class CollateralItemDto {
   @IsEnum(Purity)
   purity?: Purity;
 
-  @ApiProperty({ example: 1, default: 1 })
+  @ApiProperty({ example: 1, default: 1, required: false })
+  @IsOptional()
   @IsInt()
   @Min(1)
-  pieces: number;
+  pieces?: number;
 
   @ApiProperty({ example: 12.5, required: false })
   @IsOptional()

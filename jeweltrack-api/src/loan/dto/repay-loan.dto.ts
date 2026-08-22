@@ -12,6 +12,12 @@ export class RepayLoanDto {
   @Min(0)
   interest_paid: number;
 
+  @ApiProperty({ example: 0, description: 'Discount / waiver given by shop in Rupees', required: false })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  discount_amount?: number;
+
   @ApiProperty({ example: 'Payment via GPay', required: false })
   @IsOptional()
   @IsString()

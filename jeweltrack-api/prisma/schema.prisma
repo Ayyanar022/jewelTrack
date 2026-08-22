@@ -294,9 +294,10 @@ model StockTransaction {
     id String  @id @default(uuid())
     loan_id String 
     loan JewelLoan @relation(fields:[loan_id] , references:[id], onDelete: Cascade) 
+    metal Metal @default(GOLD)
     description  String 
     purity  Purity?   
-    pieces  Int
+    pieces  Int @default(1)
     gross_weight Float? @default(0)
     net_weight Float? @default(0)
   }
@@ -305,9 +306,10 @@ model StockTransaction {
   model LoanRepayment{
     id String @id @default(uuid())
     loan_id String 
-    loan JewelLoan @relation(fields:[loan_id] , references:[id]) 
+    loan JewelLoan @relation(fields:[loan_id] , references:[id], onDelete: Cascade) 
     principal_paid Int
     interest_paid Int 
+    discount_amount Int? @default(0)
     payment_date DateTime
     notes String?
     created_at DateTime @default(now())

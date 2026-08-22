@@ -3,6 +3,28 @@ import { CreateBillDto, OldGoldEntryDto } from './dto/craete-bill.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { SubscriptionService } from 'src/subscription/subscription.service';
 
+function getDateFilter(period?: string): { gte?: Date } | undefined {
+  if (!period || period.toUpperCase() === 'ALL') return undefined;
+
+  const now = new Date();
+  const p = period.toUpperCase();
+  if (p === 'TODAY') {
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    return { gte: startOfToday };
+  }
+  if (p === 'WEEK') {
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - 7);
+    startOfWeek.setHours(0, 0, 0, 0);
+    return { gte: startOfWeek };
+  }
+  if (p === 'MONTH') {
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+    return { gte: startOfMonth };
+  }
+  return undefined;
+}
+
 @Injectable()
 export class BillService {
     constructor (
@@ -161,43 +183,52 @@ export class BillService {
         return bill
     }
 
-    async findAll(search:string , shopId:string ,page:string , limit:string){
-        const pageNumber = Number(page) || 1 ;
-        const dataLimit = Number(limit) || 10 ; 
+    async findAll(search?: string, shopId?: string, page?: string | number, limit?: string | number, period?: string) {
+        const pageNumber = Math.max(1, Number(page) || 1);
+        const dataLimit = Math.max(1, Number(limit) || 10);
+        const skip = (pageNumber - 1) * dataLimit;
+        const take = dataLimit;
 
-        const skip = (pageNumber-1) * dataLimit ;
-        const take = dataLimit ;
-        const bill = await this.prisma.bill.findMany({
-            where:{
-                shop_id:shopId, 
-                ...(search && {
-                    OR:[
-                        {
-                            customer:{name:{contains:search , mode:'insensitive'}}
-                        },
-                        {
-                            customer : {phone:{contains:search,mode:'insensitive'}}
-                        },
-                        {
-                            customer:{village :{contains:search , mode:'insensitive'}}
-                        },
-                        {
-                            bill_number:{contains:search}
-                        }
-                    ]
-                }),
-            },
-            include:{
-                billItem:true,
-                customer:true,
-                created_by:{select:{id:true, name:true, role:true}}
-            },
-            skip,
-            take,
-            orderBy:{created_at:'desc'}
-        })
+        const dateFilter = getDateFilter(period);
+        const where: any = {
+            shop_id: shopId,
+            ...(dateFilter && { created_at: dateFilter }),
+            ...(search && {
+                OR: [
+                    { customer: { name: { contains: search, mode: 'insensitive' } } },
+                    { customer: { phone: { contains: search, mode: 'insensitive' } } },
+                    { customer: { village: { contains: search, mode: 'insensitive' } } },
+                    { bill_number: { contains: search, mode: 'insensitive' } },
+                ],
+            }),
+        };
 
-        return bill
+        const [totalCount, bills] = await Promise.all([
+            this.prisma.bill.count({ where }),
+            this.prisma.bill.findMany({
+                where,
+                include: {
+                    billItem: {
+                        include: { category: true },
+                    },
+                    customer: true,
+                    billPaymentsEntry: true,
+                    oldGoldEntry: true,
+                    created_by: { select: { id: true, name: true, role: true } },
+                },
+                skip,
+                take,
+                orderBy: { created_at: 'desc' },
+            }),
+        ]);
+
+        return {
+            items: bills,
+            total: totalCount,
+            page: pageNumber,
+            limit: dataLimit,
+            totalPages: Math.ceil(totalCount / dataLimit),
+        };
     }
 
     async AddPayment(billId:string , dto:any , shopId:string, userId?: string){

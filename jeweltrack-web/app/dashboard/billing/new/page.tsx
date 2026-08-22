@@ -1530,117 +1530,149 @@ const handleTabChange = (tab: string) => {
             </div>
           </div>
 
-          {/* Right Section - Summary (1/3 width) */}
+          {/* Right Section - Bill Summary Card */}
           <div className="lg:col-span-1">
-            <div className="bg-gray-50 border rounded-lg shadow-sm p-5 sticky top-4 ">
-              <h3 className="text-base font-bold text-gray-700 mb-3 pb-2 border-b">Bill Summary</h3>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between text-base">
-                  <span className="text-gray-600">Sub Total</span>
-                  <span className="font-semibold">₹ {Math.round(total).toLocaleString('en-IN')}</span>
+            <div className="bg-white border border-slate-300 rounded-xl shadow-sm p-4 sticky top-4 space-y-3.5">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
+                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <span>🧾</span>
+                  <span>Bill Summary</span>
+                </h3>
+                <span className={`text-xs font-bold px-2.5 py-1 rounded-md border ${isGst ? 'bg-blue-50 text-blue-900 border-blue-200' : 'bg-slate-100 text-slate-800 border-slate-300'}`}>
+                  {isGst ? 'GST INVOICE' : 'DIRECT BILL'}
+                </span>
+              </div>
+
+              {/* Breakdown Rows */}
+              <div className="space-y-2 text-sm">
+                {/* Sub Total */}
+                <div className="flex justify-between items-center text-slate-700">
+                  <span className="font-medium">Sub Total</span>
+                  <span className="font-bold font-mono text-slate-900 text-base">₹ {Math.round(total).toLocaleString('en-IN')}</span>
                 </div>
-                
-                <div className="flex justify-between items-center text-base">
-                  <span className="text-gray-600">Discount</span>
+
+                {/* Discount */}
+                <div className="flex justify-between items-center gap-2">
+                  <span className="text-slate-700 font-medium">Discount (₹)</span>
                   <div className="flex items-center gap-2">
                     <input
                       type="number"
                       min={0}
-                      className="w-24 h-9 px-2 text-right text-base border border-gray-300 rounded focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                      className="w-24 h-8 px-2.5 text-right text-sm font-bold font-mono border border-slate-300 rounded-md focus:border-slate-800 focus:ring-2 focus:ring-slate-900/10 outline-none"
                       value={discount || ''}
+                      placeholder="0"
                       onChange={(e) => setDiscount(Number(e.target.value))}
                     />
-                    <span className="font-semibold text-red-600">- ₹ {Math.round(Number(discount)).toLocaleString('en-IN')}</span>
+                    {Number(discount) > 0 && (
+                      <span className="font-bold font-mono text-rose-600 text-sm">-₹{Math.round(Number(discount)).toLocaleString('en-IN')}</span>
+                    )}
                   </div>
                 </div>
-                
-                <div className="flex justify-between text-base border-t border-gray-200 pt-2">
-                  <span className="font-semibold text-gray-700">Discounted Total</span>
-                  <span className="font-bold text-green-700">₹ {Math.round(Number(discountedTotal)).toLocaleString('en-IN')}</span>
-                </div>
 
-                {isGst && (
-                  <>
-                    <div className="flex justify-between text-sm text-gray-600">
-                      <span>CGST (1.5%)</span>
-                      <span>₹ {Math.round(gstAmount / 2).toLocaleString('en-IN')}</span>
-                    </div>
-                    <div className="flex justify-between text-sm text-gray-600">
-                      <span>SGST (1.5%)</span>
-                      <span>₹ {Math.round(gstAmount / 2).toLocaleString('en-IN')}</span>
-                    </div>
-                    <div className="border-t border-dashed border-gray-300"></div>
-                  </>
+                {/* Discounted Subtotal */}
+                {Number(discount) > 0 && (
+                  <div className="flex justify-between items-center text-slate-600 text-xs pt-0.5">
+                    <span>Subtotal After Discount:</span>
+                    <span className="font-bold font-mono text-slate-800 text-sm">₹ {Math.round(Number(discountedTotal)).toLocaleString('en-IN')}</span>
+                  </div>
                 )}
 
-                <div className="flex justify-between text-lg pt-1">
-                  <span className="font-bold">Payable</span>
-                  <span className="text-2xl font-bold text-red-600">
-                    ₹ {Math.round(Number(payableAmount)).toLocaleString('en-IN')}
-                  </span>
+                {/* GST Details */}
+                {isGst && (
+                  <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200 space-y-1 text-xs">
+                    <div className="flex justify-between text-slate-700">
+                      <span>CGST (1.5%):</span>
+                      <span className="font-mono font-bold text-slate-900 text-sm">₹ {Math.round(gstAmount / 2).toLocaleString('en-IN')}</span>
+                    </div>
+                    <div className="flex justify-between text-slate-700">
+                      <span>SGST (1.5%):</span>
+                      <span className="font-mono font-bold text-slate-900 text-sm">₹ {Math.round(gstAmount / 2).toLocaleString('en-IN')}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Old Gold Credit */}
+                {oldGoldTotalAmount > 0 && (
+                  <div className="flex justify-between items-center text-emerald-800 bg-emerald-50 px-3 py-2 rounded-lg border border-emerald-300">
+                    <span className="font-bold flex items-center gap-1.5 text-sm">
+                      <span>🪙</span>
+                      <span>Old Jewel Credit</span>
+                    </span>
+                    <span className="font-black font-mono text-base">-₹ {Math.round(oldGoldTotalAmount).toLocaleString('en-IN')}</span>
+                  </div>
+                )}
+
+                {/* Net Payable Banner */}
+                <div className="bg-slate-900 text-white p-3.5 rounded-xl flex justify-between items-center shadow-sm">
+                  <div>
+                    <div className="text-xs uppercase tracking-wider text-slate-300 font-bold">Net Payable</div>
+                    <div className="text-xl font-black font-mono mt-0.5">₹ {Math.round(Number(payableAmount)).toLocaleString('en-IN')}</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setPaidAmount(String(Math.round(Number(payableAmount))))}
+                    className="text-xs bg-slate-800 hover:bg-slate-700 text-amber-300 px-3 py-1.5 rounded-lg font-bold transition-colors cursor-pointer border border-slate-700"
+                    title="Auto-fill Full Amount"
+                  >
+                    Full Pay
+                  </button>
                 </div>
 
-                <div className="flex justify-between text-base text-green-600 bg-green-50 p-2 rounded">
-                  <span className="font-semibold">Old Jewel Credit</span>
-                  <span className="text-xl font-bold">
-                    - ₹ {Math.round(oldGoldTotalAmount).toLocaleString('en-IN')}
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-center text-base bg-blue-50 p-2 rounded">
-                  <span className="font-semibold">Paid</span>
+                {/* Paid Input */}
+                <div className="flex justify-between items-center gap-2 pt-1">
+                  <span className="text-slate-800 font-bold text-sm">Paid Amount (₹)</span>
                   <div className="flex items-center gap-2">
                     <input
                       type="number"
                       min={0}
-                      className="w-28 h-9 px-2 text-right text-base border border-blue-300 rounded focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                      className="w-28 h-9 px-2.5 text-right text-sm font-bold font-mono border border-slate-300 rounded-lg focus:border-slate-800 focus:ring-2 focus:ring-slate-900/10 outline-none"
                       value={paidAmount}
                       onChange={(e) => setPaidAmount(e.target.value)}
                       placeholder="0"
                     />
-                    <span className="text-xl font-bold text-blue-600">
-                      ₹ {Number(paidAmount || 0).toLocaleString('en-IN')}
-                    </span>
                   </div>
                 </div>
 
-                <div className="flex justify-between text-lg border-t-2 border-gray-300 pt-3 mt-3">
-                  <span className="font-bold text-lg">Balance</span>
-                  <span className={`text-2xl font-bold ${remainingPayableAmount < 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    ₹ {Math.round(Number(remainingPayableAmount)).toLocaleString('en-IN')}
+                {/* Balance Due Status */}
+                <div className={`flex justify-between items-center px-3 py-2 rounded-lg border font-bold text-sm ${remainingPayableAmount <= 0 ? 'bg-emerald-50 text-emerald-900 border-emerald-300' : 'bg-rose-50 text-rose-900 border-rose-300'}`}>
+                  <span>{remainingPayableAmount <= 0 ? 'Balance (Cleared)' : 'Balance Due'}</span>
+                  <span className="font-mono text-base font-black">
+                    {remainingPayableAmount <= 0 ? '₹ 0.00' : `₹ ${Math.round(Number(remainingPayableAmount)).toLocaleString('en-IN')}`}
                   </span>
                 </div>
 
-                <div className="mt-3">
-                  <textarea
-                    placeholder="Notes..."
+                {/* Notes */}
+                <div className="pt-1">
+                  <input
+                    type="text"
+                    placeholder="Note / Payment Mode (Cash, UPI, Card)..."
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className="w-full h-16 px-3 py-2 text-base border border-gray-300 rounded focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+                    className="w-full h-9 px-3 text-sm border border-slate-300 rounded-lg focus:border-slate-800 focus:ring-2 focus:ring-slate-900/10 outline-none bg-slate-50"
                   />
                 </div>
 
                 {error && (
-                  <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
+                  <div className="text-xs text-rose-700 bg-rose-50 p-2.5 rounded-lg border border-rose-200 font-bold">
                     {error}
                   </div>
                 )}
 
+                {/* Submit & Print Button */}
                 <button
                   onClick={handleSubmit}
                   disabled={isPending || isPrinting}
-                  className="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold text-base py-3 px-4 rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                  className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm h-11 px-4 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm cursor-pointer"
                 >
                   {isPending || isPrinting ? (
                     <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      Processing...
+                      <Loader2 className="w-5 h-5 animate-spin text-amber-400" />
+                      <span>Saving & Printing Bill...</span>
                     </>
                   ) : (
                     <>
-                      <Printer className="w-5 h-5" />
-                      Print Bill
+                      <Printer className="w-5 h-5 text-amber-400" />
+                      <span>Save & Print Invoice</span>
                     </>
                   )}
                 </button>

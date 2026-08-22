@@ -9,28 +9,31 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role, LoanStatus } from '@prisma/client';
 
 @ApiBearerAuth('JWT-auth')
-@ApiTags('Gold Loans')
+@ApiTags('Gold & Silver Loans')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('loan')
 export class LoanController {
   constructor(private loanService: LoanService) {}
 
-  // 1. Dashboard Statistics
+  // 1. Dashboard Statistics with optional Date Period filter
   @Roles(Role.SHOP_OWNER, Role.MANAGER)
   @Get('stats')
-  getStats(@Request() req: any) {
-    return this.loanService.getLoanStats(req.user.shop_id);
+  getStats(@Request() req: any, @Query('period') period?: string) {
+    return this.loanService.getLoanStats(req.user.shop_id, period);
   }
 
-  // 2. List all loans with optional status & search filter
+  // 2. List all loans with status, search, date period, and pagination
   @Roles(Role.SHOP_OWNER, Role.MANAGER)
   @Get()
   getLoans(
     @Request() req: any,
     @Query('status') status?: LoanStatus,
     @Query('search') search?: string,
+    @Query('period') period?: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
   ) {
-    return this.loanService.getLoans(req.user.shop_id, status, search);
+    return this.loanService.getLoans(req.user.shop_id, status, search, period, page, limit);
   }
 
   // 3. Single loan details with collateral items & repayments
@@ -40,7 +43,7 @@ export class LoanController {
     return this.loanService.getLoanById(req.user.shop_id, id);
   }
 
-  // 4. Create New Gold Loan Pledge
+  // 4. Create New Gold / Silver Loan Pledge
   @Roles(Role.SHOP_OWNER, Role.MANAGER)
   @Post()
   createLoan(@Request() req: any, @Body() dto: CreateLoanDto) {

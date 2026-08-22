@@ -5,6 +5,27 @@ import { CreateLoanDto } from './dto/create-loan.dto';
 import { RepayLoanDto } from './dto/repay-loan.dto';
 import { LoanStatus } from '@prisma/client';
 
+function getDateFilter(period?: string): { gte?: Date } | undefined {
+  if (!period || period === 'ALL') return undefined;
+
+  const now = new Date();
+  if (period === 'TODAY') {
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    return { gte: startOfToday };
+  }
+  if (period === 'WEEK') {
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - 7);
+    startOfWeek.setHours(0, 0, 0, 0);
+    return { gte: startOfWeek };
+  }
+  if (period === 'MONTH') {
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+    return { gte: startOfMonth };
+  }
+  return undefined;
+}
+
 @Injectable()
 export class LoanService {
   constructor(
@@ -62,7 +83,7 @@ export class LoanService {
     };
   }
 
-  // 1. Create New Gold Loan Pledge
+  // 1. Create New Gold / Silver Loan Pledge
   async createLoan(shopId: string, dto: CreateLoanDto) {
     if (!shopId) throw new BadRequestException('Shop ID is required');
 
@@ -115,14 +136,26 @@ export class LoanService {
     });
   }
 
-  // 2. List All Loans with Calculated Repayments & Running Month Interest
-  async getLoans(shopId: string, status?: LoanStatus, search?: string) {
-    if (!shopId) return [];
+  // 2. List All Loans with Pagination, Date Filter, and Search
+  async getLoans(
+    shopId: string,
+    status?: LoanStatus,
+    search?: string,
+    period?: string,
+    page: number = 1,
+    limit: number = 10,
+  ) {
+    if (!shopId) return { items: [], total: 0, page: 1, limit: 10, totalPages: 0 };
 
     const where: any = { shop_id: shopId };
     if (status) {
       where.status = status;
     }
+    const dateFilter = getDateFilter(period);
+    if (dateFilter) {
+      where.loan_date = dateFilter;
+    }
+
     if (search && search.trim().length > 0) {
       const q = search.trim();
       where.OR = [
@@ -133,25 +166,42 @@ export class LoanService {
       ];
     }
 
-    const loans = await this.prisma.jewelLoan.findMany({
-      where,
-      include: {
-        customer: true,
-        loanCollateralItem: true,
-        loanRepayment: {
-          orderBy: { created_at: 'desc' },
-        },
-      },
-      orderBy: { created_at: 'desc' },
-    });
+    const pageNum = Math.max(1, Number(page) || 1);
+    const limitNum = Math.max(1, Number(limit) || 10);
+    const skip = (pageNum - 1) * limitNum;
 
-    return loans.map((loan) => {
+    const [totalCount, loans] = await Promise.all([
+      this.prisma.jewelLoan.count({ where }),
+      this.prisma.jewelLoan.findMany({
+        where,
+        include: {
+          customer: true,
+          loanCollateralItem: true,
+          loanRepayment: {
+            orderBy: { created_at: 'desc' },
+          },
+        },
+        orderBy: { created_at: 'desc' },
+        skip,
+        take: limitNum,
+      }),
+    ]);
+
+    const items = loans.map((loan) => {
       const calculations = this.calculateLoanInterest(loan);
       return {
         ...loan,
         ...calculations,
       };
     });
+
+    return {
+      items,
+      total: totalCount,
+      page: pageNum,
+      limit: limitNum,
+      totalPages: Math.ceil(totalCount / limitNum),
+    };
   }
 
   // 3. Get Single Loan Details
@@ -203,7 +253,7 @@ export class LoanService {
     // Strict validation: Principal paid cannot exceed remaining balance
     if (principalPaidNow > currentPrincipalBalance) {
       throw new BadRequestException(
-        `Principal repayment (₹${principalPaidNow.toLocaleString('en-IN')}) cannot exceed outstanding principal balance (₹${currentPrincipalBalance.toLocaleString('en-IN')})`
+        `Principal repayment (₹${principalPaidNow.toLocaleString('en-IN')}) cannot exceed outstanding principal balance (₹${currentPrincipalBalance.toLocaleString('en-IN')})`,
       );
     }
 
@@ -233,28 +283,37 @@ export class LoanService {
     return this.getLoanById(shopId, loanId);
   }
 
-  // 5. Gold Loans Summary Dashboard Metrics
-  async getLoanStats(shopId: string) {
+  // 5. Gold & Silver Loans Summary Dashboard Metrics with Separate Weights
+  async getLoanStats(shopId: string, period?: string) {
     if (!shopId) {
       return {
         active_loans_count: 0,
         total_principal_lent: 0,
-        total_gold_weight: 0,
+        total_gold_weight_grams: 0,
+        total_silver_weight_grams: 0,
         total_interest_collected: 0,
+        monthly_accruing_interest: 0,
       };
+    }
+
+    const dateFilter = getDateFilter(period);
+    const whereLoan: any = { shop_id: shopId, status: LoanStatus.ACTIVE };
+    if (dateFilter) {
+      whereLoan.loan_date = dateFilter;
     }
 
     const [activeLoans, allRepayments] = await Promise.all([
       this.prisma.jewelLoan.findMany({
-        where: { shop_id: shopId, status: LoanStatus.ACTIVE },
-        select: {
-          loan_amount: true,
-          net_weight: true,
-          interest_rate: true,
+        where: whereLoan,
+        include: {
+          loanCollateralItem: true,
         },
       }),
       this.prisma.loanRepayment.findMany({
-        where: { loan: { shop_id: shopId } },
+        where: {
+          loan: { shop_id: shopId },
+          ...(dateFilter ? { payment_date: dateFilter } : {}),
+        },
         select: {
           interest_paid: true,
           principal_paid: true,
@@ -263,9 +322,21 @@ export class LoanService {
       }),
     ]);
 
+    let totalGoldWeight = 0;
+    let totalSilverWeight = 0;
+
+    activeLoans.forEach((loan) => {
+      loan.loanCollateralItem.forEach((item) => {
+        if (item.metal === 'SILVER') {
+          totalSilverWeight += item.net_weight || 0;
+        } else {
+          totalGoldWeight += item.net_weight || 0;
+        }
+      });
+    });
+
     const activeCount = activeLoans.length;
     const totalPrincipalLent = activeLoans.reduce((sum, l) => sum + l.loan_amount, 0);
-    const totalGoldWeight = activeLoans.reduce((sum, l) => sum + l.net_weight, 0);
     const totalInterestCollected = allRepayments.reduce((sum, r) => sum + (r.interest_paid || 0), 0);
     const monthlyAccruingInterest = activeLoans.reduce(
       (sum, l) => sum + Math.round((l.loan_amount * l.interest_rate) / 100),
@@ -276,6 +347,7 @@ export class LoanService {
       active_loans_count: activeCount,
       total_principal_lent: totalPrincipalLent,
       total_gold_weight_grams: Number(totalGoldWeight.toFixed(3)),
+      total_silver_weight_grams: Number(totalSilverWeight.toFixed(3)),
       total_interest_collected: totalInterestCollected,
       monthly_accruing_interest: monthlyAccruingInterest,
     };

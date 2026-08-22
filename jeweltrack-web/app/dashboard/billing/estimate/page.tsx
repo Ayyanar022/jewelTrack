@@ -1,10 +1,14 @@
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/axios';
 import { useAuthStore } from '@/store/authStore';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Printer, RotateCcw, History, X, ReceiptText } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface EstimateItem {
   item_name: string;
@@ -21,77 +25,98 @@ interface EstimateItem {
 interface HistoryEntry {
   id: string;
   item: EstimateItem;
-  discount: number;
   total: number;
-  date: string;
+  time: string;
 }
 
 const calcAmount = (item: EstimateItem): number =>
-  parseFloat(Number(item.rate * (item.weight + item.wastage_weight) + item.making_charge).toFixed(2)); 
+  parseFloat(Number(item.rate * (item.weight + item.wastage_weight) + item.making_charge).toFixed(2));
 
 const defaultItem = (rate22k = 0): EstimateItem => ({
-  item_name: '', metal: 'GOLD', purity: 'K22',
-  rate: rate22k, weight: 0, wastage_pct: 0,
-  wastage_weight: 0, making_charge: 0, amount: 0,
+  item_name: '',
+  metal: 'GOLD',
+  purity: 'K22',
+  rate: rate22k,
+  weight: 0,
+  wastage_pct: 0,
+  wastage_weight: 0,
+  making_charge: 0,
+  amount: 0,
 });
 
-// const user = use
-
-
-
 export default function EstimatePage() {
+  const { user } = useAuthStore();
   const [item, setItem] = useState<EstimateItem>(defaultItem());
-  const [discount, setDiscount] = useState(0);
   const [initialized, setInitialized] = useState(false);
   const [printError, setPrintError] = useState('');
   const [showHistory, setShowHistory] = useState(false);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
-   const { shop } = useAuthStore();
-  //  console.log("shop",shop)
-
 
   const fmt = (n: number) => n.toLocaleString('en-IN', { maximumFractionDigits: 2 });
 
-const HISTORY_KEY = 'estimate_history'+shop?.id;
-const getHistory = (): HistoryEntry[] => {
-  try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch { return []; }
-};
-const saveToHistory = (e: HistoryEntry) => {
-  localStorage.setItem(HISTORY_KEY, JSON.stringify([e, ...getHistory()].slice(0, 10)));
-};
+  // Store history specific to the logged-in user / shop
+  const userKey = user?.id || user?.shop_id || 'default_user';
+  const HISTORY_KEY = 'jeweltrack_estimate_history_' + userKey;
 
-const handleRest = ()=> {localStorage.removeItem(HISTORY_KEY) ;setHistory(getHistory());}
+  const getHistory = (): HistoryEntry[] => {
+    try {
+      return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    } catch {
+      return [];
+    }
+  };
+
+  const saveToHistory = (e: HistoryEntry) => {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify([e, ...getHistory()].slice(0, 15)));
+  };
+
+  // Reset Clears the Local Storage History for this user
+  const handleResetHistory = () => {
+    localStorage.removeItem(HISTORY_KEY);
+    setHistory([]);
+    toast.success('Recent estimate history cleared');
+  };
 
   const { data: rate } = useQuery({
     queryKey: ['recent-rate'],
-    queryFn: () => api.get('/rate/recent-rate').then(r => r.data)
+    queryFn: () => api.get('/rate/recent-rate').then((r) => r.data),
   });
 
-  useEffect(()=>{
-    setItem(defaultItem(rate?.rate_22k ?? 0));
-    setInitialized(true)
-  },[rate,initialized])
-
-  const { data: categories } = useQuery({
+  const { data: categories = [] } = useQuery({
     queryKey: ['categories'],
-    queryFn: () => api.get('/jewellery-category').then(r => r.data),
+    queryFn: () => api.get('/jewellery-category').then((r) => r.data),
   });
 
+  useEffect(() => {
+    if (rate && !initialized) {
+      setItem(defaultItem(rate.rate_22k ?? 0));
+      setInitialized(true);
+    }
+  }, [rate, initialized]);
 
+  useEffect(() => {
+    setHistory(getHistory());
+  }, []);
 
-  const total = Math.max(item.amount - discount, 0);
-  const gst = total * 0.03 ;
-  const finalAmount = gst+total ;
+  const total = Math.max(item.amount, 0);
+  const finalAmount = Math.round(total);
+  const billableWeight = parseFloat((Number(item.weight || 0) + Number(item.wastage_weight || 0)).toFixed(3));
 
   const updateItem = (field: keyof EstimateItem, value: any) => {
-    let u = { ...item, [field]: value };
+    const u = { ...item, [field]: value };
     if (field === 'purity') {
-      u.rate = value === 'K22' ? (rate?.rate_22k ?? 0) : value === 'K18' ? (rate?.rate_18k ?? 0) : (rate?.rate_999 ?? 0);
+      u.rate =
+        value === 'K22'
+          ? (rate?.rate_22k ?? 0)
+          : value === 'K18'
+          ? (rate?.rate_18k ?? 0)
+          : (rate?.rate_999 ?? 0);
     }
     if (field === 'metal') {
-      u.rate = value === 'SILVER' ? (rate?.rate_silver ?? 0   ) : (rate?.rate_22k ?? 0);
+      u.rate = value === 'SILVER' ? (rate?.rate_silver ?? 0) : (rate?.rate_22k ?? 0);
       u.purity = 'K22';
-      
+      u.wastage_pct = 0;
+      u.wastage_weight = 0;
     }
     if (field === 'wastage_pct') {
       u.wastage_weight = u.weight > 0 ? parseFloat(((value / 100) * u.weight).toFixed(3)) : 0;
@@ -100,411 +125,464 @@ const handleRest = ()=> {localStorage.removeItem(HISTORY_KEY) ;setHistory(getHis
       u.wastage_pct = u.weight > 0 ? parseFloat(((value / u.weight) * 100).toFixed(2)) : 0;
     }
     if (field === 'weight' && u.wastage_pct > 0) {
-      u.wastage_weight = parseFloat(((u.wastage_pct / 100) * value).toFixed(3));
+      u.wastage_weight = parseFloat(((u.wastage_pct / 100) * Number(value)).toFixed(3));
     }
     u.amount = calcAmount(u);
     setItem(u);
     setPrintError('');
   };
 
-  const handleClear = () => { setItem(defaultItem(rate?.rate_22k ?? 0)); setDiscount(0); setPrintError(''); };
-
+  // Clear Form Inputs
+  const handleClearForm = () => {
+    setItem(defaultItem(rate?.rate_22k ?? 0));
+    setPrintError('');
+  };
 
   const handlePrint = useCallback(() => {
-    if(!item.item_name) return  setPrintError(`Enter item name`);
-    if (item.weight <= 0)return setPrintError('Enter weight first'); 
-    if(!item.rate) return setPrintError('Invalid rate');
-    if(total<0) return setPrintError("Invalid total") ;
+    if (!item.item_name.trim()) return setPrintError('Enter item name');
+    if (item.weight <= 0) return setPrintError('Enter item weight');
+    if (!item.rate || item.rate <= 0) return setPrintError('Invalid rate');
+    if (finalAmount <= 0) return setPrintError('Total amount is ₹0');
 
-    if (total <= 0) { setPrintError('Total is ₹0 — check values'); return; }
-    const entry: HistoryEntry = { id: Date.now().toString(), item, discount, total, date: new Date().toLocaleString('en-IN') };
+    const entry: HistoryEntry = {
+      id: Date.now().toString(),
+      item,
+      total: finalAmount,
+      time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+    };
     saveToHistory(entry);
     setHistory(getHistory());
     window.print();
-    handleClear()
-  }, [item, discount, total]);
+  }, [item, finalAmount]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Enter' && (e.target as HTMLElement).tagName !== 'SELECT') handlePrint();
+      if (e.key === 'Enter' && (e.target as HTMLElement).tagName !== 'SELECT' && (e.target as HTMLElement).tagName !== 'TEXTAREA') {
+        handlePrint();
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [handlePrint]);
 
-  useEffect(() => { setHistory(getHistory()); }, []);
-
+  const inputClass =
+    'h-11 text-base font-black text-slate-900 border-slate-300 focus-visible:border-slate-800 focus-visible:ring-2 focus-visible:ring-slate-200 transition-all';
 
   return (
     <>
       <style>{`
-
         #print-bill {
-      position: absolute;
-      left: -9999px;
-    }
-
-     @media print {
-      body * {
-        visibility: hidden;
-      }
-
-      #print-bill, #print-bill * {
-        visibility: visible;
-      }
-
-      #print-bill {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 58mm;
-        font-size: 12px;
-        padding: 5px;
-      }
-    }
-
-      
-        .ef {
-          width: 100%;
-          border: 0.5px solid rgba(180,140,60,0.25);
-          border: 1.5px solid #EDA35A;
-          border-radius: 8px;
-          padding: 5px 12px;
-          font-size: 17px;
-          background: transparent;
-          color: var(--foreground);
-          transition: border-color 0.15s, box-shadow 0.15s;
+          position: absolute;
+          left: -9999px;
         }
-        .ef:focus {
-          outline: none;
-          border-color: var(--gold, #b48c3c);
-          box-shadow: 0 0 0 2px rgba(180,140,60,0.12);
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          #print-bill, #print-bill * {
+            visibility: visible;
+          }
+          #print-bill {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 48mm;
+            max-width: 50mm;
+            font-size: 12px;
+            padding: 2px 4px;
+            background: #fff;
+            color: #000;
+            font-family: monospace;
+          }
         }
-        .ef::placeholder { opacity: 0.8; font-size:15px; }
-        .drawer-enter { animation: slideIn 0.22s ease; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .backdrop-enter { animation: fadeIn 0.2s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
       `}</style>
 
-      {/* Full viewport, no scroll */}
-      <div className="h-[calc(100vh-100px)] flex flex-col px-4 pb-3 max-w-5xl mx-auto overflow-hidden ">
+      {/* 100% Single-Screen Viewport without Scroll */}
+      <div className="h-[calc(100vh-108px)] flex flex-col max-w-7xl mx-auto px-8 overflow-hidden gap-2.5">
+        {/* Compact Header Bar */}
+        <div className="flex items-center justify-between bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-xs flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-black text-slate-900">Quotation Desk (மதிப்பீடு)</span>
+            {rate && (
+              <div className="hidden sm:flex items-center gap-3 text-xs font-semibold pl-3 border-l border-slate-200">
+                <span className="text-amber-950 font-bold">22K: ₹{rate.rate_22k}/g</span>
+                <span className="text-slate-400">•</span>
+                <span className="text-slate-800 font-bold">Silver: ₹{rate.rate_silver}/g</span>
+              </div>
+            )}
+          </div>
 
-        {/* ── TOP BAR (minimal) ── */}
-        <div className="flex items-center justify-end mb-3 flex-shrink-0">
-       
-          <div className="flex items-center  gap-3">
-            <button
-              onClick={() => { setHistory(getHistory()); setShowHistory(true); }}
-              className="text-xs cursor-pointer text-gold-dark border border-gold/25 px-3 py-1.5 rounded-lg hover:border-gold hover:text-foreground transition-colors"
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setHistory(getHistory());
+                setShowHistory(true);
+              }}
+              className="h-8 px-3 text-xs font-bold text-slate-700 border-slate-300 hover:bg-slate-50 cursor-pointer"
             >
-              History ({history.length})
-            </button>
-            <button onClick={handleRest} className="text-xs cursor-pointer text-muted-foreground hover:text-foreground transition-colors">
-              Reset
-            </button>
+              <History className="w-3.5 h-3.5 mr-1 text-slate-600" />
+              <span>History ({history.length})</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleResetHistory}
+              title="Reset recent history stored for your account"
+              className="h-8 px-2.5 text-xs font-semibold text-slate-600 hover:text-rose-600 cursor-pointer"
+            >
+              <RotateCcw className="w-3.5 h-3.5 mr-1" />
+              <span>Reset History</span>
+            </Button>
           </div>
         </div>
 
-        {/* ── MAIN CONTENT ── */}
-        <div className="flex gap-10 flex-1 min-h-0">
-
-          {/* ── FORM (left, 3/5) ── */}
-          <div className="flex-[2.5] bg-white border border-gold/25 rounded-xl flex flex-col overflow-hidden">
-
-            {/* Thin gold top accent */}
-            <div className="h-0.5 bg-gradient-to-r from-gold/60 via-gold to-gold/60 flex-shrink-0" />
-
-            <div className="flex-1 px-7 py-4 flex flex-col gap-3 overflow-hidden">
-
-              {/* Category + Item name */}
-              <div className="grid grid-cols-2 gap-6">
-                {categories?.length > 0 && (
-                  <div className="flex flex-col gap-1">
-                    <label className="text-sm text-sidebar-dark">Category</label>
+        {/* 2-Column POS Layout Filling 100% Height */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 flex-1 min-h-0">
+          {/* Left Form: 7 Cols */}
+          <div className="lg:col-span-7 bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-col justify-between overflow-hidden">
+            <div className="space-y-3.5">
+              {/* Row 1: Category + Item Name */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {categories.length > 0 && (
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-slate-800">Category Preset</Label>
                     <select
                       value=""
                       onChange={(e) => {
                         const cat = categories.find((c: any) => c.id === e.target.value);
                         if (!cat) return;
                         const ww = cat.default_wastage ?? 0;
-                        // const u = { ...item, item_name: cat.name, wastage_weight: ww, wastage_pct: item.weight > 0 ? parseFloat(((ww / item.weight) * 100).toFixed(3)) : 0, making_charge: cat.default_making_charge ?? 0 };
-                        const u = { ...item,metal:cat.metal , item_name: cat.name, wastage_pct: ww, wastage_weight: item.weight > 0 ? parseFloat(((ww / 100) * item.weight).toFixed(3)) : 0, making_charge: cat.default_making_charge ?? 0 };
-                        u.amount = calcAmount(u); 
+                        const u: EstimateItem = {
+                          ...item,
+                          metal: cat.metal || 'GOLD',
+                          item_name: cat.name,
+                          wastage_pct: ww,
+                          wastage_weight: item.weight > 0 ? parseFloat(((ww / 100) * item.weight).toFixed(3)) : 0,
+                          making_charge: cat.default_making_charge ?? 0,
+                        };
+                        u.amount = calcAmount(u);
                         setItem(u);
                       }}
-                      className="ef h-10"
+                      className="w-full h-11 px-3 rounded-lg border border-slate-300 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:border-slate-800 focus:ring-2 focus:ring-slate-200 transition-all cursor-pointer"
                     >
-                      <option value="" >Quick fill...</option>
-                      {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                      <option value="">Quick select category...</option>
+                      {categories.map((c: any) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name} ({c.metal})
+                        </option>
+                      ))}
                     </select>
                   </div>
                 )}
-                <div className="flex flex-col gap-1">
-                  <label className="text-sm text-sidebar-dark tracking-wide">Item name</label>
-                  <input type="text" value={item.item_name} onChange={(e) => updateItem('item_name', e.target.value)}
-                    placeholder="e.g. Necklace, Ring" className="ef" />
+
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold text-slate-800">Item Name</Label>
+                  <Input
+                    placeholder="e.g. Gold Ring, Necklace"
+                    value={item.item_name}
+                    onChange={(e) => updateItem('item_name', e.target.value)}
+                    className={inputClass}
+                  />
                 </div>
               </div>
 
-              {/* Metal + Purity + Rate */}
-              <div className="grid grid-cols-3 gap-6">
-                <div className="flex flex-col gap-1">
-                  <label className="text-sm text-sidebar-dark tracking-wide">Metal</label>
-                  <select value={item.metal} onChange={(e) => {updateItem('metal', e.target.value) ; setItem((prev)=>({...prev , wastage_pct:0 ,wastage_weight:0}))}} className="ef h-10 ">
-                    <option  value="GOLD">Gold</option>
+              {/* Row 2: Metal + Purity + Rate */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold text-slate-800">Metal</Label>
+                  <select
+                    value={item.metal}
+                    onChange={(e) => updateItem('metal', e.target.value)}
+                    className="w-full h-11 px-2.5 rounded-lg border border-slate-300 bg-white text-sm font-black text-slate-900 focus:outline-none focus:border-slate-800 focus:ring-2 focus:ring-slate-200 transition-all cursor-pointer"
+                  >
+                    <option value="GOLD">Gold</option>
                     <option value="SILVER">Silver</option>
                   </select>
                 </div>
-                {item.metal === 'GOLD' && (
-                  <div className="flex flex-col gap-1  ">
-                    <label className="text-sm text-sidebar-dark tracking-wide">Purity</label>
-                    <select value={item.purity} onChange={(e) => updateItem('purity', e.target.value)} className="ef h-10">
-                      <option value="K22">22K</option>
-                      <option value="K18">18K</option>
-                      <option value="K24">24K</option>
+
+                {item.metal === 'GOLD' ? (
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-slate-800">Purity</Label>
+                    <select
+                      value={item.purity}
+                      onChange={(e) => updateItem('purity', e.target.value)}
+                      className="w-full h-11 px-2.5 rounded-lg border border-slate-300 bg-white text-sm font-black text-slate-900 focus:outline-none focus:border-slate-800 focus:ring-2 focus:ring-slate-200 transition-all cursor-pointer"
+                    >
+                      <option value="K22">22K (916)</option>
+                      <option value="K18">18K (750)</option>
+                      <option value="K24">24K (999)</option>
                     </select>
                   </div>
+                ) : (
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-slate-800">Purity</Label>
+                    <div className="h-11 px-2.5 flex items-center rounded-lg bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700">
+                      Silver
+                    </div>
+                  </div>
                 )}
-                <div className="flex flex-col gap-1">
-                  <label className="text-sm text-sidebar-dark tracking-wide">Rate (₹/g)</label>
-                  <input type="number" value={item.rate || ''} onChange={(e) => updateItem('rate', Number(e.target.value))}
-                    placeholder="0" className="ef" />
+
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold text-slate-800">Rate (₹/g)</Label>
+                  <Input
+                    type="number"
+                    value={item.rate || ''}
+                    onChange={(e) => updateItem('rate', Number(e.target.value))}
+                    className={inputClass}
+                  />
                 </div>
               </div>
 
-              {/* Weight + Wastage % + Wastage g */}
-              <div className="grid grid-cols-3 gap-6">
-                <div className="flex flex-col gap-1">
-                  <label className="text-sm text-sidebar-dark tracking-wide">Weight (g)</label>
-                  <input type="number" value={item.weight || ''} onChange={(e) => updateItem('weight', Number(e.target.value))}
-                    placeholder="0.000" className="ef" />
+              {/* Row 3: Weight + Wastage % + Wastage g */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold text-slate-800">Weight (g) *</Label>
+                  <Input
+                    type="number"
+                    step="0.001"
+                    placeholder="0.000"
+                    value={item.weight || ''}
+                    onChange={(e) => updateItem('weight', Number(e.target.value))}
+                    className={inputClass}
+                    autoFocus
+                  />
                 </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-sm text-sidebar-dark tracking-wide">Wastage %</label>
-                  <div className="relative">
-                    <input type="number" value={item.wastage_pct || ''} onChange={(e) => updateItem('wastage_pct', Number(e.target.value))}
-                      placeholder="0.00" className="ef pr-6" />
-                    <span className="absolute right-8 top-1/2 -translate-y-1/2 text-sm text-sidebar-dark tracking-wide pointer-events-none">%</span>
-                  </div>
+
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold text-slate-800">Wastage %</Label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    placeholder="0.0"
+                    value={item.wastage_pct || ''}
+                    onChange={(e) => updateItem('wastage_pct', Number(e.target.value))}
+                    className={inputClass}
+                  />
                 </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-sm text-sidebar-dark tracking-wide">Wastage (g)</label>
-                  <div className="relative">
-                    <input type="number" value={item.wastage_weight || ''} onChange={(e) => updateItem('wastage_weight', Number(e.target.value))}
-                      placeholder="0.000" className="ef pr-5" />
-                    <span className="absolute right-8 top-1/2 -translate-y-1/2 text-sm text-sidebar-dark tracking-wide pointer-events-none">g</span>
-                  </div>
+
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold text-slate-800">Wastage (g)</Label>
+                  <Input
+                    type="number"
+                    step="0.001"
+                    placeholder="0.000"
+                    value={item.wastage_weight || ''}
+                    onChange={(e) => updateItem('wastage_weight', Number(e.target.value))}
+                    className={inputClass}
+                  />
                 </div>
               </div>
 
-              {/* Making charge + Discount */}
-              <div className="grid grid-cols-2 gap-6">
-                <div className="flex flex-col gap-1">
-                  <label className="text-sm text-sidebar-dark tracking-wide">Making charge (₹)</label>
-                  <input type="number" value={item.making_charge || ''} onChange={(e) => updateItem('making_charge', Number(e.target.value))}
-                    placeholder="0" className="ef" />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-sm text-sidebar-dark tracking-wide">Discount (₹)</label>
-                  <input type="number" value={discount || ''} onChange={(e) => { setDiscount(Number(e.target.value)); setPrintError(''); }}
-                    placeholder="0" className="ef" />
+              {/* Row 4: Making Charge */}
+              <div className="grid grid-cols-1 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold text-slate-800">Making Charge (செய்கூலி ₹)</Label>
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    value={item.making_charge || ''}
+                    onChange={(e) => updateItem('making_charge', Number(e.target.value))}
+                    className={inputClass}
+                  />
                 </div>
               </div>
-
-              {/* Error */}
-              {printError && (
-                // <p className="text-xs text-red-500 bg-red-50 border border-red-200 px-3 py-2 rounded-lg">⚠ {printError}</p>
-                <p className="text-sm text-red-500 bg-red-50 border border-red-200 px-5 py-0.5 rounded-lg">⚠ {printError}</p>
-              )}
-
-            <div className='  mt-auto flex   gap-5'>
-
-              <button  onClick={handlePrint}
-                className="w-full flex-3 bg-gold text-white py-2 rounded-lg text-base font-medium hover:bg-gold/90 transition-colors">
-                Print
-              </button>
-
-              <button onClick={handleClear}
-                className="w-full flex-1 bg-white  text-red-600 border border-red-600  py-2 rounded-lg text-base font-medium     duration-200 cursor-pointer  hover:shadow-red-300 transition-colors">
-                Clear
-              </button>
             </div>
 
-              {/* Hint */}
-              <p className="text-sm text-muted-foreground mt-auto">
-                Press <kbd className="bg-gold/10 text-gold px-1.5 py-0.5 rounded text-xs font-mono">Enter</kbd> to print
-              </p>
+            {/* Error Banner */}
+            {printError && (
+              <div className="text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-3 py-1.5 rounded-lg my-1">
+                ⚠️ {printError}
+              </div>
+            )}
 
+            {/* Action Bar */}
+            <div className="flex items-center gap-3 pt-2">
+              <Button
+                onClick={handlePrint}
+                className="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-black h-11 text-base shadow-md flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Printer className="w-5 h-5" />
+                <span>Print Estimate Slip (Enter ↵)</span>
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={handleClearForm}
+                title="Clear current form fields"
+                className="h-11 px-6 text-sm font-bold text-slate-700 hover:text-rose-600 border-slate-300 cursor-pointer"
+              >
+                Clear Form
+              </Button>
             </div>
           </div>
 
-          {/* ── BILL PREVIEW (right, 2/5) ── */}
-          <div className="flex-[1.35] bg-white border border-gold/25 rounded-xl flex flex-col overflow-hidden">
+          {/* Right Panel: Clean, Simple Estimate Summary (5 Cols) */}
+          <div className="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-col justify-between overflow-hidden">
+            <div className="space-y-1">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                <span className="text-sm font-black text-slate-900">Estimate Calculation</span>
+                <span className="text-xs font-bold text-slate-600">
+                  {item.metal === 'GOLD' ? `Gold · ${item.purity}` : 'Silver'}
+                </span>
+              </div>
 
-            <div className="h-0.5 bg-gradient-to-r from-gold/60 via-gold to-gold/60 flex-shrink-0" />
-
-            {/* Bill rows */}
-            <div className="flex-1 px-8 py-4 flex flex-col gap-0 overflow-hidden shadow">
-              <p className="text-sm font-semibold uppercase tracking-widest text-gold mb-1">Bill</p>
-
-              {[
-                { label: 'Item', value: item.item_name || '—' },
-                { label: 'Metal', value: item.metal === 'GOLD' ? `Gold · ${item.purity}` : 'Silver' },
-                { label: 'Rate', value: `₹ ${fmt(item.rate)}` },
-                { label: 'Weight', value: `${item.weight} g` },
-                { label: 'Wastage', value: `${item.wastage_weight} g ` },
-                { label: 'MC', value: `₹${fmt(item.making_charge)}` },
-              ].map(({ label, value }) => (
-                <div key={label} className="flex justify-between items-center py-1.5 border-b border-dashed border-gold/20 last:border-0">
-                  <span className="text-sm text-slate-600">{label}</span>
-                  <span className="text-[16px] text-foreground font-medium">{value}</span>
+              <div className="divide-y divide-slate-100 text-sm">
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-slate-600 font-medium">Item</span>
+                  <span className="font-bold text-slate-900">{item.item_name || '—'}</span>
                 </div>
-              ))}
 
-              {/* Totals */}
-              <div className="mt-1  border-gold/20 flex flex-col gap-1.5">
-               
-               <section className=' border-b space-y-1 py-1'>             
-                <div className="flex justify-between text-[17px] text-green-700 font-[600]">
-                  <span>Subtotal</span><span  className='text-green-700 text-lg '>₹{fmt(item.amount)}</span>
-                </div>               
-               
-                </section>
-            
-             <section>      
-                <div className="flex justify-between text-sm text-slate-600 ">
-                    <span>Discount</span><span>− ₹{fmt(discount)}</span>
-                  </div>
-                   <div className="flex justify-between items-center ">
-                    <span className=" text-sm text-slate-600">Gst</span>
-                  <span className="text-sm text-slate-600 ">₹{fmt(gst)}</span>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-slate-600 font-medium">Rate</span>
+                  <span className="font-bold text-slate-900 font-mono">₹{fmt(item.rate)}/g</span>
                 </div>
-            </section>
 
-                <div className="flex justify-between items-center border-t pt-2 ">
-                  <span className="text-[20px]  font-semibold text-foreground">Total</span>
-                  <span className="text-xl font-bold text-red-600 ">₹{fmt(finalAmount)}</span>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-slate-600 font-medium">Weight</span>
+                  <span className="font-bold text-slate-900 font-mono">{item.weight || 0} g</span>
                 </div>
-              </div>             
-        
+
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-slate-600 font-medium">Wastage</span>
+                  <span className="font-bold text-slate-900 font-mono">+{item.wastage_weight || 0} g ({item.wastage_pct || 0}%)</span>
+                </div>
+
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-slate-600 font-medium">Making Charge</span>
+                  <span className="font-bold text-slate-900 font-mono">₹{fmt(item.making_charge || 0)}</span>
+                </div>
+
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-slate-600 font-medium">GST</span>
+                  <span className="font-bold text-slate-900 font-mono">₹0</span>
+                </div>
+              </div>
             </div>
 
-        
-
+            {/* Simple, Clean Total Row */}
+            <div className="border-t-2 border-slate-900 pt-3 flex items-center justify-between mt-auto">
+              <span className="text-lg font-black text-slate-900">Total</span>
+              <span className="text-3xl font-black text-slate-900 font-mono">₹{fmt(finalAmount)}</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ── HISTORY DRAWER ── */}
+      {/* History Slide-over Drawer */}
       {showHistory && (
         <>
-          <div className="fixed inset-0 bg-black/20 z-40 backdrop-enter" onClick={() => setShowHistory(false)} />
-          <div className="fixed right-0 top-0 h-full w-72 bg-white border-l border-gold/30 z-50 flex flex-col shadow-xl drawer-enter">
-            <div className="px-4 py-3 border-b border-gold/20 bg-gold/5 flex items-center justify-between flex-shrink-0">
-              <span className="text-sm font-semibold text-foreground">Recent Estimates</span> 
-              <span className="text-sm font-semibold text-foreground">Today-7</span> 
-              <button onClick={() => setShowHistory(false)} className="text-muted-foreground hover:text-foreground text-xl leading-none">×</button>
+          <div
+            className="fixed inset-0 bg-black/40 z-40 backdrop-blur-xs transition-opacity"
+            onClick={() => setShowHistory(false)}
+          />
+          <div className="fixed right-0 top-0 h-full w-80 bg-white border-l border-slate-200 z-50 flex flex-col shadow-2xl">
+            <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+              <span className="text-sm font-black text-slate-900">Recent Estimates</span>
+              <button
+                onClick={() => setShowHistory(false)}
+                className="text-slate-400 hover:text-slate-700 p-1 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
-            <div className="flex-1 overflow-y-auto">
+
+            <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
               {history.length === 0 ? (
-                <div className="px-4 py-8 text-center text-sm text-muted-foreground">No history yet</div>
-              ) : history.map((entry) => (
-                <button key={entry.id}
-                  onClick={() => { setItem(entry.item); setDiscount(entry.discount); setShowHistory(false); setPrintError(''); }}
-                  className="w-full text-left px-4 py-3 border-b border-gold/10 hover:bg-gold/5 transition-colors">
-                  <div className="flex justify-between items-start">
-                    <span className="text-sm font-medium text-foreground">{entry.item.item_name || 'Unnamed'}</span>
-                    <span className="text-sm font-semibold text-gold">₹{fmt(entry.total)}</span>
+                <div className="px-5 py-12 text-center text-sm text-slate-400">No recent estimates yet</div>
+              ) : (
+                history.map((entry) => (
+                  <div
+                    key={entry.id}
+                    onClick={() => {
+                      setItem(entry.item);
+                      setShowHistory(false);
+                      setPrintError('');
+                    }}
+                    className="p-4 hover:bg-slate-50 cursor-pointer transition-colors space-y-1"
+                  >
+                    <div className="flex justify-between items-center">
+                      <span className="font-bold text-slate-900 text-sm">{entry.item.item_name || 'Ornament'}</span>
+                      <span className="font-black text-emerald-900 text-sm">₹{fmt(entry.total)}</span>
+                    </div>
+                    <div className="text-xs text-slate-600 font-medium flex items-center justify-between">
+                      <span>{entry.item.weight}g · {entry.item.metal === 'GOLD' ? entry.item.purity : 'Silver'}</span>
+                      <span>{entry.time}</span>
+                    </div>
                   </div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
-                    {entry.item.weight}g · {entry.item.metal === 'GOLD' ? entry.item.purity : 'Silver'} · {entry.date}
-                  </div>
-                </button>
-              ))}
+                ))
+              )}
             </div>
-            <div className="px-4 py-2.5 border-t border-gold/20 text-center flex-shrink-0">
-              <p className="text-xs text-muted-foreground">Click any entry to load it</p>
-            </div>
+
+            {history.length > 0 && (
+              <div className="p-4 border-t border-slate-200">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleResetHistory}
+                  className="w-full text-xs text-rose-600 hover:bg-rose-50 border-rose-200 font-bold"
+                >
+                  Clear All History
+                </Button>
+              </div>
+            )}
           </div>
         </>
       )}
 
-      {/* ── PRINT BILL ── */}
-      <div id='print-bill' style={{ fontSize: 12, width: '58mm' ,backgroundColor:'#E5EEE4',padding:'14px 18px' }}>
-          <p style={{ textAlign: 'center', fontWeight: 'bold' ,paddingBottom:"5px"}}>
-            Estimate bill
-          </p>
-          <hr />
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <tbody>
+      {/* Super-Compact Thermal Print Slip (48mm / 50mm) - No Date, No Shop Info */}
+      <div id="print-bill">
+        <div style={{ textAlign: 'center', paddingBottom: '2px' }}>
+          <div style={{ fontWeight: 'bold', fontSize: '13px', letterSpacing: '1px' }}>ESTIMATE</div>
+        </div>
 
-              <tr>
-                <td>Item</td>
-                <td style={{ textAlign: 'center' }}>:</td>
-                <td style={{ textAlign: 'right' }}>{item.item_name}</td>
-              </tr>
+        <div style={{ borderTop: '1px dashed #000', margin: '2px 0 4px 0' }} />
 
-              <tr>
-                <td>Wt</td>
-                <td style={{ textAlign: 'center' }}>:</td>
-                <td style={{ textAlign: 'right' }}>{item.weight} g</td>
-              </tr>
-
-              <tr>
-                <td>Vt</td>
-                <td style={{ textAlign: 'center' }}>:</td>
-                <td style={{ textAlign: 'right' }}>{item.wastage_weight} g</td>
-              </tr>
-
-              <tr>
-                <td>Rate</td>
-                <td style={{ textAlign: 'center' }}>:</td>
-                <td style={{ textAlign: 'right' }}>₹{fmt(item.rate)}</td>
-              </tr>
-
+        <table style={{ width: '100%', fontSize: '11px', borderCollapse: 'collapse', lineHeight: '1.35' }}>
+          <tbody>
+            <tr>
+              <td>Item</td>
+              <td>:</td>
+              <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{item.item_name || 'Ornament'}</td>
+            </tr>
+            <tr>
+              <td>Weight</td>
+              <td>:</td>
+              <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{item.weight} g</td>
+            </tr>
+            <tr>
+              <td>Wastage</td>
+              <td>:</td>
+              <td style={{ textAlign: 'right' }}>+{item.wastage_weight} g ({item.wastage_pct}%)</td>
+            </tr>
+            <tr>
+              <td>Rate</td>
+              <td>:</td>
+              <td style={{ textAlign: 'right' }}>₹{fmt(item.rate)}</td>
+            </tr>
+            {item.making_charge > 0 && (
               <tr>
                 <td>MC</td>
-                <td style={{ textAlign: 'center' }}>:</td>
+                <td>:</td>
                 <td style={{ textAlign: 'right' }}>₹{fmt(item.making_charge)}</td>
               </tr>
+            )}
+            <tr>
+              <td>GST</td>
+              <td>:</td>
+              <td style={{ textAlign: 'right' }}>₹0</td>
+            </tr>
+            <tr style={{ borderTop: '1px solid #000', fontSize: '13px' }}>
+              <td style={{ fontWeight: 'bold', paddingTop: '3px' }}>Total</td>
+              <td style={{ paddingTop: '3px' }}>:</td>
+              <td style={{ textAlign: 'right', fontWeight: 'bold', paddingTop: '3px' }}>₹{fmt(finalAmount)}</td>
+            </tr>
+          </tbody>
+        </table>
 
-              <tr><td colSpan={3}><hr /></td></tr>
-
-              <tr>
-                <td>Subtotal</td>
-                <td style={{ textAlign: 'center' }}>:</td>
-                <td style={{ textAlign: 'right' }}>₹{fmt(item.amount)}</td>
-              </tr>
-
-              <tr>
-                <td>Discount</td>
-                <td style={{ textAlign: 'center' }}>:</td>
-                <td style={{ textAlign: 'right' }}>₹{fmt(discount)}</td>
-              </tr>
-
-              <tr>
-                <td>GST</td>
-                <td style={{ textAlign: 'center' }}>:</td>
-                <td style={{ textAlign: 'right' }}>₹{fmt(gst)}</td>
-              </tr>
-
-              <tr><td colSpan={2}><hr /></td></tr>
-
-              <tr style={{paddingTop:"15px",fontSize:"14px"}}>
-                <td style={{ fontWeight: 'bold' }}>Total</td>
-                <td style={{ textAlign: 'right', fontWeight: 'bold' }}>
-                  ₹{fmt(finalAmount)}
-                </td>
-              </tr>
-
-            </tbody>
-          </table>
+        <div style={{ borderTop: '1px dashed #000', margin: '4px 0 1px 0' }} />
       </div>
-
-      
-
-    
     </>
   );
 }

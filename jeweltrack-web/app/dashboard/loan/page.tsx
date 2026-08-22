@@ -32,7 +32,7 @@ export default function GoldLoanPage() {
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'CLOSED'>('ACTIVE');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const limit = 10;
+  const [limit, setLimit] = useState(10);
 
   // Modal State
   const [isNewOpen, setIsNewOpen] = useState(false);
@@ -57,7 +57,7 @@ export default function GoldLoanPage() {
     limit: number;
     totalPages: number;
   }>({
-    queryKey: ['loans', statusFilter, search, period, page],
+    queryKey: ['loans', statusFilter, search, period, page, limit],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (statusFilter !== 'ALL') params.append('status', statusFilter);
@@ -74,6 +74,7 @@ export default function GoldLoanPage() {
   const loans = loanData?.items || [];
   const totalCount = loanData?.total || 0;
   const totalPages = loanData?.totalPages || 1;
+  const startIndex = (page - 1) * limit;
 
   // 3. Fetch Shop Profile for Print Header
   const { data: shopProfile } = useQuery({
@@ -85,23 +86,23 @@ export default function GoldLoanPage() {
   });
 
   return (
-    <div className="space-y-4 max-w-7xl mx-auto">
+    <div className="flex flex-col gap-3.5 max-w-7xl mx-auto px-0 pb-6">
       {/* 1. Metrics Summary Cards with Period Filter */}
       <LoanMetrics stats={stats} period={period} onPeriodChange={(p) => { setPeriod(p); setPage(1); }} />
 
-      {/* 2. Control Header (Search, Status Filter & Action) */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-        <div className="flex items-center gap-3 flex-1 max-w-lg">
+      {/* 2. Compact Control Toolbar (Search, Status Filter & Action) */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white px-5 py-3 rounded-2xl border border-slate-200 shadow-xs">
+        <div className="flex items-center gap-3 flex-1 max-w-md">
           <div className="relative w-full">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <Input
-              placeholder="Search by Loan No, Customer Name, Phone, Village..."
+              placeholder="Search loan #, customer, phone, village..."
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              className="pl-9 h-10 text-sm font-medium"
+              className="pl-9 h-9 text-xs font-medium border-slate-300 rounded-xl"
             />
           </div>
         </div>
@@ -117,66 +118,72 @@ export default function GoldLoanPage() {
                   setStatusFilter(st);
                   setPage(1);
                 }}
-                className={`px-4 py-1.5 rounded-lg transition-all ${
+                className={`px-3.5 py-1 rounded-lg transition-all cursor-pointer ${
                   statusFilter === st
                     ? 'bg-white text-slate-900 shadow-xs font-black'
                     : 'text-slate-500 hover:text-slate-900'
                 }`}
               >
-                {st === 'ALL' ? 'All Loans' : st === 'ACTIVE' ? 'Active' : 'Closed'}
+                {st === 'ALL' ? 'All Loans' : st === 'ACTIVE' ? 'Active Pledges' : 'Closed'}
               </button>
             ))}
           </div>
 
           <Button
             onClick={() => setIsNewOpen(true)}
-            className="bg-gold hover:bg-gold/90 text-white font-black text-sm h-10 px-5 shadow-xs flex items-center gap-2"
+            className="bg-slate-900 hover:bg-slate-800 text-white font-black text-xs h-9 px-4 rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
           >
             <Plus className="w-4 h-4 stroke-[3]" />
-            <span>+ New Gold / Silver Loan</span>
+            <span>+ New Pledge</span>
           </Button>
         </div>
       </div>
 
-      {/* 3. Spacious Loans Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+      {/* 3. Grid-Bordered Loans Table */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
         {isLoading ? (
-          <div className="flex items-center justify-center py-24">
+          <div className="flex items-center justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-gold" />
           </div>
         ) : loans.length === 0 ? (
-          <div className="text-center py-20 text-slate-400 space-y-2">
-            <Coins className="w-12 h-12 mx-auto opacity-30 text-gold" />
-            <p className="text-base font-bold text-slate-700">No Gold Loans found</p>
-            <p className="text-xs text-slate-400">Click &quot;+ New Gold / Silver Loan&quot; to create your first jewellery pledge.</p>
+          <div className="text-center py-16 text-slate-400 space-y-2">
+            <Coins className="w-10 h-10 mx-auto opacity-30 text-gold" />
+            <p className="text-sm font-bold text-slate-700">No Gold Loans found</p>
+            <p className="text-xs text-slate-400">Click &quot;+ New Pledge&quot; to create your first jewellery loan.</p>
           </div>
         ) : (
           <div>
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-xs border-b border-slate-200">
+              <table className="w-full text-left text-sm border-collapse border border-slate-200">
+                <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-xs">
                   <tr>
-                    <th className="px-5 py-3.5">Loan #</th>
-                    <th className="px-5 py-3.5">Customer & Village</th>
-                    <th className="px-5 py-3.5">Pledged Ornaments</th>
-                    <th className="px-5 py-3.5 text-right">Net Wt</th>
-                    <th className="px-5 py-3.5 text-right">Principal (அசல்)</th>
-                    <th className="px-5 py-3.5 text-right">Rate / mo</th>
-                    <th className="px-5 py-3.5 text-right">Pending Interest</th>
-                    <th className="px-5 py-3.5 text-center">Status</th>
-                    <th className="px-5 py-3.5 text-right">Actions</th>
+                    <th className="px-3.5 py-2.5 w-10 text-center border border-slate-200">#</th>
+                    <th className="px-3.5 py-2.5 border border-slate-200">Loan No</th>
+                    <th className="px-3.5 py-2.5 border border-slate-200">Customer</th>
+                    <th className="px-3.5 py-2.5 border border-slate-200">Pledged Items</th>
+                    <th className="px-3.5 py-2.5 text-right border border-slate-200">Net Wt</th>
+                    <th className="px-3.5 py-2.5 text-right border border-slate-200">Principal</th>
+                    <th className="px-3.5 py-2.5 text-right border border-slate-200 bg-emerald-50/40">Rate / Mo</th>
+                    <th className="px-3.5 py-2.5 text-right border border-slate-200 bg-rose-50/40">Pending Interest</th>
+                    <th className="px-3.5 py-2.5 text-center border border-slate-200 w-20">Status</th>
+                    <th className="px-3.5 py-2.5 text-center border border-slate-200 w-36">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {loans.map((loan) => {
+                <tbody>
+                  {loans.map((loan, i) => {
                     const isActive = loan.status === 'ACTIVE';
 
                     return (
                       <tr key={loan.id} className="hover:bg-slate-50/80 transition-colors">
+                        {/* # */}
+                        <td className="px-3.5 py-2.5 text-center text-xs font-bold text-slate-500 border border-slate-200">
+                          {startIndex + i + 1}
+                        </td>
+
                         {/* Loan # & Date */}
-                        <td className="px-5 py-4">
-                          <div className="font-mono text-gold font-black text-base">{loan.loan_number}</div>
-                          <div className="text-xs text-slate-500 font-semibold">
+                        <td className="px-3.5 py-2.5 w-28 border border-slate-200">
+                          <div className="font-mono text-amber-900 font-black text-sm">{loan.loan_number}</div>
+                          <div className="text-xs text-slate-500 font-medium">
                             {new Date(loan.loan_date).toLocaleDateString('en-IN', {
                               day: 'numeric',
                               month: 'short',
@@ -186,48 +193,58 @@ export default function GoldLoanPage() {
                         </td>
 
                         {/* Customer */}
-                        <td className="px-5 py-4">
+                        <td className="px-3.5 py-2.5 border border-slate-200">
                           <Link
                             href={`/dashboard/customers/customerView?id=${loan.customer_id}`}
-                            className="font-black text-slate-900 text-base hover:text-gold hover:underline transition-colors block"
+                            className="font-black text-slate-900 text-sm hover:text-amber-800 hover:underline transition-colors block"
                             title="View Customer Profile"
                           >
                             {loan.customer?.name}
                           </Link>
-                          <div className="text-xs text-slate-600 font-mono font-medium">
+                          <div className="text-xs text-slate-500 font-medium">
                             {loan.customer?.phone} {loan.customer?.village ? `• ${loan.customer?.village}` : ''}
                           </div>
                         </td>
 
-                        {/* Pledged Items */}
-                        <td className="px-5 py-4">
-                          <div className="text-slate-900 font-semibold text-sm max-w-[240px] truncate space-x-1">
-                            {loan.loanCollateralItem?.map((i: any, idx: number) => (
-                              <span key={idx} className="inline-block">
-                                <span className={`text-[11px] font-bold px-2 py-0.5 rounded mr-1 ${i.metal === 'SILVER' ? 'bg-slate-200 text-slate-800' : 'bg-amber-100 text-amber-900'}`}>
-                                  {i.metal === 'SILVER' ? 'Silver' : 'Gold'}
+                        {/* Pledged Items (Single Item + Count badge) */}
+                        <td className="px-3.5 py-2.5 border border-slate-200 w-36">
+                          {loan.loanCollateralItem?.[0] ? (
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span
+                                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-bold border ${
+                                  loan.loanCollateralItem[0].metal === 'SILVER'
+                                    ? 'bg-slate-100 text-slate-800 border-slate-200'
+                                    : 'bg-amber-50 text-amber-950 border-amber-200'
+                                }`}
+                              >
+                                <span>{loan.loanCollateralItem[0].metal === 'SILVER' ? '⚪' : '🪙'}</span>
+                                <span className="truncate max-w-[85px]">
+                                  {loan.loanCollateralItem[0].pieces > 1 ? `${loan.loanCollateralItem[0].pieces}x ` : ''}
+                                  {loan.loanCollateralItem[0].description}
                                 </span>
-                                {i.pieces > 1 ? `${i.pieces}x ` : ''}{i.description}
-                                {idx < loan.loanCollateralItem.length - 1 ? ', ' : ''}
                               </span>
-                            )) || 'Jewellery Ornaments'}
-                          </div>
-                          {loan.notes && (
-                            <div className="text-xs text-amber-800 font-semibold truncate mt-0.5">
-                              📍 {loan.notes}
+                              {loan.loanCollateralItem.length > 1 && (
+                                <span
+                                  className="text-[10px] font-black text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 cursor-pointer"
+                                  title={loan.loanCollateralItem.map((it: any) => `${it.metal} ${it.description} (${it.net_weight}g)`).join(', ')}
+                                >
+                                  +{loan.loanCollateralItem.length - 1}
+                                </span>
+                              )}
                             </div>
+                          ) : (
+                            <span className="text-xs text-slate-400">—</span>
                           )}
                         </td>
 
                         {/* Weight */}
-                        <td className="px-5 py-4 text-right font-black text-slate-900">
-                          <div className="text-base">{loan.net_weight} g</div>
-                          <div className="text-xs text-slate-500 font-medium">Gross: {loan.gross_weight}g</div>
+                        <td className="px-3.5 py-2.5 text-right w-20 font-black text-slate-900 text-sm border border-slate-200">
+                          <div>{loan.net_weight} g</div>
                         </td>
 
                         {/* Principal */}
-                        <td className="px-5 py-4 text-right font-black text-slate-900">
-                          <div className="text-base">₹{loan.loan_amount.toLocaleString('en-IN')}</div>
+                        <td className="px-3.5 py-2.5 text-right font-black text-slate-900 text-sm border border-slate-200">
+                          <div className="text-sm font-black">₹{loan.loan_amount.toLocaleString('en-IN')}</div>
                           {loan.current_principal_balance < loan.loan_amount && (
                             <div className="text-xs text-emerald-700 font-bold">
                               Bal: ₹{loan.current_principal_balance.toLocaleString('en-IN')}
@@ -235,75 +252,78 @@ export default function GoldLoanPage() {
                           )}
                         </td>
 
-                        {/* Interest Rate */}
-                        <td className="px-5 py-4 text-right text-slate-800 font-medium">
-                          <span className="font-black text-slate-900 text-sm">{loan.interest_rate}%</span> / mo
-                          <div className="text-xs text-slate-500 font-medium">₹{loan.monthly_interest_amount}/mo</div>
+                        {/* Interest Rate / Monthly Amount */}
+                        <td className="px-3.5 py-2.5 text-right w-28 border border-slate-200">
+                        <div className="text-sm font-black text-slate-900">
+                            {loan.interest_rate}%  -  ₹{loan.monthly_interest_amount?.toLocaleString('en-IN')}
+                          </div>
+                   
                         </td>
 
                         {/* Accrued Interest */}
-                        <td className="px-5 py-4 text-right">
+                        <td className="px-3.5 py-2.5 text-right w-32 border border-slate-200">
                           {isActive ? (
                             <>
-                              <div className="text-base font-black text-rose-700">
+                              <div className="text-sm font-black text-rose-700">
                                 ₹{loan.pending_interest?.toLocaleString('en-IN')}
                               </div>
-                              <div className="text-xs text-slate-600 font-bold flex items-center justify-end gap-1">
-                                <Clock className="w-3.5 h-3.5 text-slate-400" />
-                                <span>{loan.months_elapsed} Mo ({loan.days_elapsed}d)</span>
+                              <div className="text-xs text-slate-500 font-medium mt-0.5">
+                                {loan.months_elapsed} Mo ({loan.days_elapsed}d)
                               </div>
                             </>
                           ) : (
-                            <span className="text-emerald-700 font-bold text-sm">Settled</span>
+                            <span className="text-emerald-700 font-bold text-xs">Settled</span>
                           )}
                         </td>
 
                         {/* Status */}
-                        <td className="px-5 py-3.5 text-center">
+                        <td className="px-3.5 py-2.5 text-center border border-slate-200 w-20">
                           <Badge
                             variant="outline"
-                            className={`text-xs font-bold px-3 py-1 uppercase ${
+                            className={`text-xs font-bold px-2 py-0.5 rounded-md ${
                               isActive
-                                ? 'bg-amber-50 text-amber-800 border-amber-300'
-                                : 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                                ? 'bg-amber-50 text-amber-900 border-amber-200'
+                                : 'bg-slate-100 text-slate-700 border-slate-200'
                             }`}
                           >
                             {isActive ? 'Active' : 'Closed'}
                           </Badge>
                         </td>
 
-                        {/* Actions */}
-                        <td className="px-5 py-3.5 text-right space-x-1.5">
-                          {isActive && (
-                            <Button
-                              size="sm"
-                              onClick={() => setSelectedLoanForRepay(loan)}
-                              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-8 px-3 text-xs rounded-lg shadow-xs"
+                        {/* Actions (Clean inline group that never breaks) */}
+                        <td className="px-3.5 py-2.5 border border-slate-200 w-36">
+                          <div className="flex items-center justify-around  gap-1.5 whitespace-nowrap">
+                            {isActive && (
+                              <Button
+                                size="sm"
+                                onClick={() => setSelectedLoanForRepay(loan)}
+                                className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold h-7 px-2.5 
+                                text-xs rounded-lg shadow-xs flex items-center gap-1 cursor-pointer"
+                                title="Repay / Settle Loan"
+                              >
+                                
+                                <span>Pay</span>
+                              </Button>
+                            )}
+
+                            <button
+                              onClick={() => setSelectedLoanForView(loan)}
+                              className="h-7 w-7 rounded-lg border border-slate-200 bg-white
+                               text-slate-700 hover:bg-slate-100 flex items-center justify-center 
+                               cursor-pointer transition-colors shadow-2xs"
+                              title="View Loan History"
                             >
-                              <CreditCard className="w-3.5 h-3.5 mr-1" />
-                              Pay / Settle
-                            </Button>
-                          )}
+                              <Eye className="w-3.5 h-3.5" />
+                            </button>
 
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setSelectedLoanForView(loan)}
-                            className="h-8 w-8 p-0 rounded-lg text-slate-700 hover:text-slate-900"
-                            title="View History"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Button>
-
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setSelectedLoanForPrint(loan)}
-                            className="h-8 w-8 p-0 rounded-lg text-gold hover:text-gold/90"
-                            title="Print Pawn Slip"
-                          >
-                            <Printer className="w-4 h-4" />
-                          </Button>
+                            <button
+                              onClick={() => setSelectedLoanForPrint(loan)}
+                              className="h-7 w-7 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 flex items-center justify-center cursor-pointer transition-colors shadow-2xs"
+                              title="Print Pawn Slip"
+                            >
+                              <Printer className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -313,38 +333,59 @@ export default function GoldLoanPage() {
             </div>
 
             {/* Pagination Controls */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-5 py-3.5 bg-slate-50 border-t border-slate-200 text-xs text-slate-600 font-medium">
-              <div>
-                Showing <strong>{(page - 1) * limit + 1}</strong> to{' '}
-                <strong>{Math.min(page * limit, totalCount)}</strong> of <strong>{totalCount}</strong> loans
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-5 py-3 bg-slate-50/50 border-t border-slate-200 text-xs text-slate-600 font-medium">
+              <div className="flex items-center gap-1.5">
+                <span>Showing</span>
+                <strong className="text-slate-900 font-bold">
+                  {totalCount > 0 ? startIndex + 1 : 0} - {Math.min(startIndex + limit, totalCount)}
+                </strong>
+                <span>of</span>
+                <strong className="text-slate-900 font-bold">{totalCount}</strong>
+                <span>loans</span>
               </div>
 
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page <= 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="h-8 px-3 text-xs font-bold"
-                >
-                  <ChevronLeft className="w-4 h-4 mr-1" />
-                  Previous
-                </Button>
+              <div className="flex items-center gap-3 self-end sm:self-auto">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-slate-500 font-medium">Rows:</span>
+                  <select
+                    value={limit}
+                    onChange={(e) => {
+                      setLimit(Number(e.target.value));
+                      setPage(1);
+                    }}
+                    className="h-8 px-2 rounded-lg border border-slate-300 bg-white font-bold text-slate-900 focus:outline-none cursor-pointer"
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={15}>15</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                  </select>
+                </div>
 
-                <span className="font-bold text-slate-800 px-2">
-                  Page {page} of {totalPages}
-                </span>
+                <div className="flex items-center gap-1">
+                  <button
+                    disabled={page <= 1}
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    className="h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer font-bold flex items-center gap-0.5 transition-all"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                    <span>Prev</span>
+                  </button>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page >= totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="h-8 px-3 text-xs font-bold"
-                >
-                  Next
-                  <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
+                  <span className="px-2.5 text-slate-800 font-bold">
+                    {page} / {totalPages}
+                  </span>
+
+                  <button
+                    disabled={page >= totalPages}
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    className="h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer font-bold flex items-center gap-0.5 transition-all"
+                  >
+                    <span>Next</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>

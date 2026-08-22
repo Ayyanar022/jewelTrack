@@ -86,7 +86,7 @@ export default function StaffManagementPage() {
       toast.error('Staff name is required');
       return;
     }
-    if (!/^\d{10}$/.test(form.phone)) {
+    if (!/^\d{10}$/.test(form.phone.trim())) {
       toast.error('Valid 10 digit phone number is required');
       return;
     }
@@ -94,7 +94,19 @@ export default function StaffManagementPage() {
       toast.error('Password must be at least 6 characters');
       return;
     }
-    addStaffMutation.mutate(form);
+
+    const payload: any = {
+      name: form.name.trim(),
+      phone: form.phone.trim(),
+      password: form.password,
+      role: form.role,
+    };
+
+    if (form.email && form.email.trim()) {
+      payload.email = form.email.trim();
+    }
+
+    addStaffMutation.mutate(payload);
   };
 
   return (

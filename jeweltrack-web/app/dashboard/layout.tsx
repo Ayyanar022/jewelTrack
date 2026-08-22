@@ -22,6 +22,28 @@ const baseNavItems = [
   { label: 'Settings', href: '/dashboard/settings', icon: '⚙️' }
 ];
 
+// Clean centralized role permissions map
+const ROLE_PERMISSIONS: Record<string, string[]> = {
+  SHOP_OWNER: ['*'], // Full access to all modules
+  MANAGER: [
+    '/dashboard',
+    '/dashboard/rate',
+    '/dashboard/billing/estimate',
+    '/dashboard/billing/new',
+    '/dashboard/customers',
+    '/dashboard/categories',
+    '/dashboard/inventory',
+    '/dashboard/report',
+  ],
+  CASHIER: [
+    '/dashboard',
+    '/dashboard/rate',
+    '/dashboard/billing/estimate',
+    '/dashboard/billing/new',
+    '/dashboard/customers',
+  ],
+};
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(true);
   const [mounted, setMounted] = useState(false);
@@ -52,12 +74,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     router.push('/login');
   };
 
+  // Filter sidebar navigation according to clean role map
   const navItems = baseNavItems.filter((item) => {
-    // Cashiers only need billing, rate, and customers
-    if (mounted && user?.role === 'CASHIER') {
-      return ['/dashboard', '/dashboard/rate', '/dashboard/billing/estimate', '/dashboard/billing/new', '/dashboard/customers'].includes(item.href);
-    }
-    return true;
+    if (!mounted || !user) return true;
+    const allowedRoutes = ROLE_PERMISSIONS[user.role];
+    if (!allowedRoutes || allowedRoutes.includes('*')) return true;
+    return allowedRoutes.includes(item.href);
   });
 
   const isTrial = subscription?.status === 'TRIAL';

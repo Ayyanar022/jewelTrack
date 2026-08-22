@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { SubscriptionService } from 'src/subscription/subscription.service';
 import { CreateStaffDto } from './dto/create-staff.dto';
@@ -13,6 +13,7 @@ export class UserService {
   ) {}
 
   async getStaff(shopId: string) {
+    if (!shopId) return [];
     return this.prisma.user.findMany({
       where: { shop_id: shopId },
       select: {
@@ -35,6 +36,10 @@ export class UserService {
   }
 
   async createStaff(shopId: string, dto: CreateStaffDto) {
+    if (!shopId) {
+      throw new BadRequestException('Shop workspace is required to add staff');
+    }
+
     // 1. Check max_users plan limit
     const maxUsers = await this.subscriptionService.checkLimit(shopId, 'max_users');
     if (maxUsers !== null) {
@@ -50,24 +55,35 @@ export class UserService {
     }
 
     // 2. Check if phone is already registered
-    const existing = await this.prisma.user.findUnique({
-      where: { phone: dto.phone },
+    const existingPhone = await this.prisma.user.findUnique({
+      where: { phone: dto.phone.trim() },
     });
 
-    if (existing) {
-      throw new ConflictException('Phone number already registered to a user');
+    if (existingPhone) {
+      throw new ConflictException('Phone number is already registered to an existing user');
     }
 
-    // 3. Hash password
+    // 3. Clean and validate optional email
+    const cleanEmail = dto.email && dto.email.trim().length > 0 ? dto.email.trim() : null;
+    if (cleanEmail) {
+      const existingEmail = await this.prisma.user.findUnique({
+        where: { email: cleanEmail },
+      });
+      if (existingEmail) {
+        throw new ConflictException('Email is already registered to another user');
+      }
+    }
+
+    // 4. Hash password
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
-    // 4. Create staff user
+    // 5. Create staff user
     return this.prisma.user.create({
       data: {
         shop_id: shopId,
-        name: dto.name,
-        phone: dto.phone,
-        email: dto.email,
+        name: dto.name.trim(),
+        phone: dto.phone.trim(),
+        email: cleanEmail,
         password: hashedPassword,
         role: dto.role,
         is_active: true,
@@ -85,6 +101,7 @@ export class UserService {
   }
 
   async toggleStaffStatus(shopId: string, staffUserId: string) {
+    if (!shopId) throw new BadRequestException('Shop ID required');
     const user = await this.prisma.user.findFirst({
       where: { id: staffUserId, shop_id: shopId },
     });

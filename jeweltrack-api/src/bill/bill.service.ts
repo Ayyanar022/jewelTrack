@@ -90,15 +90,15 @@ export class BillService {
         
          // ledger out entry 
          await tx.inventoryStockEntry.createMany({
-            data:dto.billItem.filter(i=>i.metal!=="SILVER").map((out:any)=>({
-                    shop_id : shopId ,
-                    category_id :out.category_id,
-                    type  : "OUT",
-                    weight : out.net_weight,
-                    purity :out.purity || null,
-                    stockType : "OWN" ,
-                    reference :"BILL" ,
-                    reference_id : bill_number ,
+            data: dto.billItem.map((out: any) => ({
+                    shop_id: shopId,
+                    category_id: out.category_id,
+                    type: "OUT",
+                    weight: out.net_weight,
+                    purity: out.purity || null,
+                    stockType: "OWN",
+                    reference: "BILL",
+                    reference_id: bill_number,
                     created_by_user_id: userId || null,
             }))
          })

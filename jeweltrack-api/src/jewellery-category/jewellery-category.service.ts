@@ -36,14 +36,14 @@ export class JewelleryCategoryService {
             ...dto,
             ...(dto.name && { name: this.formatName(dto.name) }),
         };
-        return this.prisma.jewelleryCategory.update({
+        return this.prisma.jewelleryCategory.updateMany({
             where: { shop_id: shopID, id: catID },
             data: formattedDto,
         });
     }
 
     async delete(catID: string, shopID: string) {
-        return this.prisma.jewelleryCategory.delete({
+        return this.prisma.jewelleryCategory.deleteMany({
             where: { shop_id: shopID, id: catID },
         });
     }

@@ -21,11 +21,14 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from "multer";
 import { extname } from "path";
 import type { Express } from "express";
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { Role } from '@prisma/client';
 
 @Controller('settings')
 @ApiBearerAuth('JWT-auth')
 @ApiTags('Settings')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class SettingController {
   constructor(private readonly settingService: SettingService) {}
 
@@ -34,6 +37,7 @@ export class SettingController {
     return this.settingService.getShopProfile(req.user.shop_id);
   }
 
+  @Roles(Role.SHOP_OWNER, Role.SUPER_ADMIN)
   @Post('shop-profile')
   createShopProfile(
     @Body() dto: CreateShopSettingDto,    @Request() req: any,
@@ -41,6 +45,7 @@ export class SettingController {
     return this.settingService.createShopProfile(dto, req.user.shop_id);
   }
 
+  @Roles(Role.SHOP_OWNER, Role.SUPER_ADMIN)
   @Patch('shop-profile')
   updateShopProfile(
     @Body() dto: UpdateShopSettingDto,
@@ -49,8 +54,8 @@ export class SettingController {
     return this.settingService.updateShopProfile(dto, req.user.shop_id);
   }
 
-
   // tax    
+  @Roles(Role.SHOP_OWNER, Role.SUPER_ADMIN)
   @Patch("/shop-profile/tax")
     updateTax(
     @Body() dto: UpdateShopTaxDto,
@@ -59,8 +64,8 @@ export class SettingController {
     return this.settingService.updateTax(dto, req.user.shop_id);
     }
 
-
     // invoice 
+    @Roles(Role.SHOP_OWNER, Role.SUPER_ADMIN)
     @Patch("/shop-profile/invoice")
     updateInvoice(
     @Body() dto: UpdateShopInvoiceDto,
@@ -69,8 +74,7 @@ export class SettingController {
     return this.settingService.updateInvoice(dto, req.user.shop_id);
     }
 
-
-
+    @Roles(Role.SHOP_OWNER, Role.SUPER_ADMIN)
     @Post("/shop-profile/logo")
     @UseInterceptors(
     FileInterceptor("logo", {

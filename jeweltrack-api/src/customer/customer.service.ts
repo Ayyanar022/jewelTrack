@@ -15,7 +15,7 @@ export class CustomerService {
     }
 
     async updateCustomer(dto:UpdateCustomerDto , customerId:string , shopId:string){
-       await this.prisma.customer.update({
+       await this.prisma.customer.updateMany({
             where : {
                 id:customerId ,
                 shop_id:shopId

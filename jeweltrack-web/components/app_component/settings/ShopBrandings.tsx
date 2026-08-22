@@ -3,25 +3,18 @@
 import Image from "next/image";
 import api from "@/lib/axios";
 import { useState } from "react";
-import { useMutation,  useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 const ShopBranding = ({ logo }: any) => {
   const queryClient = useQueryClient();
-  const logoImg = logo ? `http://localhost:4000${logo}`:null
+  const logoImg = logo ? `http://localhost:4000${logo}` : null;
 
-  const [preview, setPreview] = useState<string | null>(
-    logoImg
-  );
-
-
-
-
-
+  const [preview, setPreview] = useState<string | null>(logoImg);
 
   const mutation = useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData();
-
       formData.append("logo", file);
 
       const response = await api.post(
@@ -38,9 +31,13 @@ const ShopBranding = ({ logo }: any) => {
     },
 
     onSuccess: () => {
+      toast.success("Shop logo updated successfully");
       queryClient.invalidateQueries({
         queryKey: ["shop-profile"],
       });
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Failed to upload logo");
     },
   });
 

@@ -6,52 +6,52 @@ import api from "@/lib/axios";
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { toast } from "sonner";
 
 type FormData = {
   gstin: string;
   pan: string;
 };
 
-
-
-
 const ShopTaxDetails = () => {
   const queryClient = useQueryClient();
 
-  
- const { data } = useQuery({
-  queryKey: ["shop-profile"],
-  queryFn: () =>
-    api.get("/settings/shop-profile").then((r) => r.data),
+  const { data } = useQuery({
+    queryKey: ["shop-profile"],
+    queryFn: () =>
+      api.get("/settings/shop-profile").then((r) => r.data),
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  });
 
-  staleTime: Infinity,
-  refetchOnWindowFocus: false,
-  refetchOnReconnect: false,
-});
-
-        const {
-        register,
-        reset,
-        handleSubmit,
-        formState: {
-            errors,
-            isSubmitting,
-        },
-        } = useForm<FormData>({
-        defaultValues: {
-            gstin: data?.gstin ?? "",
-            pan: data?.pan ?? "",
-        },
-        });
+  const {
+    register,
+    reset,
+    handleSubmit,
+    formState: {
+      errors,
+      isSubmitting,
+    },
+  } = useForm<FormData>({
+    defaultValues: {
+      gstin: data?.gstin ?? "",
+      pan: data?.pan ?? "",
+    },
+  });
 
   const mutation = useMutation({
     mutationFn: (payload: FormData) =>
       api.patch("/settings/shop-profile/tax", payload),
 
     onSuccess: () => {
+      toast.success("Tax & GST details updated successfully");
       queryClient.invalidateQueries({
         queryKey: ["shop-profile"],
       });
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Failed to update tax details");
     },
   });
 
@@ -123,14 +123,12 @@ const ShopTaxDetails = () => {
 </div>
 
       <div className="flex justify-end">
-
         <button
-          className="bg-blue-600 text-white px-5 py-2 rounded-lg"
+          className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-6 py-2.5 rounded-xl shadow-xs transition-all cursor-pointer text-sm"
           disabled={mutation.isPending}
         >
-          {mutation.isPending ? "Saving..." : "Save"}
+          {mutation.isPending ? "Saving..." : "Save Tax Details"}
         </button>
-
       </div>
 
     </form>

@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/axios";
+import { toast } from "sonner";
 
 type ShopProfileForm = {
   shop_name: string;
@@ -66,9 +67,13 @@ const ShopBasicDetails = () => {
     },
 
     onSuccess: () => {
+      toast.success("Shop profile details updated successfully");
       queryClient.invalidateQueries({
         queryKey: ["shop-profile"],
       });
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Failed to update shop profile");
     },
   });
 
@@ -83,7 +88,7 @@ const ShopBasicDetails = () => {
       onSubmit={handleSubmit(onSubmit)}
       className="bg-white rounded-xl border mt-5 p-6 space-y-5"
     >
-      <div className="grid md:grid-cols-2 gap-5">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
 
         <div>
           <label className="text-sm font-medium">Shop Name</label>
@@ -160,18 +165,16 @@ const ShopBasicDetails = () => {
       </div>
 
       <div className="flex justify-end">
-
         <button
           disabled={mutation.isPending}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
+          className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-6 py-2.5 rounded-xl shadow-xs transition-all cursor-pointer text-sm"
         >
           {mutation.isPending
             ? "Saving..."
             : data?.id
-            ? "Update"
-            : "Save"}
+            ? "Update Profile"
+            : "Save Profile"}
         </button>
-
       </div>
 
     </form>

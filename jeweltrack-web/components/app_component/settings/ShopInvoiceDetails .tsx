@@ -2,7 +2,9 @@
 
 import api from "@/lib/axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 type FormData = {
   invoice_prefix: string;
@@ -22,23 +24,38 @@ const ShopInvoiceDetails = () => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
-      invoice_prefix: data?.invoice_prefix ?? "",
-      estimate_prefix: data?.estimate_prefix ?? "",
-      terms_conditions: data?.terms_conditions ?? "",
+      invoice_prefix: "",
+      estimate_prefix: "",
+      terms_conditions: "",
     },
   });
+
+  useEffect(() => {
+    if (data) {
+      reset({
+        invoice_prefix: data.invoice_prefix ?? "",
+        estimate_prefix: data.estimate_prefix ?? "",
+        terms_conditions: data.terms_conditions ?? "",
+      });
+    }
+  }, [data, reset]);
 
   const mutation = useMutation({
     mutationFn: (payload: FormData) =>
       api.patch("/settings/shop-profile/invoice", payload),
 
     onSuccess: () => {
+      toast.success("Invoice settings updated successfully");
       queryClient.invalidateQueries({
         queryKey: ["shop-profile"],
       });
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Failed to update invoice settings");
     },
   });
 
@@ -120,15 +137,13 @@ const ShopInvoiceDetails = () => {
       </div>
 
       <div className="flex justify-end">
-
         <button
           type="submit"
           disabled={mutation.isPending}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
+          className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-6 py-2.5 rounded-xl shadow-xs transition-all cursor-pointer text-sm"
         >
-          {mutation.isPending ? "Saving..." : "Save"}
+          {mutation.isPending ? "Saving..." : "Save Invoice Settings"}
         </button>
-
       </div>
 
     </form>

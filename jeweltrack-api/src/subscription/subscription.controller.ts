@@ -6,6 +6,7 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { SubscriptionService } from './subscription.service';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
+import { VerifyPaymentDto } from './dto/verify-payment.dto';
 
 @ApiBearerAuth('JWT-auth')
 @ApiTags('Subscriptions')
@@ -29,14 +30,28 @@ export class SubscriptionController {
     return this.subscriptionService.getCurrent(req.user.shop_id);
   }
 
-  // 3. Upgrade / Subscribe to Plan
+  // 3. Create Razorpay Order
+  @UseGuards(JwtAuthGuard)
+  @Post('create-order')
+  createOrder(@Body() dto: CreateSubscriptionDto, @Request() req: any) {
+    return this.subscriptionService.createRazorpayOrder(dto, req.user.shop_id);
+  }
+
+  // 4. Verify Razorpay Payment Signature & Activate Subscription
+  @UseGuards(JwtAuthGuard)
+  @Post('verify-payment')
+  verifyPayment(@Body() dto: VerifyPaymentDto, @Request() req: any) {
+    return this.subscriptionService.verifyRazorpayPayment(dto, req.user.shop_id);
+  }
+
+  // 5. Fallback / Direct Activation (for testing)
   @UseGuards(JwtAuthGuard)
   @Post()
   subscribe(@Body() dto: CreateSubscriptionDto, @Request() req: any) {
     return this.subscriptionService.subscribe(dto, req.user.shop_id);
   }
 
-  // 4. Super Admin: Get Default Trial Duration in Days
+  // 6. Super Admin: Get Default Trial Duration in Days
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.SUPER_ADMIN)
   @Get('config/trial-days')
@@ -44,7 +59,7 @@ export class SubscriptionController {
     return this.subscriptionService.getTrialDays();
   }
 
-  // 5. Super Admin: Update Default Trial Duration in Days
+  // 7. Super Admin: Update Default Trial Duration in Days
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.SUPER_ADMIN)
   @Patch('config/trial-days')
@@ -52,7 +67,7 @@ export class SubscriptionController {
     return this.subscriptionService.updateTrialDays(Number(days));
   }
 
-  // 6. Super Admin: Get Default Trial Plan Tier (e.g. "PRO")
+  // 8. Super Admin: Get Default Trial Plan Tier
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.SUPER_ADMIN)
   @Get('config/trial-plan')
@@ -60,7 +75,7 @@ export class SubscriptionController {
     return this.subscriptionService.getTrialPlan();
   }
 
-  // 7. Super Admin: Update Default Trial Plan Tier
+  // 9. Super Admin: Update Default Trial Plan Tier
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.SUPER_ADMIN)
   @Patch('config/trial-plan')

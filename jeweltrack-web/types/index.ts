@@ -19,6 +19,7 @@ export interface Shop {
   owner_name?: string;
   phone?: string;
   hallmark_rate: number;
+  logo_url?: string | null;
   subscription_plan: string;
   subscription_status: 'TRIAL' | 'ACTIVE' | 'EXPIRED' | 'CANCELLED' | 'PAST_DUE';
   created_at: string;

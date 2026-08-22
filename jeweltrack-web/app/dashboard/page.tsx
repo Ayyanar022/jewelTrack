@@ -11,14 +11,10 @@ export default function DashboardPage(){
         queryFn : ()=>api.get('/rate/recent-rate').then(r=>r.data)
     })
 
-    console.log("recentRate",recentRate)
-
     const {data:bills} = useQuery({
         queryKey : ['bills'],
         queryFn :()=>api.get('/bill/all').then(r=>r.data)
     })
-
-console.log("bills",bills)
 
 const stats = [
     { label: "Today's bills", value: bills?.length ?? 0, sub: 'total created' },

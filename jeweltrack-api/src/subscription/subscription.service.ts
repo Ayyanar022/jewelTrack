@@ -1,6 +1,9 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
+import { VerifyPaymentDto } from './dto/verify-payment.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
+import Razorpay from 'razorpay';
+import * as crypto from 'crypto';
 
 export const DURATION_DISCOUNTS: Record<number, number> = {
   1: 0,    // 0% discount
@@ -11,9 +14,133 @@ export const DURATION_DISCOUNTS: Record<number, number> = {
 
 @Injectable()
 export class SubscriptionService {
-  constructor(private prisma: PrismaService) {}
+  private razorpay: Razorpay | null = null;
 
-  // 1. Subscribe / Upgrade Plan (Direct activation for now until payment gateway is connected)
+  constructor(private prisma: PrismaService) {
+    const key_id = process.env.RAZORPAY_KEY_ID;
+    const key_secret = process.env.RAZORPAY_KEY_SECRET;
+
+    if (key_id && key_secret) {
+      this.razorpay = new Razorpay({
+        key_id,
+        key_secret,
+      });
+    }
+  }
+
+  // Helper to ensure Razorpay is configured
+  private getRazorpayClient(): Razorpay {
+    if (!this.razorpay) {
+      const key_id = process.env.RAZORPAY_KEY_ID;
+      const key_secret = process.env.RAZORPAY_KEY_SECRET;
+      if (!key_id || !key_secret) {
+        throw new BadRequestException('Razorpay credentials are not configured on the server');
+      }
+      this.razorpay = new Razorpay({ key_id, key_secret });
+    }
+    return this.razorpay;
+  }
+
+  // 1. Create Razorpay Order for Subscription Upgrade
+  async createRazorpayOrder(dto: CreateSubscriptionDto, shopId: string) {
+    if (!shopId) throw new BadRequestException('Shop ID required for subscription');
+
+    const plan = await this.prisma.plan.findUnique({ where: { id: dto.plan_id } });
+    if (!plan || !plan.is_active) throw new BadRequestException('Invalid or inactive plan');
+
+    const duration = Number(dto.duration_months) || 1;
+    const discount = DURATION_DISCOUNTS[duration] ?? 0;
+    const total = plan.price * duration;
+    const amount_paid = Math.round(total - (total * discount) / 100);
+
+    const razorpay = this.getRazorpayClient();
+
+    // Create Razorpay Order
+    const options = {
+      amount: amount_paid, // in paise (e.g. 1919000 paise = Rs. 19,190)
+      currency: 'INR',
+      receipt: `sub_${shopId.slice(0, 8)}_${Date.now().toString().slice(-8)}`,
+      notes: {
+        shop_id: shopId,
+        plan_id: plan.id,
+        plan_name: plan.name,
+        duration_months: duration.toString(),
+      },
+    };
+
+    const order = await razorpay.orders.create(options);
+
+    return {
+      order_id: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      key_id: process.env.RAZORPAY_KEY_ID,
+      plan_name: plan.name,
+      duration_months: duration,
+      discount_percent: discount,
+      amount_inr: (order.amount as number) / 100,
+    };
+  }
+
+  // 2. Verify Razorpay Payment Signature & Activate Plan
+  async verifyRazorpayPayment(dto: VerifyPaymentDto, shopId: string) {
+    if (!shopId) throw new BadRequestException('Shop ID required for subscription');
+
+    const key_secret = process.env.RAZORPAY_KEY_SECRET;
+    if (!key_secret) throw new BadRequestException('Razorpay secret is not configured on the server');
+
+    // Cryptographic Signature Verification
+    const body = `${dto.razorpay_order_id}|${dto.razorpay_payment_id}`;
+    const expectedSignature = crypto
+      .createHmac('sha256', key_secret)
+      .update(body)
+      .digest('hex');
+
+    if (expectedSignature !== dto.razorpay_signature) {
+      throw new BadRequestException('Invalid payment signature. Transaction verification failed.');
+    }
+
+    const plan = await this.prisma.plan.findUnique({ where: { id: dto.plan_id } });
+    if (!plan || !plan.is_active) throw new BadRequestException('Invalid or inactive plan');
+
+    const duration = Number(dto.duration_months) || 1;
+    const discount = DURATION_DISCOUNTS[duration] ?? 0;
+    const total = plan.price * duration;
+    const amount_paid = Math.round(total - (total * discount) / 100);
+
+    const periodStart = new Date();
+    const periodEnd = new Date();
+    periodEnd.setMonth(periodEnd.getMonth() + duration);
+
+    // Create Active Subscription Record
+    const subscription = await this.prisma.subscription.create({
+      data: {
+        shop_id: shopId,
+        plan_id: plan.id,
+        duration_months: duration,
+        amount_paid,
+        discount_percent: discount,
+        razorpay_subscription_id: dto.razorpay_payment_id,
+        status: 'ACTIVE',
+        current_period_start: periodStart,
+        current_period_end: periodEnd,
+      },
+      include: { plan: true },
+    });
+
+    // Update cached fields on Shop model
+    await this.prisma.shop.update({
+      where: { id: shopId },
+      data: {
+        subscription_plan: plan.name,
+        subscription_status: 'ACTIVE',
+      },
+    });
+
+    return subscription;
+  }
+
+  // 3. Fallback / Direct Activation (for development / testing without gateway)
   async subscribe(dto: CreateSubscriptionDto, shopId: string) {
     if (!shopId) throw new BadRequestException('Shop ID required for subscription');
 
@@ -29,7 +156,6 @@ export class SubscriptionService {
     const periodEnd = new Date();
     periodEnd.setMonth(periodEnd.getMonth() + duration);
 
-    // Create new active subscription record
     const subscription = await this.prisma.subscription.create({
       data: {
         shop_id: shopId,
@@ -44,7 +170,6 @@ export class SubscriptionService {
       include: { plan: true },
     });
 
-    // Sync cached fields on Shop model
     await this.prisma.shop.update({
       where: { id: shopId },
       data: {
@@ -56,7 +181,7 @@ export class SubscriptionService {
     return subscription;
   }
 
-  // 2. Get Current Subscription with live usage stats (Staff count, Monthly Bills count, Days Left)
+  // 4. Get Current Subscription with live usage stats
   async getCurrent(shopId: string) {
     if (!shopId) {
       return null;
@@ -68,7 +193,6 @@ export class SubscriptionService {
       include: { plan: true },
     });
 
-    // If no subscription record found, create a fallback trial linked to configured trial plan
     if (!sub) {
       const trialPlanName = await this.getTrialPlan();
       const trialPlan = (await this.prisma.plan.findUnique({ where: { name: trialPlanName } }))
@@ -94,7 +218,6 @@ export class SubscriptionService {
           include: { plan: true },
         });
 
-        // update shop cache
         await this.prisma.shop.update({
           where: { id: shopId },
           data: {
@@ -107,14 +230,12 @@ export class SubscriptionService {
 
     if (!sub) return null;
 
-    // Calculate days remaining
     const now = new Date();
     const endDate = sub.current_period_end ? new Date(sub.current_period_end) : new Date();
     const diffMs = endDate.getTime() - now.getTime();
     const daysRemaining = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
     const isExpired = diffMs <= 0;
 
-    // Fetch live usage stats for this shop
     const currentUsers = await this.prisma.user.count({
       where: { shop_id: shopId, is_active: true },
     });
@@ -141,7 +262,7 @@ export class SubscriptionService {
     };
   }
 
-  // 3. Pricing Table with calculated durations & discounts
+  // 5. Pricing Table with calculated durations & discounts
   async getPricingTable() {
     const plans = await this.prisma.plan.findMany({
       where: { is_active: true },
@@ -149,7 +270,6 @@ export class SubscriptionService {
     });
 
     return plans.map((plan) => {
-      // Calculate prices for 1, 3, 6, 12 months
       const pricingOptions = Object.entries(DURATION_DISCOUNTS).map(([durationStr, discount]) => {
         const duration = Number(durationStr);
         const originalPrice = plan.price * duration;
@@ -179,7 +299,7 @@ export class SubscriptionService {
     });
   }
 
-  // 4. Platform Trial Days configuration (Super Admin managed)
+  // 6. Platform Trial Days configuration (Super Admin managed)
   async getTrialDays(): Promise<number> {
     const config = await this.prisma.platformConfig.findUnique({
       where: { key: 'DEFAULT_TRIAL_DAYS' },
@@ -200,7 +320,7 @@ export class SubscriptionService {
     });
   }
 
-  // 5. Platform Trial Plan configuration (Super Admin managed: e.g. "BASIC", "PRO", "ENTERPRISE")
+  // 7. Platform Trial Plan configuration (Super Admin managed)
   async getTrialPlan(): Promise<string> {
     const config = await this.prisma.platformConfig.findUnique({
       where: { key: 'DEFAULT_TRIAL_PLAN' },
@@ -223,18 +343,16 @@ export class SubscriptionService {
     });
   }
 
-  // 6. Check limit helper for guards and controllers
+  // 8. Limit and Feature checks
   async checkLimit(shopId: string, key: 'max_users' | 'max_invoices_per_month' | 'max_branches') {
     if (!shopId) return null;
     const sub = await this.getCurrent(shopId);
     if (!sub) return null;
-    const limit = (sub.plan as any)[key];
-    return limit; // null = unlimited
+    return (sub.plan as any)[key];
   }
 
-  // 7. Check feature flag helper
   async hasFeature(shopId: string, featureKey: string): Promise<boolean> {
-    if (!shopId) return true; // Super admin / unrestricted
+    if (!shopId) return true;
     const sub = await this.getCurrent(shopId);
     if (!sub) return true;
     const features = sub.plan.features as Record<string, boolean> | null;

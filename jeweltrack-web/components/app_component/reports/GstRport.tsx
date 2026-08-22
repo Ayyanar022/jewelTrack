@@ -7,91 +7,120 @@ import { useQuery } from "@tanstack/react-query"
 
 
 
+import { exportToExcel, exportToCsv } from "@/lib/exportExcel"
+import { FileSpreadsheet, Download } from "lucide-react"
+
 const GstReport = () => {
+  const ROWS_PER_PAGE = 10;
 
+  const [page, setPage] = useState(1);
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
 
-
-const ROWS_PER_PAGE = 5;
-
-const [page, setPage] = useState(1);
-
-const [fromDate, setFromDate] = useState("");
-const [toDate, setToDate] = useState("");
-
-  const {data:gstReport } = useQuery({
-    queryKey:['gst-report',fromDate,toDate],
-    queryFn:()=>api.get(`/reports/gst-report?from=${fromDate}&to=${toDate}`).then(r=>r.data)
+  const { data: gstReport } = useQuery({
+    queryKey: ['gst-report', fromDate, toDate],
+    queryFn: () => api.get(`/reports/gst-report?from=${fromDate}&to=${toDate}`).then(r => r.data)
   })
 
-  const gstCards  = [
-    {title:'Gst Amount',data:INRFormat(gstReport?.totalGSTAmount._sum.totalGST ||0), },
-    {title:'CGST Amount',data:INRFormat(gstReport?.totalGSTAmount._sum.totalGST/2 ||0), },
-    {title:'SGST Amount',data:INRFormat(gstReport?.totalGSTAmount._sum.totalGST/2 ||0), },
-    {title:'GST Bill Count',data:gstReport?.totalBillCount ||0  , },
+  const handleExportExcel = () => {
+    const exportData = (gstReport?.tableData || []).map((row: any) => ({
+      'Date': row.date ? row.date.split("T")[0] : '—',
+      'GST Bill Count': row.gstbillcount,
+      'Taxable Amount (₹)': row.taxableamount,
+      'Total GST (3%) (₹)': row.totalgst,
+      'CGST (1.5%) (₹)': row.totalgst / 2,
+      'SGST (1.5%) (₹)': row.totalgst / 2,
+    }));
+    exportToExcel(exportData, 'JewelTrack_GST_Report', 'GST Summary');
+  };
+
+  const handleExportCsv = () => {
+    const exportData = (gstReport?.tableData || []).map((row: any) => ({
+      'Date': row.date ? row.date.split("T")[0] : '—',
+      'GST Bill Count': row.gstbillcount,
+      'Taxable Amount (₹)': row.taxableamount,
+      'Total GST (3%) (₹)': row.totalgst,
+      'CGST (1.5%) (₹)': row.totalgst / 2,
+      'SGST (1.5%) (₹)': row.totalgst / 2,
+    }));
+    exportToCsv(exportData, 'JewelTrack_GST_Report');
+  };
+
+  const gstCards = [
+    { title: 'Total GST', data: INRFormat(gstReport?.totalGSTAmount?._sum?.totalGstAmount || gstReport?.totalGSTAmount?._sum?.totalGST || 0) },
+    { title: 'CGST (1.5%)', data: INRFormat((gstReport?.totalGSTAmount?._sum?.totalGstAmount || gstReport?.totalGSTAmount?._sum?.totalGST || 0) / 2) },
+    { title: 'SGST (1.5%)', data: INRFormat((gstReport?.totalGSTAmount?._sum?.totalGstAmount || gstReport?.totalGSTAmount?._sum?.totalGST || 0) / 2) },
+    { title: 'GST Bill Count', data: gstReport?.totalBillCount || 0 },
   ]
-  
 
-
-  const totalPages = Math.ceil( (gstReport?.tableData?.length ?? 0) / ROWS_PER_PAGE );
-  const paginatedData = gstReport?.tableData.slice(
+  const totalPages = Math.ceil((gstReport?.tableData?.length ?? 0) / ROWS_PER_PAGE);
+  const paginatedData = (gstReport?.tableData || []).slice(
     (page - 1) * ROWS_PER_PAGE,
     page * ROWS_PER_PAGE
   );
 
   // reset page when filter 
-      useEffect(() => {
-      setPage(1);
-    }, [fromDate, toDate]);
-
-    console.log("gst report",gstReport)
-
+  useEffect(() => {
+    setPage(1);
+  }, [fromDate, toDate]);
 
   return (
     <div>
-        {/* Filter */}
-        <section className="bg-white rounded-xl border p-5 mb-6">
-
+      {/* Filter */}
+      <section className="bg-white rounded-xl border border-slate-200 p-5 mb-6 flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-wrap gap-4 items-end">
+          <div>
+            <label className="text-xs font-bold text-slate-600 block mb-1">
+              From Date
+            </label>
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="border border-slate-300 rounded-lg px-3 py-2 text-sm font-medium"
+            />
+          </div>
 
-            <div>
-                <label className="text-sm text-gray-500 block mb-1">
-                    From
-                </label>
+          <div>
+            <label className="text-xs font-bold text-slate-600 block mb-1">
+              To Date
+            </label>
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="border border-slate-300 rounded-lg px-3 py-2 text-sm font-medium"
+            />
+          </div>
 
-                <input
-                    type="date"
-                    value={fromDate}
-                    onChange={(e) => setFromDate(e.target.value)}
-                    className="border rounded-lg px-3 py-2"
-                />
-            </div>
-
-            <div>
-                <label className="text-sm text-gray-500 block mb-1">
-                    To
-                </label>
-
-                <input
-                    type="date"
-                    value={toDate}
-                    onChange={(e) => setToDate(e.target.value)}
-                    className="border rounded-lg px-3 py-2"
-                />
-            </div>
-
-            <button
-                onClick={() => {
-                    setFromDate("");
-                    setToDate("");
-                }}
-                className="px-4 py-2 rounded-lg bg-slate-200 hover:bg-slate-300"
-            >
-                Clear
-            </button>
-
+          <button
+            onClick={() => {
+              setFromDate("");
+              setToDate("");
+            }}
+            className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-sm font-bold text-slate-700"
+          >
+            Clear
+          </button>
         </div>
 
-    </section>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleExportExcel}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-xs"
+          >
+            <FileSpreadsheet className="w-4 h-4" />
+            <span>Excel (.xlsx)</span>
+          </button>
+          <button
+            onClick={handleExportCsv}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 font-bold text-xs text-slate-700"
+          >
+            <Download className="w-4 h-4" />
+            <span>CSV</span>
+          </button>
+        </div>
+      </section>
 
 
 

@@ -1,234 +1,343 @@
+'use client';
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import api from '@/lib/axios';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
+import { Users, Plus, Search, Eye, Pencil, X, Loader2, Phone, MapPin } from 'lucide-react';
 
-'use client'
+interface Customer {
+  id: string;
+  name: string;
+  phone: string;
+  village: string;
+  address?: string;
+  created_at: string;
+}
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import api from "@/lib/axios";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Eye, PenIcon, Plus, Search, X } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+const emptyForm = () => ({
+  name: '',
+  phone: '',
+  village: '',
+  address: '',
+});
 
 export default function CustomersPage() {
-  const router = useRouter()
+  const router = useRouter();
   const queryClient = useQueryClient();
-  const [form, setForm] = useState({ name: '', phone: '', village: '', address: '' })
+  const [form, setForm] = useState(emptyForm());
   const [search, setSearch] = useState('');
   const [showForm, setShowForm] = useState(false);
-  const [error, setError] = useState('')
-  const [editUser, setEditUser] = useState('')
+  const [editingId, setEditingId] = useState<string | null>(null);
 
-  const { data: customer, isLoading } = useQuery({
+  const { data: customers = [], isLoading } = useQuery<Customer[]>({
     queryKey: ['customers', search],
-    queryFn: () => search
-      ? api.get(`/customer/search?q=${search}`).then(r => r.data)
-      : api.get(`/customer/all`).then(r => r.data),
+    queryFn: () =>
+      search.trim()
+        ? api.get(`/customer/search?q=${search.trim()}`).then((r) => r.data)
+        : api.get(`/customer/all`).then((r) => r.data),
     gcTime: 5 * 60 * 1000,
   });
 
-  const { mutate, isPending } = useMutation({
+  const { mutate: createCustomer, isPending: creating } = useMutation({
     mutationFn: (data: any) => api.post('/customer', data),
     onSuccess: () => {
+      toast.success('Customer added successfully!');
       queryClient.invalidateQueries({ queryKey: ['customers'] });
-      setForm({ name: '', phone: '', village: '', address: '' });
-      setShowForm(false);
+      resetForm();
     },
-    onError: (e: any) => {
-      setError(e?.response?.data?.message || 'Something went wrong')
-    }
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || 'Failed to add customer');
+    },
   });
 
-  const { mutate: updateUserMutate, isPending: UpdateUserLoading } = useMutation({
-    mutationFn: ({ id, data }: any) => api.put(`/customer/${id}`, data),
+  const { mutate: updateCustomer, isPending: updating } = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) => api.put(`/customer/${id}`, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['customers'] })
-      setForm({ name: '', phone: '', village: '', address: '' });
-      setShowForm(false);
-      setEditUser('')
+      toast.success('Customer updated successfully!');
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
+      resetForm();
     },
-    onError: (e: any) => {
-      setError(e?.response?.data?.message || 'Something went wrong')
-    }
-  })
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || 'Failed to update customer');
+    },
+  });
+
+  const formatName = (text: string) => {
+    if (!text) return '';
+    return text
+      .trim()
+      .split(/\s+/)
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+      .join(' ');
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    if (editUser === '') {
-      mutate(form);
-    } else {
-      updateUserMutate({ id: editUser, data: form })
+    const formattedName = formatName(form.name);
+    if (!formattedName) {
+      toast.error('Customer name is required');
+      return;
     }
-  }
+    if (!form.phone.trim() || form.phone.trim().length < 10) {
+      toast.error('Enter valid 10-digit mobile number');
+      return;
+    }
 
-  const handleEdit = (id: string) => {
-    const user = customer?.find((f: any) => f.id === id)
-    if (user) {
-      setForm(user)
-      setShowForm(true)
-      setEditUser(id)
+    const payload = {
+      ...form,
+      name: formattedName,
+      phone: form.phone.trim(),
+      village: form.village.trim(),
+      address: form.address?.trim() || '',
+    };
+
+    if (editingId) {
+      updateCustomer({ id: editingId, data: payload });
+    } else {
+      createCustomer(payload);
     }
-  }
+  };
+
+  const handleEdit = (c: Customer) => {
+    setForm({
+      name: c.name,
+      phone: c.phone,
+      village: c.village || '',
+      address: c.address || '',
+    });
+    setEditingId(c.id);
+    setShowForm(true);
+  };
 
   const resetForm = () => {
-    setShowForm(false)
-    setEditUser('');
-    setForm({ name: '', phone: '', village: '', address: '' });
-    setError('');
-  }
+    setShowForm(false);
+    setEditingId(null);
+    setForm(emptyForm());
+  };
 
-  const isEditing = editUser !== '';
+  const inputClass =
+    'h-11 text-base font-bold text-slate-900 border-slate-300 focus-visible:border-slate-800 focus-visible:ring-2 focus-visible:ring-slate-200 transition-all';
 
   return (
-    <div className="flex flex-col gap-3 px-5">
-      {/* Header — single compact row: title, search, action */}
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="text-lg font-semibold text-slate-900">Customers</h1>
+    <div className="flex flex-col gap-5 max-w-7xl mx-auto px-8 pb-20">
+      {/* Header Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+        <div>
+          <h1 className="text-xl font-black text-slate-900 flex items-center gap-2">
+            <Users className="w-5 h-5 text-amber-700" />
+            <span>Customer Management</span>
+          </h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Customer directory with purchase history, billing records, and gold loan pledges.
+          </p>
+        </div>
 
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* Search Box */}
+          <div className="relative w-64">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <Input
               placeholder="Search name, phone, village..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-8 w-64 pl-8 text-sm border-slate-300 focus-visible:ring-amber-500"
+              className="pl-9 h-10 text-sm font-medium border-slate-300"
             />
           </div>
-          <Button
-            size="sm"
-            className="h-8 bg-amber-600 hover:bg-amber-700 text-white"
-            onClick={() => (showForm ? resetForm() : setShowForm(true))}
-          >
-            {showForm ? (
-              <span className="flex items-center gap-1"><X size={14} /> Cancel</span>
-            ) : (
-              <span className="flex items-center gap-1"><Plus size={14} /> New</span>
-            )}
-          </Button>
+
+          {!showForm && (
+            <Button
+              onClick={() => {
+                setEditingId(null);
+                setForm(emptyForm());
+                setShowForm(true);
+              }}
+              className="bg-slate-900 hover:bg-slate-800 text-white font-bold h-10 px-4 text-xs flex items-center gap-1.5 shadow-xs cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Customer</span>
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* Create / edit form — compact, collapses when not needed */}
+      {/* Create / Edit Customer Form Card */}
       {showForm && (
-        <div className="bg-white border border-slate-200 rounded-lg p-3">
-          <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-3">
-            <div className="flex flex-col gap-1 w-40">
-              <Label className="text-[11px] text-slate-500">Name</Label>
-              <Input
-                placeholder="Customer name"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="h-8 text-sm border-slate-300 focus-visible:ring-amber-500"
-              />
-            </div>
-            <div className="flex flex-col gap-1 w-36">
-              <Label className="text-[11px] text-slate-500">Phone</Label>
-              <Input
-                placeholder="10 digit number"
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                className="h-8 text-sm border-slate-300 focus-visible:ring-amber-500"
-              />
-            </div>
-            <div className="flex flex-col gap-1 w-36">
-              <Label className="text-[11px] text-slate-500">Village / Area</Label>
-              <Input
-                placeholder="e.g. Erode"
-                value={form.village}
-                onChange={(e) => setForm({ ...form, village: e.target.value })}
-                className="h-8 text-sm border-slate-300 focus-visible:ring-amber-500"
-              />
-            </div>
-            <div className="flex flex-col gap-1 flex-1 min-w-[180px]">
-              <Label className="text-[11px] text-slate-500">Address (optional)</Label>
-              <Input
-                placeholder="Full address"
-                value={form.address}
-                onChange={(e) => setForm({ ...form, address: e.target.value })}
-                className="h-8 text-sm border-slate-300 focus-visible:ring-amber-500"
-              />
-            </div>
-
-            <Button
-              type="submit"
-              size="sm"
-              disabled={isPending || UpdateUserLoading}
-              className="h-8 bg-amber-600 hover:bg-amber-700 text-white"
+        <div className="bg-white border border-slate-200 shadow-xs rounded-2xl p-6 space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+            <h2 className="text-lg font-black text-slate-900">
+              {editingId ? 'Edit Customer Details' : 'New Customer Registration'}
+            </h2>
+            <button
+              onClick={resetForm}
+              className="text-slate-400 hover:text-slate-700 p-1 rounded-lg cursor-pointer"
             >
-              {isPending || UpdateUserLoading ? "Saving..." : isEditing ? "Update" : "Save"}
-            </Button>
-            <Button type="button" size="sm" variant="outline" onClick={resetForm} className="h-8 border-slate-300 text-slate-600">
-              Cancel
-            </Button>
+              <X className="w-5 h-5" />
+            </button>
+          </div>
 
-            {error && <p className="text-xs text-red-600 basis-full">{error}</p>}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-sm font-bold text-slate-800">Customer Name *</Label>
+                <Input
+                  placeholder="e.g. Ramesh Kumar"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  className={inputClass}
+                  required
+                  autoFocus
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-sm font-bold text-slate-800">Mobile Number *</Label>
+                <Input
+                  type="tel"
+                  maxLength={10}
+                  placeholder="10-digit number"
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, '') })}
+                  className={inputClass}
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-sm font-bold text-slate-800">Village / Town</Label>
+                <Input
+                  placeholder="e.g. Salem, Erode"
+                  value={form.village}
+                  onChange={(e) => setForm({ ...form, village: e.target.value })}
+                  className={inputClass}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-sm font-bold text-slate-800">Address (Optional)</Label>
+                <Input
+                  placeholder="Street / Door No"
+                  value={form.address}
+                  onChange={(e) => setForm({ ...form, address: e.target.value })}
+                  className={inputClass}
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 pt-2 border-t border-slate-100">
+              <Button
+                type="submit"
+                disabled={creating || updating}
+                className="bg-slate-900 hover:bg-slate-800 text-white font-bold h-11 px-6 text-sm shadow-xs cursor-pointer"
+              >
+                {creating || updating ? 'Saving...' : editingId ? 'Update Customer' : 'Save Customer'}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={resetForm}
+                className="h-11 px-5 text-sm font-bold text-slate-700 border-slate-300 cursor-pointer"
+              >
+                Cancel
+              </Button>
+            </div>
           </form>
         </div>
       )}
 
-      {/* Customer table — the main surface, optimized for density and scan-ability */}
-      <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
+      {/* Customer Master Table */}
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+          <div className="text-base font-bold text-slate-800">
+            Total Customers: <span className="font-black text-slate-900">{customers.length}</span>
+          </div>
+          <span className="text-xs text-slate-500 font-medium">Registered Showroom Clients</span>
+        </div>
+
         {isLoading ? (
-          <div className="px-4 py-8 text-center text-sm text-slate-400">Loading customers…</div>
-        ) : !customer?.length ? (
-          <div className="px-4 py-8 text-center text-sm text-slate-400">
-            {search ? "No customers match your search." : "No customers yet."}
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-gold" />
+          </div>
+        ) : customers.length === 0 ? (
+          <div className="text-center py-20 text-slate-400 space-y-2">
+            <Users className="w-10 h-10 mx-auto opacity-30 text-gold" />
+            <p className="text-sm font-bold text-slate-700">
+              {search ? 'No customers match your search.' : 'No customers registered yet.'}
+            </p>
           </div>
         ) : (
-          <table className="w-full text-sm border-collapse">
-            <thead className="sticky top-0">
-              <tr className="bg-slate-100 border-b border-slate-200">
-                <th className="text-left px-3 pl-7 py-2 text-[14px] uppercase tracking-wide text-slate-500 font-semibold ">#</th>
-                <th className="text-left px-3 py-2 text-[14px] uppercase tracking-wide text-slate-500 font-semibold">Name</th>
-                <th className="text-left px-3 py-2 text-[14px] uppercase tracking-wide text-slate-500 font-semibold">Phone</th>
-                <th className="text-left px-3 py-2 text-[14px] uppercase tracking-wide text-slate-500 font-semibold">Village</th>
-                <th className="text-left px-3 py-2 text-[14px] uppercase tracking-wide text-slate-500 font-semibold">Address</th>
-                <th className="text-right px-3 py-2 pr-7 text-[14px] uppercase tracking-wide text-slate-500 font-semibold w-20">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {customer.map((c: any, i: number) => (
-                <tr
-                  key={c.id}
-                  className={`border-b border-slate-100 last:border-0 hover:bg-amber-50 transition-colors ${i % 2 === 1 ? 'bg-slate-50/60' : 'bg-white'}`}
-                >
-                  <td className="px-3 py-1.5 text-base pl-7 font-medium text-slate-900 whitespace-nowrap">{i+1}</td>
-                  <td className="px-3 py-1.5 text-base font-medium text-slate-900 whitespace-nowrap">{c.name}</td>
-                  <td className="px-3 py-1.5 text-base text-slate-700 tabular-nums whitespace-nowrap">{c.phone}</td>
-                  <td className="px-3 py-1.5 text-base text-slate-700 whitespace-nowrap">{c.village}</td>
-                  <td className="px-3 py-1.5 text-base text-slate-600 truncate max-w-[240px]">{c.address || '—'}</td>
-                  <td className="px-3 py-1.5 text-base pr-7">
-                    <div className="flex justify-end gap-2 gapx-4">
-                      <button
-                        onClick={() => handleEdit(c.id)}
-                        title="Edit customer"
-                        className="h-7 w-7 flex items-center justify-center rounded text-slate-500 hover:text-amber-700 hover:bg-amber-100 transition-colors"
-                      >
-                        <PenIcon size={14} />
-                      </button>
-                      <button
-                        onClick={() => router.push(`/dashboard/customers/customerView?id=${c.id}`)}
-                        title="View customer"
-                        className="h-7 w-7 flex items-center justify-center rounded text-slate-500 hover:text-amber-700 hover:bg-amber-100 transition-colors"
-                      >
-                        <Eye size={14} />
-                      </button>
-                    </div>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-xs border-b border-slate-200">
+                <tr>
+                  <th className="px-6 py-4">#</th>
+                  <th className="px-6 py-4">Customer Name</th>
+                  <th className="px-6 py-4">Mobile Number</th>
+                  <th className="px-6 py-4">Village / Town</th>
+                  <th className="px-6 py-4">Address</th>
+                  <th className="px-6 py-4 text-center">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-        {!!customer?.length && (
-          <div className="px-3 py-1.5 border-t  border-slate-100 text-[14px] text-slate-400">
-            {customer.length} customer{customer.length !== 1 ? 's' : ''}
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {customers.map((c: Customer, i: number) => (
+                  <tr key={c.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-6 py-4 text-sm font-bold text-slate-500">{i + 1}</td>
+                    <td className="px-6 py-4">
+                      <div
+                        onClick={() => router.push(`/dashboard/customers/customerView?id=${c.id}`)}
+                        className="text-base font-black text-slate-900 hover:text-amber-800 cursor-pointer transition-colors"
+                      >
+                        {c.name}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm font-bold text-slate-800">
+                      <span className="inline-flex items-center gap-1.5">
+                        <Phone className="w-3.5 h-3.5 text-emerald-700" />
+                        <span>{c.phone}</span>
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm font-bold text-slate-700">
+                      {c.village ? (
+                        <span className="inline-flex items-center gap-1.5">
+                          <MapPin className="w-3.5 h-3.5 text-rose-600" />
+                          <span>{c.village}</span>
+                        </span>
+                      ) : (
+                        '—'
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-slate-600 max-w-[260px] truncate">
+                      {c.address || '—'}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => router.push(`/dashboard/customers/customerView?id=${c.id}`)}
+                          className="p-2 rounded-lg border border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                          title="View Customer Profile"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleEdit(c)}
+                          className="p-2 rounded-lg border border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                          title="Edit Customer Details"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }

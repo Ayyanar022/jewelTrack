@@ -6,30 +6,45 @@ import { CreateJewelleryCatdto } from './dto/create_jewell_category.dto';
 export class JewelleryCategoryService {
     constructor(private prisma:PrismaService){}
 
-    async create(dto:CreateJewelleryCatdto , shopId:string){
-       return    this.prisma.jewelleryCategory.create({
-            data : {...dto , shop_id:shopId}
-           })
-
-            
+    private formatName(name?: string) {
+        if (!name) return name;
+        return name
+            .trim()
+            .split(/\s+/)
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+            .join(' ');
     }
 
-    async getAll(shopId:string){
+    async create(dto: CreateJewelleryCatdto, shopId: string) {
+        const formattedDto = {
+            ...dto,
+            ...(dto.name && { name: this.formatName(dto.name) }),
+        };
+        return this.prisma.jewelleryCategory.create({
+            data: { ...formattedDto, shop_id: shopId },
+        });
+    }
+
+    async getAll(shopId: string) {
         return this.prisma.jewelleryCategory.findMany({
-            where:{shop_id:shopId}
-        })
+            where: { shop_id: shopId },
+        });
     }
 
-    async update(dto:CreateJewelleryCatdto,catID:string, shopID:string){
+    async update(dto: CreateJewelleryCatdto, catID: string, shopID: string) {
+        const formattedDto = {
+            ...dto,
+            ...(dto.name && { name: this.formatName(dto.name) }),
+        };
         return this.prisma.jewelleryCategory.update({
-            where:{shop_id:shopID, id:catID},
-            data:dto,
-        })
+            where: { shop_id: shopID, id: catID },
+            data: formattedDto,
+        });
     }
 
-    async delete(catID:string , shopID:string){
+    async delete(catID: string, shopID: string) {
         return this.prisma.jewelleryCategory.delete({
-            where:{shop_id:shopID , id:catID}
-        })
+            where: { shop_id: shopID, id: catID },
+        });
     }
 }

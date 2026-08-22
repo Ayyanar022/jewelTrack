@@ -84,15 +84,25 @@ export default function CategoriesPage() {
     setShowForm(true);
   };
 
+  const formatCategoryName = (name: string) => {
+    if (!name) return '';
+    return name
+      .trim()
+      .split(/\s+/)
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+      .join(' ');
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name.trim()) {
+    const formattedName = formatCategoryName(form.name);
+    if (!formattedName) {
       toast.error('Enter category name');
       return;
     }
 
     save({
-      name: form.name.trim(),
+      name: formattedName,
       metal: form.metal,
       ...(form.default_wastage && { default_wastage: Number(form.default_wastage) }),
       ...(form.default_making_charge && { default_making_charge: Number(form.default_making_charge) }),

@@ -13,6 +13,7 @@ import { SettingsModule } from './settings/settings.module';
 import { PlanModule } from './plan/plan.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { UserModule } from './user/user.module';
+import { LoanModule } from './loan/loan.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { UserModule } from './user/user.module';
     PlanModule,
     SubscriptionModule,
     UserModule,
+    LoanModule,
   ],
   controllers: [AppController],
   providers: [AppService],

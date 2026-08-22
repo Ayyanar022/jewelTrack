@@ -293,10 +293,12 @@ model StockTransaction {
   model LoanCollateralItem {
     id String  @id @default(uuid())
     loan_id String 
-    loan JewelLoan @relation(fields:[loan_id] , references:[id]) 
+    loan JewelLoan @relation(fields:[loan_id] , references:[id], onDelete: Cascade) 
     description  String 
     purity  Purity?   
     pieces  Int
+    gross_weight Float? @default(0)
+    net_weight Float? @default(0)
   }
 
 

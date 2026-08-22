@@ -134,7 +134,7 @@ export default function GoldLoanPage() {
             className="bg-slate-900 hover:bg-slate-800 text-white font-black text-xs h-9 px-4 rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
           >
             <Plus className="w-4 h-4 stroke-[3]" />
-            <span>+ New Pledge</span>
+            <span>New Pledge</span>
           </Button>
         </div>
       </div>

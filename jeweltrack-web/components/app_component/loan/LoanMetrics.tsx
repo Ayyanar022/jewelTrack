@@ -53,7 +53,7 @@ export default function LoanMetrics({ stats, period, onPeriodChange }: LoanMetri
             <Coins className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-xs text-slate-500 font-bold uppercase tracking-wider">Active Pledges</div>
+            <div className="text-xs text-slate-600 font-bold uppercase tracking-wider">Active Pledges</div>
             <div className="text-xl font-black text-slate-900">{stats?.active_loans_count ?? 0} Loans</div>
           </div>
         </div>
@@ -64,7 +64,7 @@ export default function LoanMetrics({ stats, period, onPeriodChange }: LoanMetri
             ₹
           </div>
           <div>
-            <div className="text-xs text-slate-500 font-bold uppercase tracking-wider">Principal Lent (அசல்)</div>
+            <div className="text-xs text-slate-600 font-bold uppercase tracking-wider">Principal Lent (அசல்)</div>
             <div className="text-xl font-black text-emerald-800">
               ₹{(stats?.total_principal_lent ?? 0).toLocaleString('en-IN')}
             </div>
@@ -77,7 +77,7 @@ export default function LoanMetrics({ stats, period, onPeriodChange }: LoanMetri
             %
           </div>
           <div>
-            <div className="text-xs text-slate-500 font-bold uppercase tracking-wider">Monthly Interest</div>
+            <div className="text-xs text-slate-600 font-bold uppercase tracking-wider">Monthly Interest</div>
             <div className="text-xl font-black text-blue-800">
               ₹{(stats?.monthly_accruing_interest ?? 0).toLocaleString('en-IN')}/mo
             </div>
@@ -87,7 +87,7 @@ export default function LoanMetrics({ stats, period, onPeriodChange }: LoanMetri
         {/* Safe Gold & Silver Vault Weights */}
         <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-col justify-center gap-1">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Safe Vault Weights</span>
+            <span className="text-[11px] text-slate-600 font-bold uppercase tracking-wider">Safe Vault Weights</span>
             <Scale className="w-4 h-4 text-gold" />
           </div>
           <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-100">

@@ -140,6 +140,7 @@ export default function CustomerLoans({ customerId }: CustomerLoansProps) {
             <table className="w-full text-left text-sm">
               <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-xs border-b border-slate-200">
                 <tr>
+                  <th className="px-4 py-3">#</th>
                   <th className="px-4 py-3">Loan #</th>
                   <th className="px-4 py-3">Pledged Ornaments</th>
                   <th className="px-4 py-3 text-right">Net Wt</th>
@@ -151,14 +152,15 @@ export default function CustomerLoans({ customerId }: CustomerLoansProps) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {loans.map((loan) => {
+                {loans.map((loan,i) => {
                   const isActive = loan.status === 'ACTIVE';
 
                   return (
                     <tr key={loan.id} className="hover:bg-slate-50/80 transition-colors">
+                      <td className='px-3  w-10 text-cen'>{i+1}</td>
                       <td className="px-4 py-3.5">
-                        <div className="font-mono text-gold font-black text-sm">{loan.loan_number}</div>
-                        <div className="text-xs text-slate-500">
+                        <div className="font-mono text-gold-dark font-black text-base">{loan.loan_number}</div>
+                        <div className="text-[13px] text-slate-500">
                           {new Date(loan.loan_date).toLocaleDateString('en-IN')}
                         </div>
                       </td>

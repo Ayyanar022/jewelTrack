@@ -157,16 +157,16 @@ export default function GoldLoanPage() {
               <table className="w-full text-left text-sm border-collapse border border-slate-200">
                 <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-xs">
                   <tr>
-                    <th className="px-3.5 py-2.5 w-10 text-center border border-slate-200">#</th>
-                    <th className="px-3.5 py-2.5 border border-slate-200">Loan No</th>
-                    <th className="px-3.5 py-2.5 border border-slate-200">Customer</th>
-                    <th className="px-3.5 py-2.5 border border-slate-200">Pledged Items</th>
-                    <th className="px-3.5 py-2.5 text-right border border-slate-200">Net Wt</th>
-                    <th className="px-3.5 py-2.5 text-right border border-slate-200">Principal</th>
-                    <th className="px-3.5 py-2.5 text-right border border-slate-200 bg-emerald-50/40">Rate / Mo</th>
-                    <th className="px-3.5 py-2.5 text-right border border-slate-200 bg-rose-50/40">Pending Interest</th>
-                    <th className="px-3.5 py-2.5 text-center border border-slate-200 w-20">Status</th>
-                    <th className="px-3.5 py-2.5 text-center border border-slate-200 w-36">Actions</th>
+                    <th className="px-3.5 py-2.5 text-[13px] w-10 text-center border border-slate-200">#</th>
+                    <th className="px-3.5 py-2.5 text-[13px] border border-slate-200">Loan No</th>
+                    <th className="px-3.5 py-2.5 text-[13px] border border-slate-200">Customer</th>
+                    <th className="px-3.5 py-2.5 text-[13px] border border-slate-200">Pledged Items</th>
+                    <th className="px-3.5 py-2.5 text-[13px] text-right border border-slate-200">Net Wt</th>
+                    <th className="px-3.5 py-2.5 text-[13px] text-right border border-slate-200">Principal</th>
+                    <th className="px-3.5 py-2.5 text-[13px] text-right border border-slate-200 bg-emerald-50/40">Rate / Mo</th>
+                    <th className="px-3.5 py-2.5 text-[13px] text-right border border-slate-200 bg-rose-50/40">Pending Interest</th>
+                    <th className="px-3.5 py-2.5 text-[13px] text-center border border-slate-200 w-20">Status</th>
+                    <th className="px-3.5 py-2.5 text-[13px] text-center border border-slate-200 w-36">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -238,7 +238,7 @@ export default function GoldLoanPage() {
                         </td>
 
                         {/* Weight */}
-                        <td className="px-3.5 py-2.5 text-right w-20 font-black text-slate-900 text-sm border border-slate-200">
+                        <td className="px-3.5 py-2.5 text-right w-24 font-black text-slate-900 text-sm border border-slate-200">
                           <div>{loan.net_weight} g</div>
                         </td>
 
@@ -262,15 +262,11 @@ export default function GoldLoanPage() {
 
                         {/* Accrued Interest */}
                         <td className="px-3.5 py-2.5 text-right w-32 border border-slate-200">
-                          {isActive ? (
-                            <>
+                          {isActive ? (                           
                               <div className="text-sm font-black text-rose-700">
                                 ₹{loan.pending_interest?.toLocaleString('en-IN')} - <span className='font-normal text-xs text-black  '> {loan.months_elapsed} Mo</span>
-                              </div>
-                              {/* <div className="text-xs text-slate-500 font-medium mt-0.5">
-                                {loan.months_elapsed} Mo ({loan.days_elapsed}d)
-                              </div> */}
-                            </>
+                              </div>                             
+                            
                           ) : (
                             <span className="text-emerald-700 font-bold text-xs">Settled</span>
                           )}

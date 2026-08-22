@@ -307,7 +307,7 @@ export default function StaffManagementPage() {
               <select
                 value={form.role}
                 onChange={(e) => setForm({ ...form, role: e.target.value as Role })}
-                className="w-full h-10 px-3 rounded-lg border border-input text-sm bg-white font-medium focus:ring-1 focus:ring-gold"
+                className="w-full h-10 px-3 rounded-lg border border-input text-sm bg-white font-medium focus:outline-none focus:border-slate-800 focus:ring-2 focus:ring-slate-900/10"
               >
                 <option value="CASHIER">CASHIER (Can create bills & accept payments)</option>
                 <option value="MANAGER">MANAGER (Can view reports, inventory, & create bills)</option>

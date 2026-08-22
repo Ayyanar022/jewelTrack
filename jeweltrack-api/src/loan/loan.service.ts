@@ -67,18 +67,25 @@ export class LoanService {
     const currentPrincipalBalance = Math.max(0, loan.loan_amount - totalPrincipalPaid);
 
     // Exact Indian Jeweller Month-by-Month Interest Accrual:
-    // For each running month cycle, interest is charged based on the principal balance at the START of that month cycle.
-    // If a principal repayment is made during a month, the reduced balance takes effect from the NEXT month cycle onward.
+    // Month 1 starts with the initial loan amount (e.g. ₹23,000 => ₹460).
+    // Month 2, 3, etc. starts with the principal remaining at the START of that cycle (after Month 1 repayments).
     let totalAccruedInterest = 0;
     for (let m = 1; m <= elapsedMonths; m++) {
-      const monthStartDate = new Date(startYear, startMonth + (m - 1), startDay);
-      const principalPaidBeforeMonth = (loan.loanRepayment || [])
-        .filter((r: any) => new Date(r.payment_date || r.created_at) < monthStartDate)
-        .reduce((sum: number, r: any) => sum + (r.principal_paid || 0), 0);
+      if (m === 1) {
+        const monthInterest = Math.round((loan.loan_amount * loan.interest_rate) / 100);
+        totalAccruedInterest += monthInterest;
+      } else {
+        const cycleStartDate = new Date(loanDate.getTime());
+        cycleStartDate.setMonth(cycleStartDate.getMonth() + (m - 1));
 
-      const principalAtMonthStart = Math.max(0, loan.loan_amount - principalPaidBeforeMonth);
-      const monthInterest = Math.round((principalAtMonthStart * loan.interest_rate) / 100);
-      totalAccruedInterest += monthInterest;
+        const principalPaidBeforeCycle = (loan.loanRepayment || [])
+          .filter((r: any) => new Date(r.payment_date || r.created_at) < cycleStartDate)
+          .reduce((sum: number, r: any) => sum + (r.principal_paid || 0), 0);
+
+        const principalAtCycleStart = Math.max(0, loan.loan_amount - principalPaidBeforeCycle);
+        const monthInterest = Math.round((principalAtCycleStart * loan.interest_rate) / 100);
+        totalAccruedInterest += monthInterest;
+      }
     }
 
     const monthlyInterestAmount = Math.round((currentPrincipalBalance * loan.interest_rate) / 100);

@@ -75,7 +75,7 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.9 0.015 80);
   --input: oklch(0.9 0.015 80);
-  --ring: oklch(0.58 0.12 60);
+  --ring: oklch(0.25 0.02 60);
   --radius: 0.625rem;
 
   /* Sidebar */
@@ -86,7 +86,7 @@
   --sidebar-accent: oklch(0.18 0.03 60);
   --sidebar-accent-foreground: oklch(0.85 0.04 80);
   --sidebar-border: oklch(0.2 0.02 60);
-  --sidebar-ring: oklch(0.58 0.12 60);
+  --sidebar-ring: oklch(0.4 0.02 60);
 
   /* JewelTrack brand colors */
   --gold: #C9920A;
@@ -102,13 +102,27 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring/20;
   }
   body {
     @apply bg-background text-foreground;
   }
   html {
     @apply font-sans;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="file"]),
+  textarea,
+  select {
+    @apply transition-all duration-150;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="file"]):focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: none;
+    border-color: var(--ring);
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--ring) 12%, transparent);
   }
 }
 

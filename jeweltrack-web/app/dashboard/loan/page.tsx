@@ -265,11 +265,11 @@ export default function GoldLoanPage() {
                           {isActive ? (
                             <>
                               <div className="text-sm font-black text-rose-700">
-                                ₹{loan.pending_interest?.toLocaleString('en-IN')}
+                                ₹{loan.pending_interest?.toLocaleString('en-IN')} - <span className='font-normal text-xs text-black  '> {loan.months_elapsed} Mo</span>
                               </div>
-                              <div className="text-xs text-slate-500 font-medium mt-0.5">
+                              {/* <div className="text-xs text-slate-500 font-medium mt-0.5">
                                 {loan.months_elapsed} Mo ({loan.days_elapsed}d)
-                              </div>
+                              </div> */}
                             </>
                           ) : (
                             <span className="text-emerald-700 font-bold text-xs">Settled</span>

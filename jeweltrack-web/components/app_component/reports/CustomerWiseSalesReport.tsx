@@ -1,227 +1,228 @@
-'use client'
+'use client';
 
-import { INRFormat } from "@/helper/INR_Formater"
-import api from "@/lib/axios"
-import { useQuery } from "@tanstack/react-query"
-  import { useEffect,  useState } from "react";
+import { INRFormat } from "@/helper/INR_Formater";
+import api from "@/lib/axios";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { exportToExcel, exportToCsv } from "@/lib/exportExcel";
+import { FileSpreadsheet, Download, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
+export default function CustomerWiseSalesReport() {
+  const [pageSize, setPageSize] = useState(10);
+  const [page, setPage] = useState(1);
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
 
+  const { data: customerReport, isLoading } = useQuery({
+    queryKey: ['customer-wise-sales-report', fromDate, toDate],
+    queryFn: () => api.get(`/reports/customer-wise-sales-report?from=${fromDate}&to=${toDate}`).then(r => r.data)
+  });
 
-const CustomerWiseSalesReport = () => {
+  const handleExportExcel = () => {
+    const exportData = (customerReport?.tableData || []).map((row: any) => ({
+      'Customer Name': row.customer_name,
+      'Total Bills': row.billCount,
+      'Total Purchases (₹)': row.totalPurchase,
+      'Paid Amount (₹)': row.paidAmount,
+      'Pending Balance (₹)': row.pendingAmount,
+    }));
+    exportToExcel(exportData, 'JewelTrack_Customer_Wise_Sales', 'Customer Sales');
+  };
 
+  const handleExportCsv = () => {
+    const exportData = (customerReport?.tableData || []).map((row: any) => ({
+      'Customer Name': row.customer_name,
+      'Total Bills': row.billCount,
+      'Total Purchases (₹)': row.totalPurchase,
+      'Paid Amount (₹)': row.paidAmount,
+      'Pending Balance (₹)': row.pendingAmount,
+    }));
+    exportToCsv(exportData, 'JewelTrack_Customer_Wise_Sales');
+  };
 
-const ROWS_PER_PAGE = 5;
+  const tableData = customerReport?.tableData || [];
+  const totalItems = tableData.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+  const startIndex = (page - 1) * pageSize;
+  const paginatedData = tableData.slice(startIndex, startIndex + pageSize);
 
-const [page, setPage] = useState(1);
-
-const [fromDate, setFromDate] = useState("");
-const [toDate, setToDate] = useState("");
-
-  const {data: pendingPAyments } = useQuery({
-    queryKey:['customer-wise-sales-report',fromDate,toDate],
-    queryFn:()=>api.get(`/reports/customer-wise-sales-report?from=${fromDate}&to=${toDate}`).then(r=>r.data)
-  })
-
-    // const gstCards  = [
-     
-    //   {title:'Total Pending Amount',data:INRFormat(pendingPAyments?.cardData.totalPendingAmount ||0)  , },
-    //   {title:'Pending Bill Count',data:pendingPAyments?.cardData.pendingBills||0  , },
-    //   {title:'Customer With Pending',data:pendingPAyments?.cardData.customersWithPending ||0  , },
-    // ]
-
-
-  const totalPages = Math.ceil( (pendingPAyments?.tableData?.length ?? 0) / ROWS_PER_PAGE );
-  const paginatedData = pendingPAyments?.tableData.slice(
-    (page - 1) * ROWS_PER_PAGE,
-    page * ROWS_PER_PAGE
-  );
-
-  // reset page when filter 
-      useEffect(() => {
-      setPage(1);
-    }, [fromDate, toDate]);
-
-    // console.log("gst report",pendingPAyments)
-
-
-
-    console.log(pendingPAyments)
-
+  useEffect(() => {
+    setPage(1);
+  }, [fromDate, toDate, pageSize]);
 
   return (
-    <div className="">
-        {/* Filter */}
-        <section className="bg-white rounded-xl border p-5 mb-6">
+    <div className="space-y-3.5">
+      {/* Compact Filter & Export Bar */}
+      <section className="bg-white rounded-2xl border border-slate-200 p-3 sm:px-4 sm:py-3 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-2.5 items-center">
+          <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1">
+            <span className="text-xs font-bold text-slate-500">From:</span>
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="bg-transparent text-xs font-bold text-slate-900 focus:outline-none cursor-pointer"
+            />
+          </div>
 
-        <div className="flex flex-wrap gap-4 items-end">
+          <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1">
+            <span className="text-xs font-bold text-slate-500">To:</span>
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="bg-transparent text-xs font-bold text-slate-900 focus:outline-none cursor-pointer"
+            />
+          </div>
 
-            <div>
-                <label className="text-sm text-gray-500 block mb-1">
-                    From
-                </label>
-
-                <input
-                    type="date"
-                    value={fromDate}
-                    onChange={(e) => setFromDate(e.target.value)}
-                    className="border rounded-lg px-3 py-2"
-                />
-            </div>
-
-            <div>
-                <label className="text-sm text-gray-500 block mb-1">
-                    To
-                </label>
-
-                <input
-                    type="date"
-                    value={toDate}
-                    onChange={(e) => setToDate(e.target.value)}
-                    className="border rounded-lg px-3 py-2"
-                />
-            </div>
-
+          {(fromDate || toDate) && (
             <button
-                onClick={() => {
-                    setFromDate("");
-                    setToDate("");
-                }}
-                className="px-4 py-2 rounded-lg bg-slate-200 hover:bg-slate-300"
+              onClick={() => {
+                setFromDate("");
+                setToDate("");
+              }}
+              className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 transition-colors cursor-pointer"
             >
-                Clear
+              Clear
             </button>
-
+          )}
         </div>
 
-    </section>
-
-
-
-        
-
-        {/* Stats */}
-       {/* <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-5 gap-x-8 my-5">
- 
-
-        {gstCards?.map((item:any, i:number) => (
-          <div
-            key={i}
-            className="bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 p-5"
-          >
-            <h2 className="text-2xl font-bold text-slate-900">
-              {item.data} 
-            </h2>
-
-            <p className="mt-2 text-sm text-slate-500 font-medium">
-              {item.title}
-            </p>
-          </div>
-        ))}
-
-        
-    
-
-      </section> */}
-
-        {/* Table data */}
-      <section className="bg-white rounded-xl border border-slate-200  shadow-sm overflow-hidden">
-
-        <div className="px-6 py-4 border-b border-slate-200">
-          <h2 className="text-lg font-semibold text-slate-800">
-            Customer Wise Sale Report
-          </h2>
-        </div>
-
-        <div className="overflow-x-auto">
-
-          <table className="min-w-full text-sm">
-
-            <thead className="bg-slate-100 sticky top-0">
-
-              <tr className="text-slate-700">
-
-                <th className="px-5 py-3 text-center ">#</th>
-                <th className="px-5 py-3 text-left pl-3">Customer </th>
-                <th className="px-5 py-3 text-center">Bill Count</th>
-                <th className="px-5 py-3 text-center">Total Purchase</th>
-                <th className="px-5 py-3 text-center">Paid Amount</th>
-                <th className="px-5 py-3 text-center">Pending Amount</th>
-
-              </tr>
-
-            </thead>    
-                    <tbody>
-                    {paginatedData?.map((row: any, i: number) => (
-                        <tr
-                        key={i}
-                        className="border-t border-slate-100 hover:bg-blue-50 even:bg-slate-50"
-                        >
-                        <td className="px-5 py-3 text-center">
-                            {(page - 1) * ROWS_PER_PAGE + i + 1}
-                        </td>
-
-
-                        <td className="px-5 py-3 text-left pl-3">
-                            {row.customer_name}
-                        </td>
-
-                        <td className="px-5 py-3 text-center">
-                            {row.billCount}
-                        </td>
-
-                        <td className="px-5 py-3 text-center">
-                            {INRFormat(row.totalPurchase)}
-                        </td>
-
-                        <td className="px-5 py-3 text-center">
-                            {INRFormat(row.paidAmount)} 
-                        </td>
-                        <td className="px-5 py-3 text-center">
-                            
-                            {INRFormat(row.pendingAmount)}
-                        </td>
-
-                      
-                        </tr>
-                    ))}
-                    </tbody>
-
-          </table>
-
-        </div>
-         
-          <div className="flex items-center justify-between px-5 py-4 border-t">
-
-      <span className="text-sm text-gray-500">
-          Page {page} of {totalPages || 1}
-      </span>
-
-      <div className="flex gap-2">
-
+        <div className="flex items-center gap-2">
           <button
-              disabled={page === 1}
-              onClick={() => setPage((p) => p - 1)}
-              className="px-4 py-2 border rounded-lg disabled:opacity-40"
+            onClick={handleExportExcel}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-xs cursor-pointer transition-colors"
           >
-              Previous
+            <FileSpreadsheet className="w-3.5 h-3.5" />
+            <span>Excel</span>
           </button>
-
           <button
-              disabled={page === totalPages || totalPages === 0}
-              onClick={() => setPage((p) => p + 1)}
-              className="px-4 py-2 border rounded-lg disabled:opacity-40"
+            onClick={handleExportCsv}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-300 hover:bg-slate-100 font-bold text-xs text-slate-700 cursor-pointer transition-colors"
           >
-              Next
+            <Download className="w-3.5 h-3.5" />
+            <span>CSV</span>
           </button>
-
-      </div>
-
-          </div>
-
+        </div>
       </section>
-      
-    </div>
-  )
-}
 
-export default CustomerWiseSalesReport
+      {/* Customer Sales Table */}
+      <section className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div className="px-5 py-3 border-b border-slate-200 flex items-center justify-between">
+          <h2 className="text-sm font-bold text-slate-800">
+            Customer Lifetime Sales & Dues
+          </h2>
+          <span className="text-xs text-slate-500 font-medium">Aggregated Purchases & Ledger Balances</span>
+        </div>
+
+        {isLoading ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="w-8 h-8 animate-spin text-gold" />
+          </div>
+        ) : totalItems === 0 ? (
+          <div className="text-center py-16 text-slate-400 text-sm font-bold">
+            No customer purchase records found for the selected period
+          </div>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-xs border-b border-slate-200">
+                  <tr>
+                    <th className="px-5 py-3 w-12 text-center">#</th>
+                    <th className="px-5 py-3">Customer Name</th>
+                    <th className="px-5 py-3 text-center">Bill Count</th>
+                    <th className="px-5 py-3 text-right">Total Purchases (₹)</th>
+                    <th className="px-5 py-3 text-right">Paid Amount (₹)</th>
+                    <th className="px-5 py-3 text-right">Pending Balance (₹)</th>
+                  </tr>
+                </thead>
+
+                <tbody className="divide-y divide-slate-100">
+                  {paginatedData.map((row: any, i: number) => (
+                    <tr
+                      key={i}
+                      className="hover:bg-slate-50 transition-colors"
+                    >
+                      <td className="px-5 py-3 text-sm font-bold text-slate-500 text-center">
+                        {startIndex + i + 1}
+                      </td>
+                      <td className="px-5 py-3 text-base font-black text-slate-900">
+                        {row.customer_name}
+                      </td>
+                      <td className="px-5 py-3 text-center text-sm font-black text-slate-800">
+                        {row.billCount}
+                      </td>
+                      <td className="px-5 py-3 text-right text-base font-black text-slate-900">
+                        {INRFormat(row.totalPurchase || 0)}
+                      </td>
+                      <td className="px-5 py-3 text-right text-sm font-black text-emerald-700">
+                        {INRFormat(row.paidAmount || 0)}
+                      </td>
+                      <td className="px-5 py-3 text-right text-sm font-black text-rose-800">
+                        {INRFormat(row.pendingAmount || 0)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination Footer */}
+            <div className="px-5 py-3 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-600 bg-slate-50/50">
+              <div className="flex items-center gap-1.5">
+                <span>Showing</span>
+                <strong className="text-slate-900 font-bold">
+                  {totalItems > 0 ? startIndex + 1 : 0} - {Math.min(startIndex + pageSize, totalItems)}
+                </strong>
+                <span>of</span>
+                <strong className="text-slate-900 font-bold">{totalItems}</strong>
+                <span>customers</span>
+              </div>
+
+              <div className="flex items-center gap-3 self-end sm:self-auto">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-slate-500 font-medium">Rows:</span>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => setPageSize(Number(e.target.value))}
+                    className="h-8 px-2 rounded-lg border border-slate-300 bg-white font-bold text-slate-900 focus:outline-none cursor-pointer"
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <button
+                    disabled={page <= 1}
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    className="h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer font-bold flex items-center gap-0.5 transition-all"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                    <span>Prev</span>
+                  </button>
+
+                  <span className="px-2.5 text-slate-800 font-bold">
+                    {page} / {totalPages}
+                  </span>
+
+                  <button
+                    disabled={page >= totalPages}
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    className="h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer font-bold flex items-center gap-0.5 transition-all"
+                  >
+                    <span>Next</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+      </section>
+    </div>
+  );
+}

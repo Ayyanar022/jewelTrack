@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/axios';
@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Users, Plus, Search, Eye, Pencil, X, Loader2, Phone, MapPin } from 'lucide-react';
+import { Users, Plus, Search, Eye, Pencil, X, Loader2, Phone, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface Customer {
   id: string;
@@ -34,6 +34,10 @@ export default function CustomersPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
+  // Pagination states
+  const [pageSize, setPageSize] = useState<number>(7);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+
   const { data: customers = [], isLoading } = useQuery<Customer[]>({
     queryKey: ['customers', search],
     queryFn: () =>
@@ -42,6 +46,19 @@ export default function CustomersPage() {
         : api.get(`/customer/all`).then((r) => r.data),
     gcTime: 5 * 60 * 1000,
   });
+
+  // Reset page to 1 when search or page size changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, pageSize]);
+
+  // Derived Paginated Data
+  const totalItems = customers.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+  const startIndex = (currentPage - 1) * pageSize;
+  const paginatedCustomers = useMemo(() => {
+    return customers.slice(startIndex, startIndex + pageSize);
+  }, [customers, startIndex, pageSize]);
 
   const { mutate: createCustomer, isPending: creating } = useMutation({
     mutationFn: (data: any) => api.post('/customer', data),
@@ -124,16 +141,16 @@ export default function CustomersPage() {
     'h-11 text-base font-bold text-slate-900 border-slate-300 focus-visible:border-slate-800 focus-visible:ring-2 focus-visible:ring-slate-200 transition-all';
 
   return (
-    <div className="flex flex-col gap-5 max-w-7xl mx-auto px-8 pb-20">
+    <div className="flex flex-col gap-4 max-w-7xl mx-auto px-8 pb-6 ">
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs">
         <div>
           <h1 className="text-xl font-black text-slate-900 flex items-center gap-2">
             <Users className="w-5 h-5 text-amber-700" />
             <span>Customer Management</span>
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Customer directory with purchase history, billing records, and gold loan pledges.
+            Directory with purchase history, billing records, and gold loan pledges.
           </p>
         </div>
 
@@ -145,7 +162,7 @@ export default function CustomersPage() {
               placeholder="Search name, phone, village..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 h-10 text-sm font-medium border-slate-300"
+              className={ `pl-9 h-10 text-sm font-medium border-slate-300 ${inputClass}`}
             />
           </div>
 
@@ -167,7 +184,7 @@ export default function CustomersPage() {
 
       {/* Create / Edit Customer Form Card */}
       {showForm && (
-        <div className="bg-white border border-slate-200 shadow-xs rounded-2xl p-6 space-y-4">
+        <div className="bg-white border border-slate-200 shadow-xs rounded-2xl p-5 space-y-4">
           <div className="flex items-center justify-between border-b border-slate-200 pb-3">
             <h2 className="text-lg font-black text-slate-900">
               {editingId ? 'Edit Customer Details' : 'New Customer Registration'}
@@ -232,7 +249,7 @@ export default function CustomersPage() {
               <Button
                 type="submit"
                 disabled={creating || updating}
-                className="bg-slate-900 hover:bg-slate-800 text-white font-bold h-11 px-6 text-sm shadow-xs cursor-pointer"
+                className="bg-slate-900 hover:bg-slate-800 text-white font-bold h-10 px-5 text-sm shadow-xs cursor-pointer"
               >
                 {creating || updating ? 'Saving...' : editingId ? 'Update Customer' : 'Save Customer'}
               </Button>
@@ -240,7 +257,7 @@ export default function CustomersPage() {
                 type="button"
                 variant="outline"
                 onClick={resetForm}
-                className="h-11 px-5 text-sm font-bold text-slate-700 border-slate-300 cursor-pointer"
+                className="h-10 px-4 text-sm font-bold text-slate-700 border-slate-300 cursor-pointer"
               >
                 Cancel
               </Button>
@@ -249,93 +266,153 @@ export default function CustomersPage() {
         </div>
       )}
 
-      {/* Customer Master Table */}
+      {/* Customer Master Table with Compact Padding and Pagination */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-          <div className="text-base font-bold text-slate-800">
-            Total Customers: <span className="font-black text-slate-900">{customers.length}</span>
+        <div className="px-5 py-3 border-b border-slate-200 flex items-center justify-between">
+          <div className="text-sm font-bold text-slate-800">
+            Total Customers: <span className="font-black text-slate-900">{totalItems}</span>
           </div>
           <span className="text-xs text-slate-500 font-medium">Registered Showroom Clients</span>
         </div>
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-20">
+          <div className="flex items-center justify-center py-16">
             <Loader2 className="w-8 h-8 animate-spin text-gold" />
           </div>
-        ) : customers.length === 0 ? (
-          <div className="text-center py-20 text-slate-400 space-y-2">
+        ) : totalItems === 0 ? (
+          <div className="text-center py-16 text-slate-400 space-y-2">
             <Users className="w-10 h-10 mx-auto opacity-30 text-gold" />
             <p className="text-sm font-bold text-slate-700">
               {search ? 'No customers match your search.' : 'No customers registered yet.'}
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-xs border-b border-slate-200">
-                <tr>
-                  <th className="px-6 py-4">#</th>
-                  <th className="px-6 py-4">Customer Name</th>
-                  <th className="px-6 py-4">Mobile Number</th>
-                  <th className="px-6 py-4">Village / Town</th>
-                  <th className="px-6 py-4">Address</th>
-                  <th className="px-6 py-4 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {customers.map((c: Customer, i: number) => (
-                  <tr key={c.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-6 py-4 text-sm font-bold text-slate-500">{i + 1}</td>
-                    <td className="px-6 py-4">
-                      <div
-                        onClick={() => router.push(`/dashboard/customers/customerView?id=${c.id}`)}
-                        className="text-base font-black text-slate-900 hover:text-amber-800 cursor-pointer transition-colors"
-                      >
-                        {c.name}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-bold text-slate-800">
-                      <span className="inline-flex items-center gap-1.5">
-                        <Phone className="w-3.5 h-3.5 text-emerald-700" />
-                        <span>{c.phone}</span>
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-bold text-slate-700">
-                      {c.village ? (
-                        <span className="inline-flex items-center gap-1.5">
-                          <MapPin className="w-3.5 h-3.5 text-rose-600" />
-                          <span>{c.village}</span>
-                        </span>
-                      ) : (
-                        '—'
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-600 max-w-[260px] truncate">
-                      {c.address || '—'}
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          onClick={() => router.push(`/dashboard/customers/customerView?id=${c.id}`)}
-                          className="p-2 rounded-lg border border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
-                          title="View Customer Profile"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleEdit(c)}
-                          className="p-2 rounded-lg border border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
-                          title="Edit Customer Details"
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-xs border-b border-slate-200">
+                  <tr>
+                    <th className="px-5 py-2.5 w-12 text-center">#</th>
+                    <th className="px-5 py-2.5">Customer Name</th>
+                    <th className="px-5 py-2.5">Mobile Number</th>
+                    <th className="px-5 py-2.5">Village / Town</th>
+                    <th className="px-5 py-2.5">Address</th>
+                    <th className="px-5 py-2.5 text-center w-24">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {paginatedCustomers.map((c: Customer, i: number) => (
+                    <tr key={c.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-5 py-2.5 text-sm font-bold text-slate-500 text-center">
+                        {startIndex + i + 1}
+                      </td>
+                      <td className="px-5 py-2.5">
+                        <div
+                          onClick={() => router.push(`/dashboard/customers/customerView?id=${c.id}`)}
+                          className="text-sm font-black text-slate-900 hover:text-amber-800 cursor-pointer transition-colors"
+                        >
+                          {c.name}
+                        </div>
+                      </td>
+                      <td className="px-5 py-2.5 text-sm font-bold text-slate-800">
+                        <span className="inline-flex items-center gap-1.5">
+                          <Phone className="w-3 h-3 text-emerald-700" />
+                          <span>{c.phone}</span>
+                        </span>
+                      </td>
+                      <td className="px-5 py-2.5 text-sm font-bold text-slate-700">
+                        {c.village ? (
+                          <span className="inline-flex items-center gap-1.5">
+                            <MapPin className="w-3 h-3 text-rose-600" />
+                            <span>{c.village}</span>
+                          </span>
+                        ) : (
+                          '—'
+                        )}
+                      </td>
+                      <td className="px-5 py-2.5 text-sm text-slate-600 max-w-[240px] truncate">
+                        {c.address || '—'}
+                      </td>
+                      <td className="px-5 py-2.5 text-center">
+                        <div className="flex items-center justify-center gap-1.5">
+                          <button
+                            onClick={() => router.push(`/dashboard/customers/customerView?id=${c.id}`)}
+                            className="p-1.5 rounded-lg border border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                            title="View Customer Profile"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleEdit(c)}
+                            className="p-1.5 rounded-lg border border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                            title="Edit Customer Details"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination Footer */}
+            <div className="px-5 py-3 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-600 bg-slate-50/50">
+              <div className="flex items-center gap-2">
+                <span>Showing</span>
+                <strong className="text-slate-900 font-bold">
+                  {totalItems > 0 ? startIndex + 1 : 0} - {Math.min(startIndex + pageSize, totalItems)}
+                </strong>
+                <span>of</span>
+                <strong className="text-slate-900 font-bold">{totalItems}</strong>
+                <span>customers</span>
+              </div>
+
+              <div className="flex items-center gap-3 self-end sm:self-auto">
+                {/* Page Size Selector */}
+                <div className="flex items-center gap-1.5">
+                  <span className="text-slate-500 font-medium">Rows:</span>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => setPageSize(Number(e.target.value))}
+                    className="h-8 px-2 rounded-lg border border-slate-300 bg-white font-bold text-slate-900 focus:outline-none focus:border-slate-800 cursor-pointer"
+                  >
+                    <option value={5}>5</option>
+                    <option value={7}>7</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                  </select>
+                </div>
+
+                {/* Page Buttons */}
+                <div className="flex items-center gap-1">
+                  <button
+                    disabled={currentPage <= 1}
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    className="h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer font-bold flex items-center gap-1 transition-all"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                    <span>Prev</span>
+                  </button>
+
+                  <span className="px-2.5 py-1 text-slate-800 font-bold">
+                    {currentPage} / {totalPages}
+                  </span>
+
+                  <button
+                    disabled={currentPage >= totalPages}
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    className="h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer font-bold flex items-center gap-1 transition-all"
+                  >
+                    <span>Next</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </>
         )}
       </div>
     </div>

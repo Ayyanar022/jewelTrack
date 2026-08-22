@@ -22,7 +22,7 @@ export class InventoryController {
     }
 
     @Get('inventory-ledger')
-    getLedger(@Query('page') page:any , @Request() req:any){
-        return this.invenToryService.getLedger(page , req.user.shop_id)
+    getLedger(@Query('page') page: any, @Query('limit') limit: any, @Request() req: any) {
+        return this.invenToryService.getLedger(page, req.user.shop_id, limit);
     }
 }

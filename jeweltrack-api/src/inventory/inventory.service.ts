@@ -54,18 +54,34 @@ export class InventoryService {
 
     // }
 
-    async getLedger(page:number,shopId:string){
-        
-        const limit =10
-        const skip = (page -1) * limit
-        return this.prisma.inventoryStockEntry.findMany({
-            where:{shop_id:shopId},
-            include : {category:{
-                select:{name:true}
-            }},
-            orderBy:{created_at:"desc"},
-            skip,
-            take:limit,        
-        })
+    async getLedger(page: number = 1, shopId: string, limitNum: number = 10) {
+        const pageNum = Math.max(1, Number(page) || 1);
+        const limit = Math.max(1, Number(limitNum) || 10);
+        const skip = (pageNum - 1) * limit;
+
+        const [items, total] = await Promise.all([
+            this.prisma.inventoryStockEntry.findMany({
+                where: { shop_id: shopId },
+                include: {
+                    category: {
+                        select: { name: true },
+                    },
+                },
+                orderBy: { created_at: "desc" },
+                skip,
+                take: limit,
+            }),
+            this.prisma.inventoryStockEntry.count({
+                where: { shop_id: shopId },
+            }),
+        ]);
+
+        return {
+            items,
+            total,
+            page: pageNum,
+            limit,
+            totalPages: Math.ceil(total / limit) || 1,
+        };
     }
 }

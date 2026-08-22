@@ -87,7 +87,7 @@ export default function Purchase({ id }: { id: string }) {
                 <td className="px-6 py-4 text-center">
                   <div className="flex items-center justify-center gap-2">
                     <Link
-                      href={`/dashboard/billing/${b.id}`}
+                      href={`/dashboard/billing/${b.id}?from=customer&customerId=${id}`}
                       className="p-2 rounded-lg border border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
                       title="View Bill Details"
                     >

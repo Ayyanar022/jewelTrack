@@ -20,6 +20,12 @@ export class SubscriptionController {
     return this.subscriptionService.getPricingTable();
   }
 
+  // 2. Public: Get Platform Free Trial Policy (Days & Plan)
+  @Get('trial-policy')
+  getTrialPolicy() {
+    return this.subscriptionService.getPublicTrialPolicy();
+  }
+
   // 2. Current Shop Subscription with usage meters & days left
   @UseGuards(JwtAuthGuard)
   @Get('current')

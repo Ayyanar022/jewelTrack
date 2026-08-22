@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Eye, EyeOff, Loader2, ShieldCheck, Sparkles, Receipt, Coins, ArrowRight, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
@@ -18,6 +18,18 @@ export default function LoginPage() {
   const [form, setForm] = useState({ phone: '', password: '' });
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+
+  // Fetch Dynamic Platform Trial Policy
+  const { data: trialPolicy } = useQuery<{ trial_days: number; trial_plan: string }>({
+    queryKey: ['public-trial-policy'],
+    queryFn: async () => {
+      const res = await api.get('/subscription/trial-policy');
+      return res.data;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const trialDays = trialPolicy?.trial_days ?? 14;
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: typeof form) => api.post('/auth/login', data),
@@ -264,7 +276,7 @@ export default function LoginPage() {
                 href="/register"
                 className="font-bold text-slate-900 hover:text-amber-800 underline underline-offset-4 cursor-pointer transition-colors"
               >
-                Register your shop (14-day free trial)
+                Register your shop ({trialDays}-day free trial)
               </Link>
             </p>
           </div>

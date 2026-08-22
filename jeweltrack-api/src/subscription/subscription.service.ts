@@ -343,6 +343,15 @@ export class SubscriptionService {
     });
   }
 
+  // 8. Public Trial Policy for landing & auth pages
+  async getPublicTrialPolicy(): Promise<{ trial_days: number; trial_plan: string }> {
+    const [trial_days, trial_plan] = await Promise.all([
+      this.getTrialDays(),
+      this.getTrialPlan(),
+    ]);
+    return { trial_days, trial_plan };
+  }
+
   // 8. Limit and Feature checks
   async checkLimit(shopId: string, key: 'max_users' | 'max_invoices_per_month' | 'max_branches') {
     if (!shopId) return null;

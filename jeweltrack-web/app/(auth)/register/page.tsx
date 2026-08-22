@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Eye, EyeOff, Loader2, Sparkles, ShieldCheck, CheckCircle2, AlertCircle, ArrowRight, Store, User, Phone, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -24,6 +24,19 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // Fetch Dynamic Platform Trial Policy from Backend
+  const { data: trialPolicy } = useQuery<{ trial_days: number; trial_plan: string }>({
+    queryKey: ['public-trial-policy'],
+    queryFn: async () => {
+      const res = await api.get('/subscription/trial-policy');
+      return res.data;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const trialDays = trialPolicy?.trial_days ?? 14;
+  const trialPlan = trialPolicy?.trial_plan || 'PRO';
+
   const formatName = (text: string) => {
     if (!text) return '';
     return text
@@ -42,7 +55,7 @@ export default function RegisterPage() {
         password: data.password,
       }),
     onSuccess: () => {
-      toast.success('🎉 Shop registered successfully! Please log in to start your 14-day trial.');
+      toast.success(`🎉 Shop registered successfully! Please log in to start your ${trialDays}-day free trial.`);
       router.push('/login');
     },
     onError: (e: any) => {
@@ -110,7 +123,7 @@ export default function RegisterPage() {
         <div className="relative z-10 my-auto py-10 space-y-6">
           <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-400/30 px-3.5 py-1.5 rounded-full text-xs font-bold text-amber-300">
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>14-Day Free Trial • No Credit Card Required</span>
+            <span>{trialDays}-Day Free Trial ({trialPlan} Tier) • No Credit Card Required</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl font-black text-white leading-tight tracking-tight">
@@ -118,7 +131,7 @@ export default function RegisterPage() {
           </h2>
 
           <p className="text-sm text-slate-300 leading-relaxed max-w-md">
-            Get instant full access to all professional jewellery modules for 14 days free. Set up your shop in under 2 minutes.
+            Get instant full access to all {trialPlan} plan features for {trialDays} days free. Set up your store in under 2 minutes.
           </p>
 
           <div className="space-y-3 pt-2">
@@ -140,7 +153,7 @@ export default function RegisterPage() {
         {/* Bottom */}
         <div className="relative z-10 pt-6 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
           <span>Instant Activation</span>
-          <span className="text-amber-400 font-medium">Full Feature Access Included</span>
+          <span className="text-amber-400 font-medium">Full {trialPlan} Plan Access Included</span>
         </div>
       </div>
 
@@ -153,7 +166,7 @@ export default function RegisterPage() {
               Register Your Jewellery Shop
             </h1>
             <p className="text-sm text-slate-600 font-medium">
-              Create your store account to start your free 14-day trial.
+              Create your store account to start your free {trialDays}-day trial ({trialPlan} tier).
             </p>
           </div>
 
@@ -316,7 +329,7 @@ export default function RegisterPage() {
                 </span>
               ) : (
                 <span className="flex items-center justify-center gap-2">
-                  <span>Create Account (14-Day Free Trial)</span>
+                  <span>Create Account ({trialDays}-Day Free Trial)</span>
                   <ArrowRight className="w-4 h-4" />
                 </span>
               )}

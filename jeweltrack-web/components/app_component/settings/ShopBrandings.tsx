@@ -6,9 +6,11 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
+
 const ShopBranding = ({ logo }: any) => {
   const queryClient = useQueryClient();
-  const logoImg = logo ? `http://localhost:4000${logo}` : null;
+  const logoImg = logo ? `${API_BASE}${logo}` : null;
 
   const [preview, setPreview] = useState<string | null>(logoImg);
 

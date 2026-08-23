@@ -10,7 +10,7 @@ function getCookie(name:string):string|null{
 }
 
 const api = axios.create({
-    baseURL:'http://localhost:4000',
+    baseURL:process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002',
 })
 
 // automatically added token in every request 

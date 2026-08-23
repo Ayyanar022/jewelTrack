@@ -106,15 +106,28 @@ export default function RegisterPage() {
 
         {/* Top Header */}
         <div className="relative z-10">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-400 font-black text-xl shadow-inner">
-              <Sparkles className="w-5 h-5 text-amber-400" />
+          <div className="flex items-center gap-3.5">
+            <div className="relative group">
+              {/* Ambient pulsing luxury gold glow */}
+              <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 opacity-60 blur-xs animate-pulse" />
+              
+              {/* Animated diamond icon badge */}
+              <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-b from-slate-900 via-slate-950 to-black border border-amber-400/60 flex items-center justify-center text-amber-400 shadow-xl shadow-black">
+                <Sparkles className="w-6 h-6 text-amber-400 animate-[spin_10s_linear_infinite]" />
+                <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-amber-300 animate-ping" />
+              </div>
             </div>
+
             <div>
-              <span className="font-black text-xl tracking-tight text-white">JewelTrack</span>
-              <span className="text-[10px] uppercase font-bold tracking-widest text-amber-400 block -mt-1">
-                Cloud SaaS
-              </span>
+              <div className="flex items-center">
+                <span className="font-black text-2xl tracking-[0.2em] uppercase text-white font-sans">
+                  JEWEL<span className="bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-500 bg-clip-text text-transparent">TRACK</span>
+                </span>
+              </div>
+              <div className="text-[10px] tracking-[0.22em] uppercase font-bold text-amber-400/90 flex items-center gap-1.5 mt-0.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                <span>JEWELLERY CLOUD OS - ERP</span>
+              </div>
             </div>
           </div>
         </div>

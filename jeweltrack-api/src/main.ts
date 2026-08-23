@@ -10,9 +10,9 @@ async function bootstrap() {
   // const app = await NestFactory.create(AppModule);
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-    // cors
+    // cors - allow requests from localhost:3000, localhost:3001, and production domains
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: true,
     credentials: true,
   });
 

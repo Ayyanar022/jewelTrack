@@ -1,0 +1,33 @@
+# 1. Stage 1: Build the Next.js frontend
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+# 2. Copy dependency files first (for Docker caching)
+COPY package*.json ./
+RUN npm install
+
+# 3. Copy source code and build Next.js
+COPY . .
+ARG NEXT_PUBLIC_API_URL=http://localhost:4000
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN npm run build
+
+# 4. Stage 2: Production Runner (clean, small container)
+FROM node:20-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# 5. Copy ONLY compiled files and production assets
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+
+# 6. Expose port 3000
+EXPOSE 3000
+
+# 7. Start Next.js production server
+CMD ["npm", "run", "start"]

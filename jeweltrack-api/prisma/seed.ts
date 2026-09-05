@@ -85,7 +85,7 @@ async function main() {
       description: 'Default free trial duration in days for newly registered shops',
     },
   });
-  console.log('✓ Platform config seeded (DEFAULT_TRIAL_DAYS = 14)');
+  console.log('✓ Platform config seeded (DEFAULT_TRIAL_DAYS = 14 ');
 
   // 2. Create Super Admin User
   const adminPhone = '9999999999';

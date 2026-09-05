@@ -11,7 +11,7 @@ export class AuthService {
     constructor(
         private prisma: PrismaService,
         private jwtService: JwtService
-    ) {}
+    ) { }
 
     async register(dto: RegisterDto) {
         // 1. Check if phone is already registered as a user
@@ -75,7 +75,7 @@ export class AuthService {
                 data: {
                     shop_id: shop.id,
                     plan_id: trialPlan.id,
-                    duration_months: 1,
+                    duration_months: Math.ceil(trialDays / 30) || 1,
                     amount_paid: 0,
                     discount_percent: 0,
                     status: 'TRIAL',

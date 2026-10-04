@@ -34,7 +34,10 @@ export class BillService {
 
   
     async create(dto:CreateBillDto, shopId:string, userId?: string){
-          // ---- plan limit check (before transaction, keeps txn light) ----
+        // 1. Guard against expired subscription plan
+        await this.subscriptionService.assertActiveSubscription(shopId, 'generate official bills');
+
+        // 2. Plan monthly bill count limit check
         const limit = await this.subscriptionService.checkLimit(shopId, 'max_invoices_per_month');
 
         if (limit !== null) {

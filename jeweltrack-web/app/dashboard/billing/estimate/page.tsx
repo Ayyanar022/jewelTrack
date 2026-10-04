@@ -89,6 +89,14 @@ export default function EstimatePage() {
     queryFn: () => api.get('/jewellery-category').then((r) => r.data),
   });
 
+  const { data: subscription } = useQuery({
+    queryKey: ['shop-current-subscription'],
+    queryFn: () => api.get('/subscription/current').then((r) => r.data),
+    staleTime: 60 * 1000,
+  });
+
+  const isExpired = subscription?.is_expired;
+
   useEffect(() => {
     if (rate && !initialized) {
       setItem(defaultItem(rate.rate_22k ?? 0));
@@ -205,6 +213,11 @@ export default function EstimatePage() {
         <div className="flex items-center justify-between bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-xs flex-shrink-0">
           <div className="flex items-center gap-3">
             <span className="text-sm font-black text-slate-900">Quotation Desk (மதிப்பீடு)</span>
+            {isExpired && (
+              <span className="bg-emerald-50 text-emerald-800 border border-emerald-300 text-[11px] font-black px-2.5 py-0.5 rounded-full shadow-2xs">
+                🟢 Estimate Mode Active (Free)
+              </span>
+            )}
             {rate && (
               <div className="hidden sm:flex items-center gap-3 text-xs font-semibold pl-3 border-l border-slate-200">
                 <span className="text-amber-950 font-bold">22K: ₹{rate.rate_22k}/g</span>

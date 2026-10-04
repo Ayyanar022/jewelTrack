@@ -421,6 +421,32 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </header>
 
+        {/* Global Subscription Expired Restricted Notice Banner */}
+        {mounted && subscription && isExpired && !isSuperAdmin() && (
+          <div className="bg-gradient-to-r from-rose-950 via-rose-900 to-amber-950 text-white px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 border-b border-rose-800/60 shadow-xs flex-shrink-0 text-xs sm:text-sm">
+            <div className="flex items-center gap-2.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping shrink-0" />
+              <span>
+                <strong className="text-rose-200">Plan Expired · Restricted Mode Active:</strong> You can calculate & print counter estimates, view customer ledgers, and export past bills. Official GST invoicing & stock entry are locked.
+              </span>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <Link
+                href="/dashboard/billing/estimate"
+                className="bg-white/15 hover:bg-white/25 text-white font-bold px-3 py-1 rounded-xl transition-all text-xs border border-white/20 flex items-center gap-1"
+              >
+                <span>🧾 Estimate Billing</span>
+              </Link>
+              <Link
+                href="/dashboard/settings?tab=subscription"
+                className="bg-gradient-to-r from-gold via-amber-400 to-amber-500 text-slate-950 font-black px-3.5 py-1 rounded-xl transition-all text-xs hover:brightness-105 shadow-xs"
+              >
+                ⚡ Renew Plan Now
+              </Link>
+            </div>
+          </div>
+        )}
+
         <main className="flex-1 px-5 py-3 lg:px-6 lg:py-4 overflow-auto">{children}</main>
       </div>
     </div>

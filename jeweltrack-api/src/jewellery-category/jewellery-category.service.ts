@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { CreateJewelleryCatdto } from './dto/create_jewell_category.dto';
+import { SubscriptionService } from 'src/subscription/subscription.service';
 
 @Injectable()
 export class JewelleryCategoryService {
-    constructor(private prisma:PrismaService){}
+    constructor(
+        private prisma: PrismaService,
+        private subscriptionService: SubscriptionService,
+    ) {}
 
     private formatName(name?: string) {
         if (!name) return name;
@@ -16,6 +20,7 @@ export class JewelleryCategoryService {
     }
 
     async create(dto: CreateJewelleryCatdto, shopId: string) {
+        await this.subscriptionService.assertActiveSubscription(shopId, 'create jewellery categories');
         const formattedDto = {
             ...dto,
             ...(dto.name && { name: this.formatName(dto.name) }),
@@ -32,6 +37,7 @@ export class JewelleryCategoryService {
     }
 
     async update(dto: CreateJewelleryCatdto, catID: string, shopID: string) {
+        await this.subscriptionService.assertActiveSubscription(shopID, 'modify jewellery categories');
         const formattedDto = {
             ...dto,
             ...(dto.name && { name: this.formatName(dto.name) }),
@@ -43,6 +49,7 @@ export class JewelleryCategoryService {
     }
 
     async delete(catID: string, shopID: string) {
+        await this.subscriptionService.assertActiveSubscription(shopID, 'delete jewellery categories');
         return this.prisma.jewelleryCategory.deleteMany({
             where: { shop_id: shopID, id: catID },
         });

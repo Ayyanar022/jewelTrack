@@ -108,6 +108,9 @@ export class LoanService {
   async createLoan(shopId: string, dto: CreateLoanDto) {
     if (!shopId) throw new BadRequestException('Shop ID is required');
 
+    // Guard against expired subscription plan
+    await this.subscriptionService.assertActiveSubscription(shopId, 'issue new jewel loans');
+
     // Strict validation: Net weight cannot exceed Gross weight
     if (Number(dto.net_weight) > Number(dto.gross_weight)) {
       throw new BadRequestException(

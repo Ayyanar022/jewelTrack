@@ -18,7 +18,10 @@ import {
   Clock,
   ChevronLeft,
   ChevronRight,
+  AlertCircle,
+  ArrowRight,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import LoanMetrics from '@/components/app_component/loan/LoanMetrics';
 import CreateLoanModal from '@/components/app_component/loan/CreateLoanModal';
@@ -85,8 +88,42 @@ export default function GoldLoanPage() {
     },
   });
 
+  // 4. Fetch Current Subscription for access control
+  const { data: subscription } = useQuery({
+    queryKey: ['shop-current-subscription'],
+    queryFn: () => api.get('/subscription/current').then((r) => r.data),
+    staleTime: 60 * 1000,
+  });
+
+  const isExpired = subscription?.is_expired;
+
   return (
     <div className="flex flex-col gap-3.5 max-w-7xl mx-auto px-0 pb-6">
+      {/* Subscription Expired Warning Banner */}
+      {isExpired && (
+        <div className="bg-rose-50 border border-rose-300 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-rose-950 shadow-xs">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center font-black shrink-0 shadow-xs">
+              <AlertCircle className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-xs font-bold uppercase tracking-wider text-rose-800">
+                New Loan Creation Locked · Plan Expired
+              </div>
+              <p className="text-sm font-medium text-rose-900 mt-0.5">
+                Your subscription has expired. Creating new gold / silver loan pledges is locked. You can still inspect loan ledgers, print past loan slips, and record interest repayments.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/dashboard/settings?tab=subscription"
+            className="bg-gradient-to-r from-gold via-amber-400 to-amber-500 text-slate-950 text-xs font-black px-4 py-2.5 rounded-xl shadow-xs hover:brightness-105 transition-all self-start sm:self-auto shrink-0"
+          >
+            ⚡ Renew Plan to Create Loans
+          </Link>
+        </div>
+      )}
+
       {/* 1. Metrics Summary Cards with Period Filter */}
       <LoanMetrics stats={stats} period={period} onPeriodChange={(p) => { setPeriod(p); setPage(1); }} />
 
@@ -130,11 +167,18 @@ export default function GoldLoanPage() {
           </div>
 
           <Button
-            onClick={() => setIsNewOpen(true)}
-            className="bg-slate-900 hover:bg-slate-800 text-white font-black text-xs h-9 px-4 rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
+            onClick={() => {
+              if (isExpired) {
+                toast.error('Subscription plan expired. Renew your plan to create new gold loans.');
+                return;
+              }
+              setIsNewOpen(true);
+            }}
+            disabled={isExpired}
+            className="bg-slate-900 hover:bg-slate-800 text-white font-black text-xs h-9 px-4 rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
           >
             <Plus className="w-4 h-4 stroke-[3]" />
-            <span>New Pledge</span>
+            <span>{isExpired ? 'New Pledge (Locked)' : 'New Pledge'}</span>
           </Button>
         </div>
       </div>

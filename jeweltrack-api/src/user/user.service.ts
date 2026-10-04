@@ -40,6 +40,9 @@ export class UserService {
       throw new BadRequestException('Shop workspace is required to add staff');
     }
 
+    // 0. Guard against expired subscription plan
+    await this.subscriptionService.assertActiveSubscription(shopId, 'add new staff members');
+
     // 1. Check max_users plan limit
     const maxUsers = await this.subscriptionService.checkLimit(shopId, 'max_users');
     if (maxUsers !== null) {

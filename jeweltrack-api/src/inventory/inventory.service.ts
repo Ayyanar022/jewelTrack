@@ -1,28 +1,35 @@
 import { Injectable } from '@nestjs/common';
 import { In_out_adj_dto } from './dto/inventoryIn.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
+import { SubscriptionService } from 'src/subscription/subscription.service';
 
 @Injectable()
 export class InventoryService {
-    constructor(private prisma:PrismaService){}
+    constructor(
+        private prisma: PrismaService,
+        private subscriptionService: SubscriptionService,
+    ) {}
 
-    async stockIn(dto:In_out_adj_dto, shopId:string, userId?: string){
-      return  this.prisma.inventoryStockEntry.create({
-            data:{
-                shop_id :shopId ,
-                category_id :dto.category_id,
-                type :dto.type,
-                weight :dto.weight ,
-                purity :dto.purity ,
-                reference :dto.reference,
+    async stockIn(dto: In_out_adj_dto, shopId: string, userId?: string) {
+        // Guard against expired subscription plan
+        await this.subscriptionService.assertActiveSubscription(shopId, 'add new inventory stock');
+
+        return this.prisma.inventoryStockEntry.create({
+            data: {
+                shop_id: shopId,
+                category_id: dto.category_id,
+                type: dto.type,
+                weight: dto.weight,
+                purity: dto.purity,
+                reference: dto.reference,
                 stockType: "OWN",
                 created_by_user_id: userId || null,
-            }
-        })
+            },
+        });
     }
 
-    async inventoryStatus(shopId:string){
-        const data =await  this.prisma.$queryRaw `
+    async inventoryStatus(shopId: string) {
+        const data = await this.prisma.$queryRaw`
         select 
             c.id as category_id,
             c.name as category_name,
@@ -43,16 +50,9 @@ export class InventoryService {
 
             group by c.id, c.name, i.purity
             order by c.name , i.purity desc
-            
-            `
-        // console.log(data)
-            return data
-
+        `;
+        return data;
     }
-
-    // async adjustment(dto:In_out_adj_dto,shopId:string){
-
-    // }
 
     async getLedger(page: number = 1, shopId: string, limitNum: number = 10) {
         const pageNum = Math.max(1, Number(page) || 1);

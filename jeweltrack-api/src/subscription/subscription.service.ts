@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { VerifyPaymentDto } from './dto/verify-payment.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
@@ -234,7 +234,7 @@ export class SubscriptionService {
     const endDate = sub.current_period_end ? new Date(sub.current_period_end) : new Date();
     const diffMs = endDate.getTime() - now.getTime();
     const daysRemaining = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
-    const isExpired = diffMs <= 0;
+    const isExpired = sub.status === 'EXPIRED' || sub.status === 'CANCELLED' || sub.status === 'PAST_DUE' || diffMs <= 0;
 
     const currentUsers = await this.prisma.user.count({
       where: { shop_id: shopId, is_active: true },
@@ -260,6 +260,18 @@ export class SubscriptionService {
         max_branches: sub.plan.max_branches,
       },
     };
+  }
+
+  // Helper to guard mutating operations when a shop's plan is expired
+  async assertActiveSubscription(shopId: string, actionName: string = 'perform this action'): Promise<void> {
+    if (!shopId) return;
+    const sub = await this.getCurrent(shopId);
+    if (!sub) return;
+    if (sub.is_expired) {
+      throw new ForbiddenException(
+        `Your subscription has expired. Your account is in Read-Only & Estimate mode. Please renew your plan to ${actionName}.`,
+      );
+    }
   }
 
   // 5. Pricing Table with calculated durations & discounts

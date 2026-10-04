@@ -749,7 +749,8 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { useDebounce } from "@/hooks/useDebouce";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BillHistory from "@/components/app_component/BillHistory";
-import { Edit2, MapPin, Phone, Search, User, X, Loader2, Printer, Plus, History } from "lucide-react";
+import { Edit2, MapPin, Phone, Search, User, X, Loader2, Printer, Plus, History, AlertCircle, ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
@@ -840,6 +841,14 @@ const NewBillPage = () => {
     queryFn: () => api.get('/jewellery-category').then(r => r.data),
     staleTime: 10 * 60 * 1000,
   });
+
+  const { data: subscription } = useQuery({
+    queryKey: ['shop-current-subscription'],
+    queryFn: () => api.get('/subscription/current').then(r => r.data),
+    staleTime: 60 * 1000,
+  });
+
+  const isExpired = subscription?.is_expired;
 
   useEffect(() => {
     if (!rate) return;
@@ -1001,6 +1010,12 @@ const NewBillPage = () => {
   const handleSubmit = () => {
     setError('');
     
+    if (isExpired) {
+      toast.error('Subscription plan expired. Official billing is locked. Please switch to Estimate Billing or renew your plan.');
+      setError('Subscription expired. Switch to Estimate Billing or renew your plan.');
+      return;
+    }
+
     if (!selectedCustomer) {
       toast.error('Please select a customer');
       setError('Please select a customer');
@@ -1138,7 +1153,40 @@ const handleTabChange = (tab: string) => {
     
 
       <TabsContent value="new" className="space-y-4">
-    
+        {/* Subscription Expired Restricted Banner */}
+        {isExpired && (
+          <div className="bg-rose-50 border border-rose-300 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-rose-950 shadow-xs">
+            <div className="flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center font-black shrink-0 shadow-xs">
+                <AlertCircle className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-xs font-bold uppercase tracking-wider text-rose-800">
+                  Official Invoicing Locked · Plan Expired
+                </div>
+                <p className="text-sm font-medium text-rose-900 mt-0.5">
+                  Your subscription period has ended. You can still create and print counter estimates using <strong>Estimate Billing</strong> or renew your plan to unlock official GST tax invoices.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2.5 shrink-0">
+              <Link
+                href="/dashboard/billing/estimate"
+                className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-black px-4 py-2.5 rounded-xl shadow-xs transition-all flex items-center gap-1.5"
+              >
+                <span>🧾 Estimate Billing</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+              <Link
+                href="/dashboard/settings?tab=subscription"
+                className="bg-gradient-to-r from-gold via-amber-400 to-amber-500 text-slate-950 text-xs font-black px-4 py-2.5 rounded-xl shadow-xs hover:brightness-105 transition-all"
+              >
+                ⚡ Renew Plan
+              </Link>
+            </div>
+          </div>
+        )}
+
           <div className="bg-white p-3 rounded-lg border shadow-sm">
         <div className="flex items-center justify-between gap-4">
           {/* Left side - Customer Search */}
@@ -1661,13 +1709,18 @@ const handleTabChange = (tab: string) => {
                 {/* Submit & Print Button */}
                 <button
                   onClick={handleSubmit}
-                  disabled={isPending || isPrinting}
+                  disabled={isPending || isPrinting || isExpired}
                   className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm h-11 px-4 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm cursor-pointer"
                 >
                   {isPending || isPrinting ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin text-amber-400" />
                       <span>Saving & Printing Bill...</span>
+                    </>
+                  ) : isExpired ? (
+                    <>
+                      <AlertCircle className="w-5 h-5 text-rose-400" />
+                      <span>Official Invoicing Locked (Plan Expired)</span>
                     </>
                   ) : (
                     <>

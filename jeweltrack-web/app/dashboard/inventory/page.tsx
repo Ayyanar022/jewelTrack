@@ -8,7 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import api from "@/lib/axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, Package, Plus, SlidersHorizontal, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Package, Plus, SlidersHorizontal, Loader2, AlertCircle, ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 
 interface EntryRows {
@@ -63,6 +64,14 @@ export default function InventoryPage() {
     staleTime: 1000 * 60 * 5,
   });
 
+  const { data: subscription } = useQuery({
+    queryKey: ['shop-current-subscription'],
+    queryFn: () => api.get('/subscription/current').then(r => r.data),
+    staleTime: 60 * 1000,
+  });
+
+  const isExpired = subscription?.is_expired;
+
   // Aggregate summary
   const summary = useMemo(() => {
     if (!inventoryTotal?.length) return null;
@@ -109,6 +118,11 @@ export default function InventoryPage() {
 
   const handleSubmitStock = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isExpired) {
+      toast.error('Subscription expired. Renew your plan to add or adjust stock.');
+      setError('Subscription expired. Renew your plan to add or adjust stock.');
+      return;
+    }
     setError('');
     if (!entryForm.category || !entryForm.purity || !entryForm.weight) {
       setError("Please fill all required fields");
@@ -125,6 +139,31 @@ export default function InventoryPage() {
 
   return (
     <div className="flex flex-col gap-3.5 max-w-7xl mx-auto px-8 pb-6">
+      {/* Subscription Expired Warning Banner */}
+      {isExpired && (
+        <div className="bg-rose-50 border border-rose-300 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-rose-950 shadow-xs">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center font-black shrink-0 shadow-xs">
+              <AlertCircle className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-xs font-bold uppercase tracking-wider text-rose-800">
+                Stock Modification Locked · Plan Expired
+              </div>
+              <p className="text-sm font-medium text-rose-900 mt-0.5">
+                Your subscription has expired. Stock inward entries and adjustments are locked. You can still view current stock balances and movement ledgers.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/dashboard/settings?tab=subscription"
+            className="bg-gradient-to-r from-gold via-amber-400 to-amber-500 text-slate-950 text-xs font-black px-4 py-2.5 rounded-xl shadow-xs hover:brightness-105 transition-all self-start sm:self-auto shrink-0"
+          >
+            ⚡ Renew Plan to Add Stock
+          </Link>
+        </div>
+      )}
+
       <Tabs defaultValue="inventory" className="w-full space-y-3.5">
         {/* Unified Compact Toolbar Header (Title + Tabs + Action Buttons in 1 Row) */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white px-5 py-3 rounded-2xl border border-slate-200 shadow-xs">
@@ -155,26 +194,36 @@ export default function InventoryPage() {
           <div className="flex items-center gap-2">
             <Button
               onClick={() => {
+                if (isExpired) {
+                  toast.error('Subscription plan expired. Renew your plan to add stock.');
+                  return;
+                }
                 setOpen(true);
                 setEntryForm(p => ({ ...p, type: 'IN', reference: "ADD", adjustment: false }));
                 setFormHeader("Add Stock Item");
                 setError('');
               }}
-              className="bg-slate-900 hover:bg-slate-800 text-white font-bold h-9 px-3.5 text-xs flex items-center gap-1.5 shadow-xs cursor-pointer"
+              disabled={isExpired}
+              className="bg-slate-900 hover:bg-slate-800 text-white font-bold h-9 px-3.5 text-xs flex items-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50"
             >
               <Plus className="w-4 h-4" />
-              <span>Add Stock</span>
+              <span>{isExpired ? 'Add Stock (Locked)' : 'Add Stock'}</span>
             </Button>
 
             <Button
               onClick={() => {
+                if (isExpired) {
+                  toast.error('Subscription plan expired. Renew your plan to perform stock adjustments.');
+                  return;
+                }
                 setOpen(true);
                 setEntryForm(p => ({ ...p, adjustment: true, reference: "ADJUSTMENT" }));
                 setFormHeader("Stock Adjustment");
                 setError('');
               }}
+              disabled={isExpired}
               variant="outline"
-              className="h-9 px-3.5 text-xs font-bold text-slate-700 border-slate-300 hover:bg-slate-100 flex items-center gap-1.5 shadow-xs cursor-pointer"
+              className="h-9 px-3.5 text-xs font-bold text-slate-700 border-slate-300 hover:bg-slate-100 flex items-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50"
             >
               <SlidersHorizontal className="w-4 h-4" />
               <span>Adjustment</span>

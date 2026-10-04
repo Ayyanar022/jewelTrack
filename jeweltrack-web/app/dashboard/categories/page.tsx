@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Layers, Plus, Pencil, Trash2, X, Loader2 } from 'lucide-react';
+import { Layers, Plus, Pencil, Trash2, X, Loader2, AlertCircle, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 interface Category {
   id: string;
@@ -41,6 +42,14 @@ export default function CategoriesPage() {
     queryKey: ['categories'],
     queryFn: () => api.get('/jewellery-category').then((r) => r.data),
   });
+
+  const { data: subscription } = useQuery({
+    queryKey: ['shop-current-subscription'],
+    queryFn: () => api.get('/subscription/current').then((r) => r.data),
+    staleTime: 60 * 1000,
+  });
+
+  const isExpired = subscription?.is_expired;
 
   const { mutate: save, isPending: saving } = useMutation({
     mutationFn: (data: any) =>
@@ -123,6 +132,31 @@ export default function CategoriesPage() {
 
   return (
     <div className="flex flex-col gap-5 max-w-7xl mx-auto px-8 pb-20">
+      {/* Subscription Expired Warning Banner */}
+      {isExpired && (
+        <div className="bg-rose-50 border border-rose-300 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-rose-950 shadow-xs">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center font-black shrink-0 shadow-xs">
+              <AlertCircle className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-xs font-bold uppercase tracking-wider text-rose-800">
+                Category Modification Locked · Plan Expired
+              </div>
+              <p className="text-sm font-medium text-rose-900 mt-0.5">
+                Your subscription has expired. Adding or modifying category presets is locked. Existing category wastage & making charge presets are still available for billing calculations.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/dashboard/settings?tab=subscription"
+            className="bg-gradient-to-r from-gold via-amber-400 to-amber-500 text-slate-950 text-xs font-black px-4 py-2.5 rounded-xl shadow-xs hover:brightness-105 transition-all self-start sm:self-auto shrink-0"
+          >
+            ⚡ Renew Plan to Edit Categories
+          </Link>
+        </div>
+      )}
+
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
         <div>
@@ -138,14 +172,19 @@ export default function CategoriesPage() {
         {!showForm && (
           <Button
             onClick={() => {
+              if (isExpired) {
+                toast.error('Subscription plan expired. Renew your plan to add categories.');
+                return;
+              }
               setEditingId(null);
               setForm(emptyForm());
               setShowForm(true);
             }}
-            className="bg-slate-900 hover:bg-slate-800 text-white font-bold h-10 px-4 text-xs flex items-center gap-1.5 shadow-xs cursor-pointer"
+            disabled={isExpired}
+            className="bg-slate-900 hover:bg-slate-800 text-white font-bold h-10 px-4 text-xs flex items-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50"
           >
             <Plus className="w-4 h-4" />
-            <span className='text-sm'>Add Category</span>
+            <span className='text-sm'>{isExpired ? 'Add Category (Locked)' : 'Add Category'}</span>
           </Button>
         )}
       </div>

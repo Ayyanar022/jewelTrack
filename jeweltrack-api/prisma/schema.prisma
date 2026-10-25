@@ -74,6 +74,11 @@ model User {
   createdBills        Bill[]                @relation("BillCreatedByUser")
   createdPayments     BillPaymentsEntry[]   @relation("PaymentCreatedByUser")
   createdStockEntries InventoryStockEntry[] @relation("StockCreatedByUser")
+  createdApprovals    ApprovalMemo[]        @relation("ApprovalCreatedByUser")
+  createdSettlements  DealerSettlement[]    @relation("SettlementCreatedByUser")
+  createdSchemes         GoldSavingsAccount[] @relation("SchemeCreatedByUser")
+  createdSchemePayments  GoldSavingsPayment[] @relation("SchemePaymentCreatedByUser")
+  createdSchemeRedemptions GoldSavingsRedemption[] @relation("SchemeRedemptionCreatedByUser")
 
   @@index([shop_id])
   @@index([phone])
@@ -97,6 +102,12 @@ model Shop {
   oldGoldEntry        OldGoldEntry[]
   shopSetting         ShopSetting?
   subscription        Subscription[] 
+  dealers             Dealer[]
+  approvalMemos       ApprovalMemo[]
+  dealerSettlements   DealerSettlement[]
+  goldSavingsAccounts    GoldSavingsAccount[]
+  goldSavingsPayments    GoldSavingsPayment[]
+  goldSavingsRedemptions GoldSavingsRedemption[]
 }
 
 model Customer {
@@ -111,6 +122,7 @@ model Customer {
 
   bill       Bill[]
   goldLoan   JewelLoan[]
+  goldSavingsAccounts GoldSavingsAccount[]
 
   @@index([shop_id])
 }
@@ -185,6 +197,7 @@ model JewelleryCategory {
 
   inventoryStockEntry   InventoryStockEntry[]
   billItem              BillItem[]
+  approvalItems         ApprovalItem[]
 }
 
 // Gold / Silver Loan ------------------------------
@@ -303,9 +316,10 @@ model ShopSetting {
   gstin            String?
   pan              String?
 
-  // Invoice
+  // Invoice & Scheme
   invoice_prefix   String?  @default("BILL-")
   estimate_prefix  String?  @default("EST-")
+  scheme_prefix    String?  @default("GS-")
   terms_conditions String?
 
   // Bank
@@ -366,4 +380,209 @@ model PlatformConfig {
   value       String
   description String?
   updated_at  DateTime @updatedAt
+}
+
+// B2B Peer Shop / Dealer Consignment & Approval (வெளிக்கடை & ஜாங்கட்)
+
+enum ApprovalStatus {
+  OUTWARD
+  PARTIAL_RETURN
+  COMPLETED
+  CANCELLED
+}
+
+enum ApprovalItemStatus {
+  PENDING
+  PARTIAL
+  RETURNED
+  SOLD
+}
+
+enum SettlementMode {
+  PURE_GOLD
+  CASH
+  SCRAP_GOLD
+}
+
+model Dealer {
+  id                   String             @id @default(uuid())
+  shop_id              String
+  shop                 Shop               @relation(fields: [shop_id], references: [id], onDelete: Cascade)
+  name                 String
+  shop_name            String
+  phone                String
+  address              String?
+  city                 String?
+  opening_pure_balance Float              @default(0)
+  notes                String?
+  is_active            Boolean            @default(true)
+  created_at           DateTime           @default(now())
+  updated_at           DateTime           @updatedAt
+
+  approvalMemos        ApprovalMemo[]
+  settlements          DealerSettlement[]
+
+  @@index([shop_id])
+  @@index([phone])
+}
+
+model ApprovalMemo {
+  id                 String             @id @default(uuid())
+  shop_id            String
+  shop               Shop               @relation(fields: [shop_id], references: [id], onDelete: Cascade)
+  dealer_id          String
+  dealer             Dealer             @relation(fields: [dealer_id], references: [id], onDelete: Cascade)
+  voucher_number     String
+  status             ApprovalStatus     @default(OUTWARD)
+  date               DateTime           @default(now())
+  notes              String?
+  created_by_user_id String?
+  created_by         User?              @relation("ApprovalCreatedByUser", fields: [created_by_user_id], references: [id])
+  created_at         DateTime           @default(now())
+  updated_at         DateTime           @updatedAt
+
+  items              ApprovalItem[]
+
+  @@index([shop_id])
+  @@index([dealer_id])
+}
+
+model ApprovalItem {
+  id               String             @id @default(uuid())
+  approval_id      String
+  approval         ApprovalMemo       @relation(fields: [approval_id], references: [id], onDelete: Cascade)
+  category_id      String?
+  category         JewelleryCategory? @relation(fields: [category_id], references: [id])
+  item_name        String
+  metal            Metal              @default(GOLD)
+  purity           Purity?            @default(K22)
+  touch            Float              // Touch percentage e.g. 91.6, 92.0, 75.0
+  pieces_out       Int                @default(1)
+  gross_weight_out Float              @default(0)
+  net_weight_out   Float              @default(0)
+  pieces_in        Int                @default(0)
+  gross_weight_in  Float              @default(0)
+  net_weight_in    Float              @default(0)
+  sold_pieces      Int                @default(0)
+  sold_net_weight  Float              @default(0)
+  pure_weight      Float              @default(0) // sold_net_weight * (effective_touch / 100)
+  hallmark_charge  Float?             @default(0) // Optional hallmark charge per item / memo line
+  status           ApprovalItemStatus @default(PENDING)
+  returned_at      DateTime?
+  created_at       DateTime           @default(now())
+  updated_at       DateTime           @updatedAt
+
+  @@index([approval_id])
+}
+
+model DealerSettlement {
+  id                   String         @id @default(uuid())
+  shop_id              String
+  shop                 Shop           @relation(fields: [shop_id], references: [id], onDelete: Cascade)
+  dealer_id            String
+  dealer               Dealer         @relation(fields: [dealer_id], references: [id], onDelete: Cascade)
+  settlement_number    String
+  payment_mode         SettlementMode @default(PURE_GOLD)
+  pure_weight_received Float          // Pure gold grams credited to dealer balance
+  gross_weight         Float?         // If scrap metal
+  touch                Float?         // If scrap metal touch
+  cash_amount          Float?         // If cash payment received
+  pure_gold_rate       Float?         // Rate used to convert cash to pure gold grams
+  date                 DateTime       @default(now())
+  notes                String?
+  created_by_user_id   String?
+  created_by           User?          @relation("SettlementCreatedByUser", fields: [created_by_user_id], references: [id])
+  created_at           DateTime       @default(now())
+
+  @@index([shop_id])
+  @@index([dealer_id])
+}
+
+// Gold Savings Scheme (Flexi Gold Chit / Digi-Gold) ------------------
+
+enum SchemeStatus {
+  ACTIVE
+  REDEEMED
+  CLOSED
+}
+
+enum SchemePaymentMode {
+  CASH
+  UPI
+  CARD
+  BANK_TRANSFER
+}
+
+model GoldSavingsAccount {
+  id                   String                 @id @default(uuid())
+  shop_id              String
+  shop                 Shop                   @relation(fields: [shop_id], references: [id], onDelete: Cascade)
+  customer_id          String
+  customer             Customer               @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  account_number       String
+  title                String?                @default("Flexi Gold Scheme")
+  target_grams         Float?                 @default(0)
+  target_amount        Float?                 @default(0)
+  total_cash_deposited Float                  @default(0)
+  total_gold_grams     Float                  @default(0)
+  total_gold_redeemed  Float                  @default(0)
+  status               SchemeStatus           @default(ACTIVE)
+  notes                String?
+  created_by_user_id   String?
+  created_by           User?                  @relation("SchemeCreatedByUser", fields: [created_by_user_id], references: [id])
+  redeemed_at          DateTime?
+  redeemed_bill_id     String?
+  redeemed_notes       String?
+  created_at           DateTime               @default(now())
+  updated_at           DateTime               @updatedAt
+
+  payments             GoldSavingsPayment[]
+  redemptions          GoldSavingsRedemption[]
+
+  @@index([shop_id])
+  @@index([customer_id])
+  @@index([status])
+}
+
+model GoldSavingsPayment {
+  id                 String             @id @default(uuid())
+  shop_id            String
+  shop               Shop               @relation(fields: [shop_id], references: [id], onDelete: Cascade)
+  account_id         String
+  account            GoldSavingsAccount @relation(fields: [account_id], references: [id], onDelete: Cascade)
+  receipt_number     String
+  payment_date       DateTime           @default(now())
+  cash_amount        Float
+  gold_rate_applied  Float              // 22K (916) rate per gram applied at deposit time
+  grams_credited     Float              // (cash_amount / gold_rate_applied)
+  payment_mode       SchemePaymentMode  @default(CASH)
+  transaction_ref    String?
+  notes              String?
+  created_by_user_id String?
+  created_by         User?              @relation("SchemePaymentCreatedByUser", fields: [created_by_user_id], references: [id])
+  created_at         DateTime           @default(now())
+
+  @@index([shop_id])
+  @@index([account_id])
+}
+
+model GoldSavingsRedemption {
+  id                 String             @id @default(uuid())
+  shop_id            String
+  shop               Shop               @relation(fields: [shop_id], references: [id], onDelete: Cascade)
+  account_id         String
+  account            GoldSavingsAccount @relation(fields: [account_id], references: [id], onDelete: Cascade)
+  voucher_number     String
+  redemption_date    DateTime           @default(now())
+  grams_redeemed     Float              // Gold grams debited/redeemed (e.g. 5.000)
+  gold_rate_applied  Float              // 22K (916) rate per gram applied at redemption
+  cash_equivalent    Float              // grams_redeemed * gold_rate_applied
+  bill_number        String?
+  notes              String?
+  created_by_user_id String?
+  created_by         User?              @relation("SchemeRedemptionCreatedByUser", fields: [created_by_user_id], references: [id])
+  created_at         DateTime           @default(now())
+
+  @@index([shop_id])
+  @@index([account_id])
 }

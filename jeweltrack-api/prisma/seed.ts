@@ -10,50 +10,56 @@ async function main() {
   const plans = [
     {
       name: 'BASIC',
-      price: 99900, // Rs. 999/month (in paise)
+      price: 29900, // Rs. 299/month (in paise)
       max_users: 1,
       max_invoices_per_month: 100,
       max_branches: 1,
       features: {
         billing: true,
         gst_reports: true,
+        custom_branding: true,
         inventory: false,
         gold_loans: false,
-        multi_branch: false,
+        gold_schemes: false,
+        dealer_approval: false,
       },
-      note: 'Ideal for small jewellery shops starting digital billing',
+      note: 'Essential GST billing and daily gold rates for single-counter jewellery stores',
       is_active: true,
     },
     {
       name: 'PRO',
-      price: 199900, // Rs. 1999/month (in paise)
+      price: 69900, // Rs. 699/month (in paise)
       max_users: 3,
       max_invoices_per_month: 500,
       max_branches: 1,
       features: {
         billing: true,
         gst_reports: true,
+        custom_branding: true,
         inventory: true,
         gold_loans: true,
-        multi_branch: false,
+        gold_schemes: true,
+        dealer_approval: false,
       },
-      note: 'Best for growing jewellery stores with staff and inventory needs',
+      note: 'Advanced management with Inventory, Jewel Loans, and Gold Schemes for growing stores',
       is_active: true,
     },
     {
       name: 'ENTERPRISE',
-      price: 399900, // Rs. 3999/month (in paise)
+      price: 89900, // Rs. 899/month (in paise)
       max_users: 10,
       max_invoices_per_month: null, // unlimited
-      max_branches: 3,
+      max_branches: 1,
       features: {
         billing: true,
         gst_reports: true,
+        custom_branding: true,
         inventory: true,
         gold_loans: true,
-        multi_branch: true,
+        gold_schemes: true,
+        dealer_approval: true,
       },
-      note: 'Complete suite for multi-counter & multi-branch jewellery businesses',
+      note: 'Complete Jewellery ERP suite with Dealer Consignment (Jangat) & Unlimited Billing',
       is_active: true,
     },
   ];

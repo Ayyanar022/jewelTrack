@@ -1,8 +1,8 @@
-import { Body, Controller, Get,  Param,  Post, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { BillService } from './bill.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
-import { CreateBillDto } from './dto/craete-bill.dto';
+import { CreateBillDto, UpdateBillDateDto } from './dto/craete-bill.dto';
 
 @ApiBearerAuth('JWT-auth')
 @ApiTags('Bills')
@@ -14,6 +14,11 @@ export class BillController {
     @Post()
     create(@Body() dto:CreateBillDto , @Request() req:any ){
         return this.billService.create(dto , req.user.shop_id, req.user.id)
+    }
+
+    @Patch(':id/date')
+    updateDate(@Param('id') billId: string, @Body() dto: UpdateBillDateDto, @Request() req: any) {
+        return this.billService.updateDate(billId, dto.bill_date, req.user.shop_id);
     }
 
     @Get('search')

@@ -13,6 +13,7 @@ export class InventoryService {
     async stockIn(dto: In_out_adj_dto, shopId: string, userId?: string) {
         // Guard against expired subscription plan
         await this.subscriptionService.assertActiveSubscription(shopId, 'add new inventory stock');
+        await this.subscriptionService.assertFeature(shopId, 'inventory', 'Inventory Management');
 
         return this.prisma.inventoryStockEntry.create({
             data: {

@@ -69,14 +69,19 @@ export class SettingService {
     });
   }
 
-  // invoice
+  // invoice & scheme prefixes
   async updateInvoice(dto: UpdateShopInvoiceDto, shopId: string) {
     if (!shopId) throw new BadRequestException('Shop ID is required');
-    return this.prisma.shopSetting.update({
+    return this.prisma.shopSetting.upsert({
       where: {
         shop_id: shopId,
       },
-      data: dto,
+      update: dto,
+      create: {
+        shop_id: shopId,
+        shop_name: 'Jewellery Shop',
+        ...dto,
+      },
     });
   }
 

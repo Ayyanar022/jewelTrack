@@ -11,6 +11,7 @@ import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Package, Plus, SlidersHorizontal, Loader2, AlertCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import LockedFeatureView from "@/components/app_component/common/LockedFeatureView";
 
 interface EntryRows {
   category: string;
@@ -136,6 +137,23 @@ export default function InventoryPage() {
       reference: entryForm.reference
     });
   };
+
+  if (subscription?.plan?.features && subscription.plan.features.inventory === false) {
+    return (
+      <LockedFeatureView
+        title="Inventory & Safe Vault Stock"
+        badge="Stock Ledger Module"
+        requiredPlan="PRO"
+        description="Categorize showroom pieces by gold/silver categories, track gross vs net weight, safe vault stock vs borrowed stock with zero discrepancies."
+        benefits={[
+          'Category-wise inventory stock management (Chains, Rings, Bangles, etc.)',
+          'Own showroom stock vs Dealer borrowed stock tracking',
+          'In/Out stock movement adjustments with running balance',
+          'Purity touch and total gram balance audit',
+        ]}
+      />
+    );
+  }
 
   return (
     <div className="flex flex-col gap-3.5 max-w-7xl mx-auto px-8 pb-6">

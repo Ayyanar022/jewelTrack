@@ -110,6 +110,7 @@ export class LoanService {
 
     // Guard against expired subscription plan
     await this.subscriptionService.assertActiveSubscription(shopId, 'issue new jewel loans');
+    await this.subscriptionService.assertFeature(shopId, 'gold_loans', 'Jewel Loans (Girvi)');
 
     // Strict validation: Net weight cannot exceed Gross weight
     if (Number(dto.net_weight) > Number(dto.gross_weight)) {
@@ -260,6 +261,8 @@ export class LoanService {
   // 4. Record Interest / Principal Repayment or Settle Loan with Strict Validations
   async repayLoan(shopId: string, loanId: string, dto: RepayLoanDto) {
     if (!shopId) throw new BadRequestException('Shop ID is required');
+    await this.subscriptionService.assertActiveSubscription(shopId, 'record loan repayments');
+    await this.subscriptionService.assertFeature(shopId, 'gold_loans', 'Jewel Loans (Girvi)');
 
     const loan = await this.prisma.jewelLoan.findFirst({
       where: { id: loanId, shop_id: shopId },

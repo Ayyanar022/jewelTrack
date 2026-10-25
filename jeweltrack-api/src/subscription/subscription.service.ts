@@ -274,6 +274,17 @@ export class SubscriptionService {
     }
   }
 
+  // Helper to verify that a shop's plan includes a specific feature module
+  async assertFeature(shopId: string, featureKey: string, featureName: string): Promise<void> {
+    if (!shopId) return;
+    const has = await this.hasFeature(shopId, featureKey);
+    if (!has) {
+      throw new ForbiddenException(
+        `${featureName} is not included in your current subscription plan. Please upgrade your plan in Settings > Subscription.`,
+      );
+    }
+  }
+
   // 5. Pricing Table with calculated durations & discounts
   async getPricingTable() {
     const plans = await this.prisma.plan.findMany({

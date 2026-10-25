@@ -14,6 +14,9 @@ import { PlanModule } from './plan/plan.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { UserModule } from './user/user.module';
 import { LoanModule } from './loan/loan.module';
+import { DealerModule } from './dealer/dealer.module';
+import { ApprovalModule } from './approval/approval.module';
+import { SchemeModule } from './scheme/scheme.module';
 
 @Module({
   imports: [
@@ -30,6 +33,9 @@ import { LoanModule } from './loan/loan.module';
     SubscriptionModule,
     UserModule,
     LoanModule,
+    DealerModule,
+    ApprovalModule,
+    SchemeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -5,7 +5,7 @@ import { useAuthStore } from "@/store/authStore";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Crown, Sparkles, ChevronDown, ChevronRight, Settings, Gem, LogOut } from "lucide-react";
+import { Crown, Sparkles, ChevronDown, ChevronRight, Settings, Gem, LogOut, Briefcase } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/axios";
 
@@ -15,9 +15,15 @@ const primaryNavItems = [
   { label: 'Gold Rate', href: '/dashboard/rate', icon: '💰' },
   { label: 'Estimate Bill', href: '/dashboard/billing/estimate', icon: '🧾' },
   { label: 'New Bill', href: '/dashboard/billing/new', icon: '➕' },
-  { label: 'Gold Loan', href: '/dashboard/loan', icon: '🪙' },
+  { label: 'Approvals', href: '/dashboard/approval', icon: '📋', featureKey: 'dealer_approval', tierBadge: 'ENT' },
+  { label: 'Gold Scheme', href: '/dashboard/scheme', icon: '✨', featureKey: 'gold_schemes', tierBadge: 'PRO' },
   { label: 'Customers', href: '/dashboard/customers', icon: '👥' },
-  { label: 'Inventory', href: '/dashboard/inventory', icon: '📦' },
+];
+
+// Management Group (Collapsible dropdown)
+const managementSubItems = [
+  { label: 'Jewel Loan', href: '/dashboard/loan', icon: '🪙', featureKey: 'gold_loans', tierBadge: 'PRO' },
+  { label: 'Inventory', href: '/dashboard/inventory', icon: '📦', featureKey: 'inventory', tierBadge: 'PRO' },
   { label: 'Report', href: '/dashboard/report', icon: '📈' },
 ];
 
@@ -36,7 +42,10 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
     '/dashboard/rate',
     '/dashboard/billing/estimate',
     '/dashboard/billing/new',
+    '/dashboard/approval',
+    '/dashboard/dealers',
     '/dashboard/loan',
+    '/dashboard/scheme',
     '/dashboard/customers',
     '/dashboard/categories',
     '/dashboard/inventory',
@@ -47,6 +56,8 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
     '/dashboard/rate',
     '/dashboard/billing/estimate',
     '/dashboard/billing/new',
+    '/dashboard/approval',
+    '/dashboard/scheme',
     '/dashboard/customers',
   ],
 };
@@ -58,9 +69,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const { user, logout, isSuperAdmin } = useAuthStore();
 
-  const isSettingsActive =
-    pathname.startsWith('/dashboard/settings') || pathname === '/dashboard/categories';
+  const isManagementActive = managementSubItems.some((item) =>
+    pathname === item.href || pathname.startsWith(item.href + '/')
+  );
 
+  const isSettingsActive = settingsSubItems.some((item) =>
+    item.href === '/dashboard/settings'
+      ? pathname === '/dashboard/settings'
+      : pathname === item.href || pathname.startsWith(item.href + '/')
+  );
+
+  const [managementOpen, setManagementOpen] = useState(isManagementActive);
   const [settingsOpen, setSettingsOpen] = useState(isSettingsActive);
 
   useEffect(() => {
@@ -69,6 +88,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       router.replace('/admin/plans');
     }
   }, [user, router]);
+
+  useEffect(() => {
+    if (isManagementActive) {
+      setManagementOpen(true);
+    }
+  }, [isManagementActive]);
 
   useEffect(() => {
     if (isSettingsActive) {
@@ -108,6 +133,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   };
 
   const visiblePrimaryItems = primaryNavItems.filter((item) => isAllowed(item.href));
+  const visibleManagementItems = managementSubItems.filter((item) => isAllowed(item.href));
   const visibleSettingsItems = settingsSubItems.filter((item) => isAllowed(item.href));
 
   const isTrial = subscription?.status === 'TRIAL';
@@ -131,20 +157,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="min-h-screen flex bg-page">
-      {/* Sidebar */}
+    <div className="h-screen w-screen flex bg-page overflow-hidden">
+      {/* Sidebar - Pinned Height */}
       <aside
         onMouseEnter={() => setCollapsed(false)}
         onMouseLeave={() => setCollapsed(true)}
-        className={`bg-sidebar-dark flex flex-col transition-all duration-300 ${
-          collapsed ? "w-16" : "w-56"
-        } flex-shrink-0 select-none`}
+        className={`h-screen bg-sidebar-dark flex flex-col transition-all duration-300 ${collapsed ? "w-16" : "w-56"
+          } flex-shrink-0 select-none z-30 shadow-md`}
       >
         {/* Logo / Brand Header */}
         <div
-          className={`flex items-center border-b border-gold/10 h-14 flex-shrink-0 px-3.5 ${
-            collapsed ? 'justify-center' : 'justify-between'
-          }`}
+          className={`flex items-center border-b border-gold/10 h-14 flex-shrink-0 px-3.5 ${collapsed ? 'justify-center' : 'justify-between'
+            }`}
         >
           <Link href="/dashboard" className="flex items-center gap-2.5 overflow-hidden group">
             {/* JewelTrack Brand Gem with Gentle Glowing Ring Animation */}
@@ -187,22 +211,98 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-2.5 py-2 rounded-xl text-sm font-medium transition-colors ${
-                  isActive
+                className={`flex items-center gap-3 px-2.5 py-2 rounded-xl text-sm font-medium transition-colors ${isActive
                     ? 'bg-sidebar-active text-gold-text shadow-xs'
                     : 'text-slate-300 hover:bg-sidebar-active/60 hover:text-gold-text'
-                }`}
+                  }`}
                 title={collapsed ? item.label : undefined}
               >
                 <span className="text-base flex-shrink-0">{item.icon}</span>
                 {!collapsed && (
-                  <span className="transition-all duration-300 whitespace-nowrap overflow-hidden text-xs sm:text-sm font-medium">
-                    {item.label}
+                  <span className="transition-all duration-300 whitespace-nowrap overflow-hidden text-xs sm:text-sm font-medium flex-1 flex items-center justify-between">
+                    <span>{item.label}</span>
+                    {item.featureKey && subscription?.plan?.features && subscription.plan.features[item.featureKey] === false && (
+                      <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                        {item.tierBadge}
+                      </span>
+                    )}
                   </span>
                 )}
               </Link>
             );
           })}
+
+          {/* Collapsible Management Group */}
+          {visibleManagementItems.length > 0 && (
+            <div className="mt-0.5">
+              {collapsed ? (
+                <Link
+                  href="/dashboard/loan"
+                  className={`flex items-center justify-center p-2 rounded-xl text-sm font-medium transition-colors ${
+                    isManagementActive
+                      ? 'bg-sidebar-active text-gold-text shadow-xs'
+                      : 'text-slate-300 hover:bg-sidebar-active/60 hover:text-gold-text'
+                  }`}
+                  title="Management"
+                >
+                  <Briefcase className="w-5 h-5 flex-shrink-0" />
+                </Link>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setManagementOpen(!managementOpen)}
+                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
+                      isManagementActive
+                        ? 'bg-sidebar-active/50 text-gold-text'
+                        : 'text-slate-300 hover:bg-sidebar-active/60 hover:text-gold-text'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Briefcase className="w-4 h-4 flex-shrink-0" />
+                      <span className="whitespace-nowrap overflow-hidden font-medium">Management</span>
+                    </div>
+                    {managementOpen ? (
+                      <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                    ) : (
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                    )}
+                  </button>
+
+                  {/* Dropdown Children */}
+                  {managementOpen && (
+                    <div className="mt-1 flex flex-col gap-0.5 pl-3 border-l border-gold/15 ml-3">
+                      {visibleManagementItems.map((sub) => {
+                        const isSubActive =
+                          pathname === sub.href || pathname.startsWith(sub.href + '/');
+                        return (
+                          <Link
+                            key={sub.href}
+                            href={sub.href}
+                            className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                              isSubActive
+                                ? 'bg-sidebar-active text-gold-text font-bold shadow-xs'
+                                : 'text-slate-300 hover:bg-sidebar-active/50 hover:text-gold-text'
+                            }`}
+                          >
+                            <span className="text-xs">{sub.icon}</span>
+                            <span className="whitespace-nowrap overflow-hidden flex-1 flex items-center justify-between">
+                              <span>{sub.label}</span>
+                              {sub.featureKey && subscription?.plan?.features && subscription.plan.features[sub.featureKey] === false && (
+                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                  {sub.tierBadge}
+                                </span>
+                              )}
+                            </span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
 
           {/* Collapsible Settings / Masters Group */}
           {visibleSettingsItems.length > 0 && (
@@ -245,7 +345,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   {settingsOpen && (
                     <div className="mt-1 flex flex-col gap-0.5 pl-3 border-l border-gold/15 ml-3">
                       {visibleSettingsItems.map((sub) => {
-                        const isSubActive = pathname === sub.href;
+                        const isSubActive =
+                          pathname === sub.href ||
+                          (sub.href !== '/dashboard/settings' && pathname.startsWith(sub.href + '/'));
                         return (
                           <Link
                             key={sub.href}
@@ -289,9 +391,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="px-2 py-3 border-t border-gold/10 flex-shrink-0">
           <button
             onClick={handleLogout}
-            className={`flex items-center gap-3 px-2.5 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all w-full cursor-pointer group ${
-              collapsed ? 'justify-center' : ''
-            }`}
+            className={`flex items-center gap-3 px-2.5 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all w-full cursor-pointer group ${collapsed ? 'justify-center' : ''
+              }`}
             title="Logout"
           >
             <LogOut className="w-4 h-4 text-slate-400 group-hover:text-rose-400 transition-colors flex-shrink-0" />
@@ -305,9 +406,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Topbar */}
-        <header className="bg-white border-b border-gold/20 h-14 flex items-center justify-between px-6 flex-shrink-0">
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+        {/* Topbar - Fixed Header */}
+        <header className="bg-white border-b border-gold/20 h-14 flex items-center justify-between px-6 flex-shrink-0 z-20 shadow-2xs">
           <h1 className="text-base font-bold text-foreground capitalize tracking-tight">
             {getPageTitle(pathname)}
           </h1>
@@ -393,15 +494,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </div>
                 <span className="font-semibold text-slate-800 text-xs sm:text-sm">{user.name}</span>
                 <span
-                  className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded border ${
-                    user.role === 'SUPER_ADMIN'
+                  className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded border ${user.role === 'SUPER_ADMIN'
                       ? 'bg-gold/15 text-gold border-gold/30'
                       : user.role === 'SHOP_OWNER'
-                      ? 'bg-amber-50 text-amber-800 border-amber-200'
-                      : user.role === 'MANAGER'
-                      ? 'bg-purple-50 text-purple-800 border-purple-200'
-                      : 'bg-blue-50 text-blue-800 border-blue-200'
-                  }`}
+                        ? 'bg-amber-50 text-amber-800 border-amber-200'
+                        : user.role === 'MANAGER'
+                          ? 'bg-purple-50 text-purple-800 border-purple-200'
+                          : 'bg-blue-50 text-blue-800 border-blue-200'
+                    }`}
                 >
                   {user.role?.replace('_', ' ')}
                 </span>
@@ -447,7 +547,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         )}
 
-        <main className="flex-1 px-5 py-3 lg:px-6 lg:py-4 overflow-auto">{children}</main>
+        <main className="flex-1 px-4 py-3 sm:px-5 sm:py-3.5 lg:px-6 lg:py-4 overflow-y-auto overflow-x-hidden min-h-0">
+          {children}
+        </main>
       </div>
     </div>
   );

@@ -28,6 +28,7 @@ import {
   CheckCircle2,
   Clock,
   Sparkles,
+  Edit2,
 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { use, useState } from 'react';
@@ -38,6 +39,10 @@ function BillDetailPageContent({ params }: { params: Promise<{ id: string }> }) 
   const [addPayment, setAddPayment] = useState('');
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [dateModalOpen, setDateModalOpen] = useState(false);
+  const [selectedInvoiceDate, setSelectedInvoiceDate] = useState('');
+  const [isUpdatingDate, setIsUpdatingDate] = useState(false);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -113,6 +118,45 @@ function BillDetailPageContent({ params }: { params: Promise<{ id: string }> }) 
     }
   };
 
+  const handleOpenDateModal = () => {
+    if (!billDetail?.created_at) return;
+    const d = new Date(billDetail.created_at);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    setSelectedInvoiceDate(`${y}-${m}-${day}`);
+    setDateModalOpen(true);
+  };
+
+  const handleUpdateBillDate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedInvoiceDate) {
+      toast.error('Please pick a valid date');
+      return;
+    }
+    try {
+      setIsUpdatingDate(true);
+      const now = new Date();
+      const [y, m, d] = selectedInvoiceDate.split('-').map(Number);
+      const targetDate = new Date(y, m - 1, d, now.getHours(), now.getMinutes(), now.getSeconds());
+
+      await api.patch(`/bill/${resolvedParams.id}/date`, {
+        bill_date: targetDate.toISOString(),
+      });
+
+      queryClient.invalidateQueries({ queryKey: ['bill-detail-payment-entry'] });
+      queryClient.invalidateQueries({ queryKey: ['bill-history'] });
+      queryClient.invalidateQueries({ queryKey: ['bills'] });
+      toast.success('Invoice date updated successfully!');
+      setDateModalOpen(false);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err?.response?.data?.message || 'Failed to update invoice date');
+    } finally {
+      setIsUpdatingDate(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center h-96 space-y-3">
@@ -164,7 +208,7 @@ function BillDetailPageContent({ params }: { params: Promise<{ id: string }> }) 
                 </Badge>
               )}
             </div>
-            <div className="text-sm text-slate-600 font-medium flex items-center gap-2.5 mt-1">
+            <div className="text-sm text-slate-600 font-medium flex items-center gap-2.5 mt-1 flex-wrap">
               <CalendarDays className="w-4 h-4 text-slate-500" />
               <span>
                 {new Date(billDetail.created_at).toLocaleDateString('en-IN', {
@@ -173,6 +217,15 @@ function BillDetailPageContent({ params }: { params: Promise<{ id: string }> }) 
                   year: 'numeric',
                 })}
               </span>
+              <button
+                type="button"
+                onClick={handleOpenDateModal}
+                className="inline-flex items-center gap-1 text-xs font-bold text-amber-800 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded border border-amber-300 transition-colors cursor-pointer"
+                title="Change invoice date"
+              >
+                <Edit2 className="w-3 h-3 text-amber-700" />
+                <span>Change Date</span>
+              </button>
               {billDetail.created_by?.name && (
                 <span>• Billed by: <strong className="text-slate-800 font-bold">{billDetail.created_by.name}</strong></span>
               )}
@@ -255,8 +308,8 @@ function BillDetailPageContent({ params }: { params: Promise<{ id: string }> }) 
             </div>
           )}
           <div className="border-t border-slate-200 pt-2 flex justify-between font-black text-slate-900 text-base">
-            <span>Net Payable:</span>
-            <span className="font-mono text-lg text-slate-900">₹ {Math.round(payableAmount).toLocaleString('en-IN')}</span>
+            <span>Net Payable (To Pay):</span>
+            <span className="font-mono text-lg text-slate-900">₹ {Math.round(Math.max(0, payableAmount - oldJewelAmount)).toLocaleString('en-IN')}</span>
           </div>
         </div>
 
@@ -533,6 +586,56 @@ function BillDetailPageContent({ params }: { params: Promise<{ id: string }> }) 
                   </>
                 ) : (
                   'Confirm & Save'
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Invoice Date Modal */}
+      <Dialog open={dateModalOpen} onOpenChange={setDateModalOpen}>
+        <DialogContent className="max-w-md bg-white p-6 rounded-2xl shadow-xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black text-slate-900 flex items-center gap-2">
+              <CalendarDays className="w-5 h-5 text-amber-600" />
+              <span>Change Invoice Date</span>
+            </DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={handleUpdateBillDate} className="space-y-4 pt-3">
+            <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-3 text-xs text-amber-900">
+              Update the official date for invoice <strong className="font-mono">{billDetail.bill_number}</strong>. This date will reflect on reports, customer purchase history, and printed receipts.
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-bold text-slate-800">New Invoice Date *</Label>
+              <Input
+                type="date"
+                value={selectedInvoiceDate}
+                onChange={(e) => setSelectedInvoiceDate(e.target.value)}
+                className="h-11 text-base font-bold"
+                required
+              />
+            </div>
+
+            <DialogFooter className="pt-3 flex gap-2">
+              <Button type="button" variant="outline" size="sm" onClick={() => setDateModalOpen(false)} className="h-10 px-5 text-sm font-bold">
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                disabled={isUpdatingDate || !selectedInvoiceDate}
+                className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm h-10 px-6 shadow-sm cursor-pointer"
+              >
+                {isUpdatingDate ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    Updating...
+                  </>
+                ) : (
+                  'Update Date'
                 )}
               </Button>
             </DialogFooter>

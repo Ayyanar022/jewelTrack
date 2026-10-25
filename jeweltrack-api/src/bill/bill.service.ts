@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateBillDto, OldGoldEntryDto } from './dto/craete-bill.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { SubscriptionService } from 'src/subscription/subscription.service';
@@ -58,13 +58,28 @@ export class BillService {
 
         //-------------------------------------
 
+       let billCreatedAt = new Date();
+       if (dto.bill_date) {
+           const parsed = new Date(dto.bill_date);
+           if (!isNaN(parsed.getTime())) {
+               billCreatedAt = parsed;
+           }
+       }
+
        return await this.prisma.$transaction(async (tx)=>{
-         // existing bill count 
+         // 1. Fetch shop invoice prefix
+         const shopSetting = await tx.shopSetting.findUnique({
+             where: { shop_id: shopId },
+             select: { invoice_prefix: true },
+         });
+         const prefix = shopSetting?.invoice_prefix?.trim() || 'BILL-';
+
+         // 2. Existing bill count 
          const count = await tx.bill.count({
              where:{shop_id:shopId}
-         })
+         });
             
-         const bill_number = `BILL-${String(count+1).padStart(3,'0')}`        
+         const bill_number = `${prefix}${String(count+1).padStart(3,'0')}`;        
     
          const bill = await tx.bill.create({
             data:{
@@ -78,6 +93,7 @@ export class BillService {
                 totalGST:dto.totalGST??0,
                 payableAmount:dto.payableAmount,
                 created_by_user_id: userId || null,
+                created_at: billCreatedAt,
                 billItem:{
                     create:dto.billItem.map(item=>({
                         purity: item.purity,
@@ -125,6 +141,7 @@ export class BillService {
                     reference: "BILL",
                     reference_id: bill_number,
                     created_by_user_id: userId || null,
+                    created_at: billCreatedAt,
             }))
          })
 
@@ -135,10 +152,11 @@ export class BillService {
                 bill_id : bill.id,
                 paid_amount :dto.paid_amount ,
                 created_by_user_id: userId || null,
+                created_at: billCreatedAt,
             }
          })
 
-         return {id:bill.id}
+         return {id:bill.id, bill_number: bill.bill_number}
        })
     }
 
@@ -148,7 +166,8 @@ export class BillService {
             include:{
                 billItem:{include:{category:{select:{name:true}}}},
                 customer:true,
-                created_by:{select:{id:true, name:true, role:true}}
+                created_by:{select:{id:true, name:true, role:true}},
+                oldGoldEntry:true,
             }
         })
         return bill
@@ -243,5 +262,50 @@ export class BillService {
                 created_by_user_id: userId || null,
             }
         })
+    }
+
+    async updateDate(billId: string, billDate: string, shopId: string) {
+        const bill = await this.prisma.bill.findFirst({
+            where: { id: billId, shop_id: shopId },
+        });
+        if (!bill) {
+            throw new NotFoundException('Bill not found');
+        }
+
+        const parsedDate = new Date(billDate);
+        if (isNaN(parsedDate.getTime())) {
+            throw new BadRequestException('Invalid date format');
+        }
+
+        return await this.prisma.$transaction(async (tx) => {
+            const updatedBill = await tx.bill.update({
+                where: { id: billId },
+                data: { created_at: parsedDate },
+            });
+
+            // Keep stock ledger reference aligned with invoice date
+            await tx.inventoryStockEntry.updateMany({
+                where: {
+                    shop_id: shopId,
+                    reference: 'BILL',
+                    reference_id: bill.bill_number,
+                },
+                data: { created_at: parsedDate },
+            });
+
+            // Update first payment entry if present
+            const firstPayment = await tx.billPaymentsEntry.findFirst({
+                where: { bill_id: billId, shop_id: shopId },
+                orderBy: { created_at: 'asc' },
+            });
+            if (firstPayment) {
+                await tx.billPaymentsEntry.update({
+                    where: { id: firstPayment.id },
+                    data: { created_at: parsedDate },
+                });
+            }
+
+            return updatedBill;
+        });
     }
 }

@@ -28,6 +28,7 @@ import CreateLoanModal from '@/components/app_component/loan/CreateLoanModal';
 import RepayLoanModal from '@/components/app_component/loan/RepayLoanModal';
 import ViewLoanModal from '@/components/app_component/loan/ViewLoanModal';
 import PrintLoanSlipModal from '@/components/app_component/loan/PrintLoanSlipModal';
+import LockedFeatureView from '@/components/app_component/common/LockedFeatureView';
 
 export default function GoldLoanPage() {
   // Filters & State
@@ -96,6 +97,23 @@ export default function GoldLoanPage() {
   });
 
   const isExpired = subscription?.is_expired;
+
+  if (subscription?.plan?.features && subscription.plan.features.gold_loans === false) {
+    return (
+      <LockedFeatureView
+        title="Jewel Loans (Girvi / Pawn Pledges)"
+        badge="Pawn & Lending Module"
+        requiredPlan="PRO"
+        description="Issue and manage pawn loans against gold and silver ornaments with Indian jeweller calendar running month interest calculations."
+        benefits={[
+          'Automated Indian running month interest calculation',
+          'Collateral ornament description, touch purity, and net weight logging',
+          'Instant pawn pledge receipts with customer signature area',
+          'Principal and interest repayment tracking with complete loan closure ledger',
+        ]}
+      />
+    );
+  }
 
   return (
     <div className="flex flex-col gap-3.5 max-w-7xl mx-auto px-0 pb-6">

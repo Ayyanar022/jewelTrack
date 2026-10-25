@@ -53,10 +53,12 @@ interface DynamicPlan {
   max_branches: number;
   features?: {
     billing?: boolean;
+    gst_reports?: boolean;
+    custom_branding?: boolean;
     inventory?: boolean;
     gold_loans?: boolean;
-    gst_reports?: boolean;
-    multi_branch?: boolean;
+    gold_schemes?: boolean;
+    dealer_approval?: boolean;
     [key: string]: boolean | undefined;
   } | null;
   note?: string | null;
@@ -75,132 +77,138 @@ const FALLBACK_PLANS: DynamicPlan[] = [
   {
     id: 'basic-fallback',
     name: 'BASIC',
-    price: 99900,
-    base_price_inr: 999,
+    price: 29900,
+    base_price_inr: 299,
     max_users: 1,
     max_invoices_per_month: 100,
     max_branches: 1,
     features: {
       billing: true,
       gst_reports: true,
+      custom_branding: true,
       inventory: false,
       gold_loans: false,
-      multi_branch: false,
+      gold_schemes: false,
+      dealer_approval: false,
     },
-    note: 'Ideal for small jewellery shops starting digital billing',
+    note: 'Essential GST billing and daily gold rates for single-counter jewellery stores',
     is_active: true,
     pricing_options: [
       {
         duration_months: 1,
         discount_percent: 0,
-        original_price_paise: 99900,
-        offer_price_paise: 99900,
-        monthly_equivalent_paise: 99900,
+        original_price_paise: 29900,
+        offer_price_paise: 29900,
+        monthly_equivalent_paise: 29900,
         savings_paise: 0,
-        original_price_inr: 999,
-        offer_price_inr: 999,
-        monthly_equivalent_inr: 999,
+        original_price_inr: 299,
+        offer_price_inr: 299,
+        monthly_equivalent_inr: 299,
         savings_inr: 0,
       },
       {
         duration_months: 12,
         discount_percent: 20,
-        original_price_paise: 1198800,
-        offer_price_paise: 959040,
-        monthly_equivalent_paise: 79920,
-        savings_paise: 239760,
-        original_price_inr: 11988,
-        offer_price_inr: 9590,
-        monthly_equivalent_inr: 799,
-        savings_inr: 2398,
+        original_price_paise: 358800,
+        offer_price_paise: 287040,
+        monthly_equivalent_paise: 23920,
+        savings_paise: 71760,
+        original_price_inr: 3588,
+        offer_price_inr: 2870,
+        monthly_equivalent_inr: 239,
+        savings_inr: 718,
       },
     ],
   },
   {
     id: 'pro-fallback',
     name: 'PRO',
-    price: 199900,
-    base_price_inr: 1999,
+    price: 69900,
+    base_price_inr: 699,
     max_users: 3,
     max_invoices_per_month: 500,
     max_branches: 1,
     features: {
       billing: true,
       gst_reports: true,
+      custom_branding: true,
       inventory: true,
       gold_loans: true,
-      multi_branch: false,
+      gold_schemes: true,
+      dealer_approval: false,
     },
-    note: 'Best for growing jewellery stores with staff and inventory needs',
+    note: 'Best for growing jewellery stores with Inventory, Jewel Loans, and Gold Schemes',
     is_active: true,
     pricing_options: [
       {
         duration_months: 1,
         discount_percent: 0,
-        original_price_paise: 199900,
-        offer_price_paise: 199900,
-        monthly_equivalent_paise: 199900,
+        original_price_paise: 69900,
+        offer_price_paise: 69900,
+        monthly_equivalent_paise: 69900,
         savings_paise: 0,
-        original_price_inr: 1999,
-        offer_price_inr: 1999,
-        monthly_equivalent_inr: 1999,
+        original_price_inr: 699,
+        offer_price_inr: 699,
+        monthly_equivalent_inr: 699,
         savings_inr: 0,
       },
       {
         duration_months: 12,
         discount_percent: 20,
-        original_price_paise: 2398800,
-        offer_price_paise: 1919040,
-        monthly_equivalent_paise: 159920,
-        savings_paise: 479760,
-        original_price_inr: 23988,
-        offer_price_inr: 19190,
-        monthly_equivalent_inr: 1599,
-        savings_inr: 4798,
+        original_price_paise: 838800,
+        offer_price_paise: 671040,
+        monthly_equivalent_paise: 55920,
+        savings_paise: 167760,
+        original_price_inr: 8388,
+        offer_price_inr: 6710,
+        monthly_equivalent_inr: 559,
+        savings_inr: 1678,
       },
     ],
   },
   {
     id: 'enterprise-fallback',
     name: 'ENTERPRISE',
-    price: 399900,
-    base_price_inr: 3999,
+    price: 89900,
+    base_price_inr: 899,
     max_users: 10,
     max_invoices_per_month: null,
-    max_branches: 3,
+    max_branches: 1,
     features: {
       billing: true,
       gst_reports: true,
+      custom_branding: true,
       inventory: true,
       gold_loans: true,
-      multi_branch: true,
+      gold_schemes: true,
+      dealer_approval: true,
     },
-    note: 'Complete suite for multi-counter & multi-branch jewellery businesses',
+    note: 'Complete Jewellery ERP suite with Dealer Consignment (Jangat) & Unlimited Billing',
     is_active: true,
     pricing_options: [
       {
         duration_months: 1,
         discount_percent: 0,
-        original_price_paise: 399900,
-        offer_price_paise: 399900,
-        monthly_equivalent_paise: 399900,
+        original_price_paise: 89900,
+        offer_price_paise: 89900,
+        monthly_equivalent_paise: 89900,
         savings_paise: 0,
-        original_price_inr: 3999,
-        offer_price_inr: 3999,
-        monthly_equivalent_inr: 3999,
+        original_price_inr: 899,
+        offer_price_inr: 899,
+        monthly_equivalent_inr: 899,
         savings_inr: 0,
       },
       {
         duration_months: 12,
         discount_percent: 20,
-        original_price_paise: 4798800,
-        offer_price_paise: 3839040,
-        monthly_equivalent_paise: 319920,
-        savings_paise: 959760,
-        original_price_inr: 47988,
-        offer_price_inr: 38390,
-        monthly_equivalent_inr: 3199,
-        savings_inr: 9598,
+        original_price_paise: 1078800,
+        offer_price_paise: 863040,
+        monthly_equivalent_paise: 71920,
+        savings_paise: 215760,
+        original_price_inr: 10788,
+        offer_price_inr: 8630,
+        monthly_equivalent_inr: 719,
+        savings_inr: 2158,
       },
     ],
   },
@@ -248,6 +256,20 @@ const MODULE_FEATURES = [
     desc: 'Instant insight into daily cash collections, UPI payments, gross jewellery weight sold, GST summaries, and 1-click export to Excel for your accountant.',
     icon: BarChart3,
     highlights: ['Daily daybook summary', 'GST 3B ready reports', '1-Click Excel export', 'Payment mode breakup'],
+  },
+  {
+    title: 'Gold Savings Schemes & Passbook',
+    badge: 'Chits & Savings',
+    desc: 'Customer monthly gold accumulation scheme (தங்க சேமிப்பு திட்டம்). Instant conversion to 916 gold grams, Statement & Booklet passbook printing, and WhatsApp passbook share.',
+    icon: Sparkles,
+    highlights: ['Automatic 916 gold conversion', 'Physical Passbook Booklet print', 'WhatsApp statement share', 'Redemption with bonus/gain'],
+  },
+  {
+    title: 'Dealer Approvals & Jangat Memos',
+    badge: 'B2B Consignment',
+    desc: 'Track jewellery sent on approval or memo to dealers, karigars, and artisans. Manage outward jangat slips, return reconciliation, loss/stone deductions, and net settlements.',
+    icon: ShieldCheck,
+    highlights: ['Jangat Outward slips', 'Piece & weight reconciliation', 'Return & billing settlement', 'Dealer history & pending gold'],
   },
 ];
 
@@ -808,10 +830,10 @@ export default function LandingPage() {
                     </div>
                     <div className="flex items-center justify-between font-medium">
                       <span className="flex items-center gap-1.5 text-stone-600">
-                        <Building2 className="w-3.5 h-3.5 text-[#C9920A]" /> Shop Branches:
+                        <Building2 className="w-3.5 h-3.5 text-[#C9920A]" /> Shop License:
                       </span>
                       <span className="font-bold text-stone-900">
-                        {plan.max_branches === 1 ? '1 Branch' : `${plan.max_branches} Branches`}
+                        1 Single Store
                       </span>
                     </div>
                   </div>
@@ -856,7 +878,7 @@ export default function LandingPage() {
                         <XCircle className="w-4 h-4 text-stone-300 flex-shrink-0" />
                       )}
                       <span className={featuresObj.inventory ? 'text-stone-800 font-medium' : 'text-stone-400 line-through'}>
-                        Stock Ledger & Category Inventory
+                        Stock Ledger & Safe Vault Inventory
                       </span>
                     </div>
 
@@ -872,13 +894,24 @@ export default function LandingPage() {
                     </div>
 
                     <div className="flex items-center gap-2.5">
-                      {featuresObj.multi_branch ? (
+                      {featuresObj.gold_schemes ? (
                         <CheckCircle2 className="w-4 h-4 text-[#C9920A] flex-shrink-0" />
                       ) : (
                         <XCircle className="w-4 h-4 text-stone-300 flex-shrink-0" />
                       )}
-                      <span className={featuresObj.multi_branch ? 'text-stone-800 font-medium' : 'text-stone-400 line-through'}>
-                        Multi-Branch Central Management
+                      <span className={featuresObj.gold_schemes ? 'text-stone-800 font-medium' : 'text-stone-400 line-through'}>
+                        Gold Savings Schemes & Passbook
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2.5">
+                      {featuresObj.dealer_approval ? (
+                        <CheckCircle2 className="w-4 h-4 text-[#C9920A] flex-shrink-0" />
+                      ) : (
+                        <XCircle className="w-4 h-4 text-stone-300 flex-shrink-0" />
+                      )}
+                      <span className={featuresObj.dealer_approval ? 'text-stone-800 font-medium' : 'text-stone-400 line-through'}>
+                        Dealer Consignment (Jangat) Memos
                       </span>
                     </div>
                   </div>

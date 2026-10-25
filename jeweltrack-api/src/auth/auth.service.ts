@@ -5,6 +5,7 @@ import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
 import { Role } from '@prisma/client';
+import { generateShopPrefixes } from 'src/common/utils/prefix.util';
 
 @Injectable()
 export class AuthService {
@@ -84,12 +85,17 @@ export class AuthService {
                 }
             });
 
+            const { invoicePrefix, estimatePrefix, schemePrefix } = generateShopPrefixes(dto.name);
+
             await tx.shopSetting.create({
                 data: {
                     shop_id: shop.id,
                     shop_name: dto.name,
                     owner_name: dto.owner_name,
                     phone: dto.phone,
+                    invoice_prefix: invoicePrefix,
+                    estimate_prefix: estimatePrefix,
+                    scheme_prefix: schemePrefix,
                 }
             });
 

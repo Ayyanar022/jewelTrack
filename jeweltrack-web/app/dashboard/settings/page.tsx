@@ -56,7 +56,7 @@ function SettingsContent() {
 
           <TabsTrigger className="p-4 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5" value="invoice">
             <FileText className="w-3.5 h-3.5 text-slate-500" />
-            <span>Invoice Settings</span>
+            <span>Invoice & Scheme</span>
           </TabsTrigger>
 
           <TabsTrigger className="p-4 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5" value="branding">

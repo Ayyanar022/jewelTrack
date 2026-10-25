@@ -15,6 +15,7 @@ type BillData = {
   discount: number;
   is_gst_bill: boolean;
   created_at: string;
+  oldGoldEntry?: any[];
 };
 
 type ShopProfile = {
@@ -158,9 +159,24 @@ export default function BillTemplate({
             </div>
           )}
 
+          {data.oldGoldEntry && data.oldGoldEntry.length > 0 && (
+            <div className="flex justify-between text-slate-700 font-semibold text-xs border-t mt-1 pt-0.5">
+              <span>Less: Old Gold</span>
+              <span>-₹ {Math.round(data.oldGoldEntry.reduce((sum: number, cur: any) => sum + (Number(cur.amount) || 0), 0)).toLocaleString("en-IN")}</span>
+            </div>
+          )}
+
           <div className="border-t mt-1 pt-1 flex justify-between font-bold text-sm">
-            <span>Total</span>
-            <span>₹ {Math.round(data.payableAmount).toLocaleString("en-IN")}</span>
+            <span>{data.oldGoldEntry && data.oldGoldEntry.length > 0 ? 'Net To Pay' : 'Total'}</span>
+            <span>
+              ₹ {Math.round(
+                Math.max(
+                  0,
+                  data.payableAmount -
+                    (data.oldGoldEntry?.reduce((sum: number, cur: any) => sum + (Number(cur.amount) || 0), 0) || 0)
+                )
+              ).toLocaleString("en-IN")}
+            </span>
           </div>
         </div>
       </div>

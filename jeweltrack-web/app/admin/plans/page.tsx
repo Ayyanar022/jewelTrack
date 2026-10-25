@@ -28,9 +28,11 @@ export default function AdminPlansPage() {
     features: {
       billing: true,
       gst_reports: true,
+      custom_branding: true,
       inventory: false,
       gold_loans: false,
-      multi_branch: false,
+      gold_schemes: false,
+      dealer_approval: false,
     },
   });
 
@@ -146,9 +148,11 @@ export default function AdminPlansPage() {
       features: {
         billing: true,
         gst_reports: true,
+        custom_branding: true,
         inventory: false,
         gold_loans: false,
-        multi_branch: false,
+        gold_schemes: false,
+        dealer_approval: false,
       },
     });
   };
@@ -166,9 +170,11 @@ export default function AdminPlansPage() {
       features: {
         billing: feats.billing ?? true,
         gst_reports: feats.gst_reports ?? true,
+        custom_branding: feats.custom_branding ?? true,
         inventory: feats.inventory ?? false,
         gold_loans: feats.gold_loans ?? false,
-        multi_branch: feats.multi_branch ?? false,
+        gold_schemes: feats.gold_schemes ?? false,
+        dealer_approval: feats.dealer_approval ?? false,
       },
     });
   };
@@ -352,9 +358,9 @@ export default function AdminPlansPage() {
                   </div>
                   <div className="flex items-center justify-between text-sm text-slate-700">
                     <span className="flex items-center gap-2 text-slate-600 font-medium">
-                      <Building2 className="w-4 h-4 text-slate-400" /> Max Branches:
+                      <Building2 className="w-4 h-4 text-slate-400" /> Shop License:
                     </span>
-                    <span className="font-bold text-slate-900 font-mono">{plan.max_branches} branch</span>
+                    <span className="font-bold text-slate-900 font-mono">1 Single Store</span>
                   </div>
 
                   {/* Feature Checklist */}
@@ -362,20 +368,22 @@ export default function AdminPlansPage() {
                     <div className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
                       Included Modules
                     </div>
-                    {Object.entries(plan.features || {}).map(([key, enabled]) => (
-                      <div key={key} className="flex items-center gap-2 text-xs">
-                        <div
-                          className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${
-                            enabled ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-400'
-                          }`}
-                        >
-                          {enabled ? <Check className="w-2.5 h-2.5 stroke-[3]" /> : '×'}
+                    {Object.entries(plan.features || {})
+                      .filter(([key]) => key !== 'multi_branch')
+                      .map(([key, enabled]) => (
+                        <div key={key} className="flex items-center gap-2 text-xs">
+                          <div
+                            className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${
+                              enabled ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-400'
+                            }`}
+                          >
+                            {enabled ? <Check className="w-2.5 h-2.5 stroke-[3]" /> : '×'}
+                          </div>
+                          <span className={enabled ? 'text-slate-800 font-bold' : 'text-slate-400 line-through'}>
+                            {key.replace(/_/g, ' ').toUpperCase()}
+                          </span>
                         </div>
-                        <span className={enabled ? 'text-slate-800 font-bold' : 'text-slate-400 line-through'}>
-                          {key.replace('_', ' ').toUpperCase()}
-                        </span>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 </div>
 
@@ -484,18 +492,6 @@ export default function AdminPlansPage() {
                   className="h-10 text-sm font-bold border-slate-300"
                 />
               </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="max_branches" className="text-xs font-bold text-slate-800">Branches</Label>
-                <Input
-                  id="max_branches"
-                  type="number"
-                  min={1}
-                  value={form.max_branches}
-                  onChange={(e) => setForm({ ...form, max_branches: Number(e.target.value) || 1 })}
-                  className="h-10 text-sm font-bold border-slate-300"
-                />
-              </div>
             </div>
 
             {/* Feature Toggles */}
@@ -503,11 +499,13 @@ export default function AdminPlansPage() {
               <Label className="text-sm font-bold text-slate-800">Included Feature Permissions</Label>
               <div className="grid grid-cols-2 gap-2.5">
                 {[
-                  { key: 'billing', label: 'GST & Non-GST Billing' },
+                  { key: 'billing', label: 'GST & Estimate Billing' },
                   { key: 'gst_reports', label: 'Tax & GST Reports' },
-                  { key: 'inventory', label: 'Safe Vault Inventory' },
+                  { key: 'custom_branding', label: 'Custom Logo & Prefixes' },
+                  { key: 'inventory', label: 'Stock & Inventory Ledger' },
                   { key: 'gold_loans', label: 'Gold & Silver Loans' },
-                  { key: 'multi_branch', label: 'Multi-Branch Support' },
+                  { key: 'gold_schemes', label: 'Gold Savings Schemes' },
+                  { key: 'dealer_approval', label: 'Dealer Approvals (Jangat)' },
                 ].map(({ key, label }) => (
                   <label
                     key={key}

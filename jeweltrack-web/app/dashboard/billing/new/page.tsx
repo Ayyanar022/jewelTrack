@@ -749,7 +749,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { useDebounce } from "@/hooks/useDebouce";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BillHistory from "@/components/app_component/BillHistory";
-import { Edit2, MapPin, Phone, Search, User, X, Loader2, Printer, Plus, History, AlertCircle, ArrowRight } from "lucide-react";
+import { Edit2, MapPin, Phone, Search, User, X, Loader2, Printer, Plus, History, AlertCircle, ArrowRight, Calendar } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -781,6 +781,14 @@ const calcAmount = (item: BillItem): number => {
   return Math.max(Math.round(item.rate * (item.net_weight + item.wastage_weight) + item.making_charge), 0);
 }
 
+const getTodayDateStr = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 const defaultItem = (rate22k = 0): BillItem => ({
   amount: 0,
   rate: rate22k,
@@ -807,6 +815,7 @@ const NewBillPage = () => {
     amount: 0
   }]);
   const [customerSearch, setCustomerSearch] = useState('');
+  const [invoiceDate, setInvoiceDate] = useState<string>(getTodayDateStr);
   const [isGst, setIsGst] = useState(true);
   const [discount, setDiscount] = useState(0);
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
@@ -815,36 +824,105 @@ const NewBillPage = () => {
   const [highlightIndex, setHighlightIndex] = useState(0);
   const [paidAmount, setPaidAmount] = useState('');
   const [isPrinting, setIsPrinting] = useState(false);
-  const [activeTab, setActiveTab] = useState('new') 
+  const [activeTab, setActiveTab] = useState('new');
+  const [draftLoaded, setDraftLoaded] = useState(false);
+  const [hasDraft, setHasDraft] = useState(false);
+
+  const DRAFT_STORAGE_KEY = 'jeweltrack_billing_new_draft';
 
   const firstItemRef = useRef<HTMLSelectElement>(null);
   const customerRef = useRef<HTMLInputElement>(null);
   const tableContainerRef = useRef<HTMLDivElement>(null);
 
   const searchParams = useSearchParams();
-  const router = useRouter()
-  const activeCurrentTab = searchParams.get('tab') || 'new' ; 
-    const pathname = usePathname(); // '/dashboard/billing/new'
+  const router = useRouter();
+  const activeCurrentTab = searchParams.get('tab') || 'new';
+  const pathname = usePathname(); // '/dashboard/billing/new'
 
-  useEffect(()=>{
-    setActiveTab(activeCurrentTab)
-  },[activeCurrentTab])
+  useEffect(() => {
+    setActiveTab(activeCurrentTab);
+  }, [activeCurrentTab]);
+
+  // Restore draft from localStorage on initial page load
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
+      if (raw) {
+        const draft = JSON.parse(raw);
+        if (draft && typeof draft === 'object') {
+          if (Array.isArray(draft.items) && draft.items.length > 0) {
+            setItems(draft.items);
+          }
+          if (Array.isArray(draft.oldJewelItem) && draft.oldJewelItem.length > 0) {
+            setOldJewelItem(draft.oldJewelItem);
+          }
+          if (draft.selectedCustomer) setSelectedCustomer(draft.selectedCustomer);
+          if (typeof draft.isGst === 'boolean') setIsGst(draft.isGst);
+          if (draft.discount !== undefined) setDiscount(Number(draft.discount) || 0);
+          if (draft.notes !== undefined) setNotes(draft.notes || '');
+          if (draft.paidAmount !== undefined) setPaidAmount(String(draft.paidAmount || ''));
+          if (draft.invoiceDate) setInvoiceDate(draft.invoiceDate);
+          setHasDraft(true);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to restore bill draft from localStorage:', err);
+    } finally {
+      setDraftLoaded(true);
+    }
+  }, []);
+
+  // Auto-save draft to localStorage whenever user modifies the bill
+  useEffect(() => {
+    if (!draftLoaded) return;
+
+    const hasItemsData = items.some(
+      (i) => (i.category_id && i.category_id !== '') || (i.gross_weight && i.gross_weight > 0) || (i.amount && i.amount > 0)
+    );
+    const hasOldGoldData = oldJewelItem.some(
+      (o) => (o.weight && o.weight > 0) || (o.amount && o.amount > 0)
+    );
+    const hasCustomer = !!selectedCustomer;
+    const hasNotes = !!notes && notes.trim().length > 0;
+    const hasDiscount = Number(discount) > 0;
+    const hasPaid = Number(paidAmount) > 0;
+
+    if (hasItemsData || hasOldGoldData || hasCustomer || hasNotes || hasDiscount || hasPaid) {
+      const draftPayload = {
+        items,
+        oldJewelItem,
+        selectedCustomer,
+        isGst,
+        discount,
+        notes,
+        paidAmount,
+        invoiceDate,
+        savedAt: new Date().toISOString(),
+      };
+      try {
+        localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draftPayload));
+        setHasDraft(true);
+      } catch (err) {
+        console.error('Failed to save bill draft:', err);
+      }
+    }
+  }, [draftLoaded, items, oldJewelItem, selectedCustomer, isGst, discount, notes, paidAmount, invoiceDate]);
 
   const { data: rate, isLoading: rateLoading } = useQuery({
     queryKey: ['recent-rate'],
-    queryFn: () => api.get('rate/recent-rate').then(r => r.data),
+    queryFn: () => api.get('rate/recent-rate').then((r) => r.data),
     staleTime: 5 * 60 * 1000,
   });
 
   const { data: categories, isLoading: categoriesLoading } = useQuery({
     queryKey: ['categories'],
-    queryFn: () => api.get('/jewellery-category').then(r => r.data),
+    queryFn: () => api.get('/jewellery-category').then((r) => r.data),
     staleTime: 10 * 60 * 1000,
   });
 
   const { data: subscription } = useQuery({
     queryKey: ['shop-current-subscription'],
-    queryFn: () => api.get('/subscription/current').then(r => r.data),
+    queryFn: () => api.get('/subscription/current').then((r) => r.data),
     staleTime: 60 * 1000,
   });
 
@@ -853,10 +931,14 @@ const NewBillPage = () => {
   useEffect(() => {
     if (!rate) return;
     setItems((prev) =>
-      prev.map((item) => ({
-        ...item,
-        rate: item.metal === 'GOLD' ? rate.rate_22k ?? 0 : rate.rate_silver ?? 0
-      }))
+      prev.map((item) => {
+        // Only set default rate for rows that have no custom rate yet
+        if (item.rate && item.rate > 0) return item;
+        return {
+          ...item,
+          rate: item.metal === 'GOLD' ? rate.rate_22k ?? 0 : rate.rate_silver ?? 0,
+        };
+      })
     );
   }, [rate]);
 
@@ -864,9 +946,10 @@ const NewBillPage = () => {
 
   const { data: customers, isLoading: customersLoading } = useQuery({
     queryKey: ['customer', debouncedSearch],
-    queryFn: () => debouncedSearch.length > 1
-      ? api.get(`customer/search?q=${debouncedSearch}`).then(r => r.data)
-      : [],
+    queryFn: () =>
+      debouncedSearch.length > 1
+        ? api.get(`customer/search?q=${debouncedSearch}`).then((r) => r.data)
+        : [],
     enabled: debouncedSearch.length > 1,
     staleTime: 1 * 60 * 1000,
   });
@@ -876,15 +959,15 @@ const NewBillPage = () => {
     onSuccess: (res) => {
       setIsPrinting(true);
       const printWindow = window.open(`/print/${res.data.id}`, '_blank');
-      
+
       queryClient.invalidateQueries({ queryKey: ['bills'] });
       queryClient.invalidateQueries({ queryKey: ['inventory_ledger'] });
       queryClient.invalidateQueries({ queryKey: ['customer-stats'] });
       queryClient.invalidateQueries({ queryKey: ['CustomerBill'] });
-      
+
       toast.success(`Bill ${res.data.bill_number} created successfully!`);
       resetForm();
-      
+
       setTimeout(() => customerRef.current?.focus(), 500);
       setTimeout(() => {
         if (printWindow) {
@@ -897,25 +980,37 @@ const NewBillPage = () => {
       setError(e?.response?.data?.message || 'Something went wrong');
       toast.error(e?.response?.data?.message || 'Failed to create bill');
       setIsPrinting(false);
-    }
+    },
   });
 
   const resetForm = () => {
+    try {
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
+    } catch (e) {}
+    setHasDraft(false);
     setItems([defaultItem(rate?.rate_22k ?? 0)]);
-    setOldJewelItem([{
-      item_name: 'GOLD',
-      purity: '',
-      weight: 0,
-      rate: 0,
-      amount: 0
-    }]);
+    setOldJewelItem([
+      {
+        item_name: 'GOLD',
+        purity: '',
+        weight: 0,
+        rate: 0,
+        amount: 0,
+      },
+    ]);
     setPaidAmount('');
     setSelectedCustomer(null);
     setDiscount(0);
     setNotes('');
     setIsGst(true);
+    setInvoiceDate(getTodayDateStr());
     setError('');
     setCustomerSearch('');
+  };
+
+  const handleClearDraft = () => {
+    resetForm();
+    toast.info('Draft cleared. Started fresh bill.');
   };
 
   const updateItem = (index: number, field: keyof BillItem, value: any) => {
@@ -998,14 +1093,31 @@ const NewBillPage = () => {
   };
 
   const total = Math.max(
-    items.reduce((sum, i) => sum + i.amount, 0), 0
+    items.reduce((sum, i) => sum + (Number(i.amount) || 0), 0),
+    0
   );
 
-  const discountedTotal = Math.max((total - discount), 0);
-  const gstAmount = Math.max(discountedTotal * (3 / 100), 0);
-  const payableAmount = discountedTotal + gstAmount;
-  const oldGoldTotalAmount = oldJewelItem?.reduce((cum, val) => cum + Number(val.amount || 0), 0) || 0;
-  const remainingPayableAmount = payableAmount - (Number(oldGoldTotalAmount) + Number(paidAmount || 0));
+  const discountAmount = Math.max(Number(discount) || 0, 0);
+  const discountedTotal = Math.max(total - discountAmount, 0);
+
+  // CRITICAL FIX: Only calculate GST if isGst is TRUE!
+  const gstAmount = isGst ? Math.max(Math.round(discountedTotal * 0.03), 0) : 0;
+  const grossBillAmount = discountedTotal + gstAmount;
+
+  // Old gold exchange credit
+  const oldGoldTotalAmount = Math.max(
+    oldJewelItem?.reduce((cum, val) => cum + Number(val.amount || 0), 0) || 0,
+    0
+  );
+
+  // Net Cash/UPI amount payable by customer (Gross Bill minus Old Gold credit)
+  const netPayableAmount = Math.max(grossBillAmount - oldGoldTotalAmount, 0);
+  const oldGoldExcessAmount = Math.max(oldGoldTotalAmount - grossBillAmount, 0);
+
+  // Paid and Balance Due
+  const currentPaid = Math.max(Number(paidAmount) || 0, 0);
+  const balanceDue = Math.max(netPayableAmount - currentPaid, 0);
+  const changeToReturn = currentPaid > netPayableAmount ? currentPaid - netPayableAmount : 0;
 
   const handleSubmit = () => {
     setError('');
@@ -1035,15 +1147,24 @@ const NewBillPage = () => {
       return;
     }
 
+    let billDateTime: string | undefined;
+    if (invoiceDate) {
+      const now = new Date();
+      const [y, m, d] = invoiceDate.split('-').map(Number);
+      const targetDate = new Date(y, m - 1, d, now.getHours(), now.getMinutes(), now.getSeconds());
+      billDateTime = targetDate.toISOString();
+    }
+
     const billData = {
       customer_id: selectedCustomer.id,
       is_gst_bill: isGst,
-      discount,
+      bill_date: billDateTime,
+      discount: discountAmount,
       notes,
       totalAmount: total,
       totalGST: gstAmount,
-      payableAmount,
-      paid_amount: Number(paidAmount) || 0,
+      payableAmount: grossBillAmount,
+      paid_amount: currentPaid,
       billItem: validItems.map(item => ({
         category_id: item.category_id,
         metal: item.metal,
@@ -1267,16 +1388,61 @@ const handleTabChange = (tab: string) => {
               </div>
             )}
 
+            {/* Invoice / Bill Date Picker */}
+            <div className="flex items-center gap-1.5 border border-slate-300 rounded-lg px-2.5 py-1.5 bg-slate-50 focus-within:bg-white focus-within:ring-2 focus-within:ring-amber-500 focus-within:border-amber-500 transition-all shadow-xs">
+              <Calendar className="w-4 h-4 text-amber-600 shrink-0" />
+              <label htmlFor="bill-date-input" className="text-xs font-bold text-slate-600 shrink-0 cursor-pointer">
+                Bill Date:
+              </label>
+              <input
+                id="bill-date-input"
+                type="date"
+                value={invoiceDate}
+                onChange={(e) => setInvoiceDate(e.target.value)}
+                className="text-xs font-black text-slate-900 bg-transparent outline-none cursor-pointer"
+              />
+              {invoiceDate !== getTodayDateStr() && (
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] font-black bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded uppercase tracking-wide">
+                    Custom Date
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setInvoiceDate(getTodayDateStr())}
+                    className="text-[11px] text-slate-400 hover:text-slate-700 font-semibold underline ml-0.5 cursor-pointer"
+                    title="Reset to today"
+                  >
+                    Today
+                  </button>
+                </div>
+              )}
+            </div>
+
             {/* GST Toggle */}
-            <label className="flex items-center gap-1.5 text-xs text-gray-700 cursor-pointer whitespace-nowrap">
+            <label className="flex items-center gap-1.5 text-xs text-slate-700 cursor-pointer whitespace-nowrap bg-slate-50 border border-slate-300 px-2.5 py-1.5 rounded-lg hover:bg-slate-100 transition-colors shadow-xs">
               <input
                 type="checkbox"
                 checked={isGst}
                 onChange={(e) => setIsGst(e.target.checked)}
-                className="w-3.5 h-3.5 text-amber-600 border-gray-300 rounded"
+                className="w-3.5 h-3.5 text-amber-600 border-gray-300 rounded cursor-pointer"
               />
-              GST
+              <span className="font-bold text-xs text-slate-800">GST Invoice</span>
             </label>
+
+            {/* Auto-saved draft indicator */}
+            {hasDraft && (
+              <div className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs font-bold px-2.5 py-1.5 rounded-lg shadow-xs">
+                <span>💾 Auto-Saved Draft</span>
+                <button
+                  type="button"
+                  onClick={handleClearDraft}
+                  className="text-emerald-700 hover:text-rose-600 underline font-semibold ml-1 cursor-pointer"
+                  title="Discard draft and reset form"
+                >
+                  Reset
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Right side - Tabs */}
@@ -1580,156 +1746,254 @@ const handleTabChange = (tab: string) => {
 
           {/* Right Section - Bill Summary Card */}
           <div className="lg:col-span-1">
-            <div className="bg-white border border-slate-300 rounded-xl shadow-sm p-4 sticky top-4 space-y-3.5">
-              <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
-                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <span>🧾</span>
-                  <span>Bill Summary</span>
-                </h3>
-                <span className={`text-xs font-bold px-2.5 py-1 rounded-md border ${isGst ? 'bg-blue-50 text-blue-900 border-blue-200' : 'bg-slate-100 text-slate-800 border-slate-300'}`}>
-                  {isGst ? 'GST INVOICE' : 'DIRECT BILL'}
+            <div className="bg-white border border-gray-300 rounded-xl shadow-xs p-4 sticky top-4 space-y-3">
+              {/* Card Header */}
+              <div className="flex items-center justify-between border-b border-gray-200 pb-2.5">
+                <h3 className="text-base font-bold text-gray-900 leading-tight">Bill Summary</h3>
+                <span
+                  className={`text-xs font-bold px-2 py-0.5 rounded border ${
+                    isGst
+                      ? 'bg-blue-50 text-blue-900 border-blue-200'
+                      : 'bg-gray-100 text-gray-800 border-gray-300'
+                  }`}
+                >
+                  {isGst ? 'GST (3%)' : 'DIRECT BILL'}
                 </span>
               </div>
 
-              {/* Breakdown Rows */}
+              {/* Items Subtotal & Calculations */}
               <div className="space-y-2 text-sm">
-                {/* Sub Total */}
-                <div className="flex justify-between items-center text-slate-700">
-                  <span className="font-medium">Sub Total</span>
-                  <span className="font-bold font-mono text-slate-900 text-base">₹ {Math.round(total).toLocaleString('en-IN')}</span>
+                <div className="flex justify-between items-center text-gray-700">
+                  <span className="font-medium text-xs uppercase tracking-wider text-gray-600">New Items Subtotal</span>
+                  <span className="font-bold font-mono text-gray-900 text-sm">₹ {Math.round(total).toLocaleString('en-IN')}</span>
                 </div>
 
                 {/* Discount */}
                 <div className="flex justify-between items-center gap-2">
-                  <span className="text-slate-700 font-medium">Discount (₹)</span>
-                  <div className="flex items-center gap-2">
+                  <span className="text-gray-600 text-xs font-medium">Discount</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs text-gray-400 font-medium">₹</span>
                     <input
                       type="number"
                       min={0}
-                      className="w-24 h-8 px-2.5 text-right text-sm font-bold font-mono border border-slate-300 rounded-md focus:border-slate-800 focus:ring-2 focus:ring-slate-900/10 outline-none"
+                      className="w-20 h-7 px-1.5 text-right text-xs font-bold font-mono border border-gray-300 rounded focus:border-gray-600 focus:outline-none bg-white"
                       value={discount || ''}
                       placeholder="0"
                       onChange={(e) => setDiscount(Number(e.target.value))}
                     />
-                    {Number(discount) > 0 && (
-                      <span className="font-bold font-mono text-rose-600 text-sm">-₹{Math.round(Number(discount)).toLocaleString('en-IN')}</span>
+                    {discountAmount > 0 && (
+                      <span className="font-mono text-rose-600 text-xs font-bold">-₹{Math.round(discountAmount).toLocaleString('en-IN')}</span>
                     )}
                   </div>
                 </div>
 
-                {/* Discounted Subtotal */}
-                {Number(discount) > 0 && (
-                  <div className="flex justify-between items-center text-slate-600 text-xs pt-0.5">
+                {discountAmount > 0 && (
+                  <div className="flex justify-between items-center text-gray-500 text-xs">
                     <span>Subtotal After Discount:</span>
-                    <span className="font-bold font-mono text-slate-800 text-sm">₹ {Math.round(Number(discountedTotal)).toLocaleString('en-IN')}</span>
+                    <span className="font-medium font-mono text-gray-800">₹ {Math.round(discountedTotal).toLocaleString('en-IN')}</span>
                   </div>
                 )}
 
-                {/* GST Details */}
+                {/* GST Details (Only shown if GST Bill) */}
                 {isGst && (
-                  <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200 space-y-1 text-xs">
-                    <div className="flex justify-between text-slate-700">
-                      <span>CGST (1.5%):</span>
-                      <span className="font-mono font-bold text-slate-900 text-sm">₹ {Math.round(gstAmount / 2).toLocaleString('en-IN')}</span>
-                    </div>
-                    <div className="flex justify-between text-slate-700">
-                      <span>SGST (1.5%):</span>
-                      <span className="font-mono font-bold text-slate-900 text-sm">₹ {Math.round(gstAmount / 2).toLocaleString('en-IN')}</span>
-                    </div>
+                  <div className="flex justify-between items-center text-gray-700 text-xs">
+                    <span>GST (3%):</span>
+                    <span className="font-mono font-bold text-gray-900">+₹ {Math.round(gstAmount).toLocaleString('en-IN')}</span>
                   </div>
                 )}
 
-                {/* Old Gold Credit */}
+                {/* Total Bill Value (Before Old Gold) */}
+                <div className="flex justify-between items-center text-gray-900 pt-1 border-t border-gray-200 font-bold text-xs">
+                  <span>Total Bill Value:</span>
+                  <span className="font-mono text-sm">₹ {Math.round(grossBillAmount).toLocaleString('en-IN')}</span>
+                </div>
+
+                {/* Old Jewel Credit */}
                 {oldGoldTotalAmount > 0 && (
-                  <div className="flex justify-between items-center text-emerald-800 bg-emerald-50 px-3 py-2 rounded-lg border border-emerald-300">
-                    <span className="font-bold flex items-center gap-1.5 text-sm">
-                      <span>🪙</span>
-                      <span>Old Jewel Credit</span>
+                  <div className="flex justify-between items-center text-emerald-700 pt-0.5 text-xs font-bold">
+                    <span>Old Jewel Credit:</span>
+                    <span className="font-mono text-sm">
+                      - ₹ {Math.round(oldGoldTotalAmount).toLocaleString('en-IN')}
                     </span>
-                    <span className="font-black font-mono text-base">-₹ {Math.round(oldGoldTotalAmount).toLocaleString('en-IN')}</span>
                   </div>
                 )}
+              </div>
 
-                {/* Net Payable Banner */}
-                <div className="bg-slate-900 text-white p-3.5 rounded-xl flex justify-between items-center shadow-sm">
+              {/* Net Payable Row */}
+              <div className="border-t border-gray-200 pt-2.5">
+                <div className="flex justify-between items-center">
                   <div>
-                    <div className="text-xs uppercase tracking-wider text-slate-300 font-bold">Net Payable</div>
-                    <div className="text-xl font-black font-mono mt-0.5">₹ {Math.round(Number(payableAmount)).toLocaleString('en-IN')}</div>
+                    <span className="text-xs font-bold uppercase tracking-wider text-gray-600">
+                      Net Payable
+                    </span>
+                    <div className="text-xl font-black font-mono text-gray-950">
+                      ₹ {Math.round(netPayableAmount).toLocaleString('en-IN')}
+                    </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setPaidAmount(String(Math.round(Number(payableAmount))))}
-                    className="text-xs bg-slate-800 hover:bg-slate-700 text-amber-300 px-3 py-1.5 rounded-lg font-bold transition-colors cursor-pointer border border-slate-700"
-                    title="Auto-fill Full Amount"
-                  >
-                    Full Pay
-                  </button>
+                  {netPayableAmount > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setPaidAmount(String(Math.round(netPayableAmount)))}
+                      className="text-xs bg-gray-900 hover:bg-gray-800 text-white px-3 py-1.5 rounded-md font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+                    >
+                      Full Pay
+                    </button>
+                  )}
                 </div>
+              </div>
 
-                {/* Paid Input */}
-                <div className="flex justify-between items-center gap-2 pt-1">
-                  <span className="text-slate-800 font-bold text-sm">Paid Amount (₹)</span>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      min={0}
-                      className="w-28 h-9 px-2.5 text-right text-sm font-bold font-mono border border-slate-300 rounded-lg focus:border-slate-800 focus:ring-2 focus:ring-slate-900/10 outline-none"
-                      value={paidAmount}
-                      onChange={(e) => setPaidAmount(e.target.value)}
-                      placeholder="0"
-                    />
-                  </div>
+              {/* Paid Amount Input */}
+              <div className="space-y-1">
+                <div className="flex justify-between items-center">
+                  <label htmlFor="paid-amount-input" className="text-gray-700 font-bold text-xs uppercase tracking-wider">
+                    Paid Amount (Cash/UPI)
+                  </label>
+                  {currentPaid > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setPaidAmount('')}
+                      className="text-[11px] text-gray-400 hover:text-rose-600 underline font-medium cursor-pointer"
+                    >
+                      Clear
+                    </button>
+                  )}
                 </div>
-
-                {/* Balance Due Status */}
-                <div className={`flex justify-between items-center px-3 py-2 rounded-lg border font-bold text-sm ${remainingPayableAmount <= 0 ? 'bg-emerald-50 text-emerald-900 border-emerald-300' : 'bg-rose-50 text-rose-900 border-rose-300'}`}>
-                  <span>{remainingPayableAmount <= 0 ? 'Balance (Cleared)' : 'Balance Due'}</span>
-                  <span className="font-mono text-base font-black">
-                    {remainingPayableAmount <= 0 ? '₹ 0.00' : `₹ ${Math.round(Number(remainingPayableAmount)).toLocaleString('en-IN')}`}
-                  </span>
-                </div>
-
-                {/* Notes */}
-                <div className="pt-1">
+                <div className="relative">
+                  <span className="absolute left-3 top-1.5 text-gray-400 font-bold text-sm">₹</span>
                   <input
-                    type="text"
-                    placeholder="Note / Payment Mode (Cash, UPI, Card)..."
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    className="w-full h-9 px-3 text-sm border border-slate-300 rounded-lg focus:border-slate-800 focus:ring-2 focus:ring-slate-900/10 outline-none bg-slate-50"
+                    id="paid-amount-input"
+                    type="number"
+                    min={0}
+                    className="w-full h-9 pl-7 pr-3 text-right text-base font-black font-mono border border-gray-300 rounded-lg focus:border-gray-500 focus:outline-none bg-white shadow-xs"
+                    value={paidAmount}
+                    onChange={(e) => setPaidAmount(e.target.value)}
+                    placeholder="0"
                   />
                 </div>
+              </div>
 
-                {error && (
-                  <div className="text-xs text-rose-700 bg-rose-50 p-2.5 rounded-lg border border-rose-200 font-bold">
-                    {error}
+              {/* Single Payment Status / Balance Box */}
+              <div>
+                {oldGoldExcessAmount > 0 ? (
+                  <div className="p-2.5 rounded-lg border bg-blue-50 border-blue-200 flex justify-between items-center">
+                    <div>
+                      <div className="text-xs font-bold text-blue-900 uppercase tracking-wide">
+                        Refund to Customer
+                      </div>
+                      <div className="text-[11px] text-blue-700">
+                        Old gold credit exceeds bill
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-mono text-base font-black text-blue-900">
+                        ₹ {Math.round(oldGoldExcessAmount + currentPaid).toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                  </div>
+                ) : balanceDue > 0 ? (
+                  <div className="p-2.5 rounded-lg border bg-rose-50 border-rose-200 flex justify-between items-center">
+                    <div>
+                      <div className="text-xs font-bold text-rose-800 uppercase tracking-wide">
+                        Balance Due
+                      </div>
+                      <div className="text-[11px] text-rose-600">
+                        Pending from customer
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-mono text-base font-black text-rose-700">
+                        ₹ {Math.round(balanceDue).toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                  </div>
+                ) : changeToReturn > 0 ? (
+                  <div className="p-2.5 rounded-lg border bg-amber-50 border-amber-200 flex justify-between items-center">
+                    <div>
+                      <div className="text-xs font-bold text-amber-900 uppercase tracking-wide">
+                        Change / Return
+                      </div>
+                      <div className="text-[11px] text-amber-700">
+                        Return excess cash to customer
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-mono text-base font-black text-amber-800">
+                        ₹ {Math.round(changeToReturn).toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-2.5 rounded-lg border bg-emerald-50 border-emerald-200 flex justify-between items-center">
+                    <div>
+                      <div className="text-xs font-bold text-emerald-800 uppercase tracking-wide">
+                        Payment Status
+                      </div>
+                      <div className="text-[11px] text-emerald-700">
+                        Fully Settled
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-mono text-base font-black text-emerald-800">
+                        ₹ 0.00
+                      </span>
+                    </div>
                   </div>
                 )}
-
-                {/* Submit & Print Button */}
-                <button
-                  onClick={handleSubmit}
-                  disabled={isPending || isPrinting || isExpired}
-                  className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm h-11 px-4 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm cursor-pointer"
-                >
-                  {isPending || isPrinting ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin text-amber-400" />
-                      <span>Saving & Printing Bill...</span>
-                    </>
-                  ) : isExpired ? (
-                    <>
-                      <AlertCircle className="w-5 h-5 text-rose-400" />
-                      <span>Official Invoicing Locked (Plan Expired)</span>
-                    </>
-                  ) : (
-                    <>
-                      <Printer className="w-5 h-5 text-amber-400" />
-                      <span>Save & Print Invoice</span>
-                    </>
-                  )}
-                </button>
               </div>
+
+              {/* Notes */}
+              <div>
+                <input
+                  type="text"
+                  placeholder="Note / Payment Mode (Cash, UPI, Card)..."
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="w-full h-8 px-2.5 text-xs border border-gray-300 rounded-lg focus:border-gray-500 focus:outline-none bg-white placeholder:text-gray-400"
+                />
+              </div>
+
+              {/* Discard Draft link */}
+              {hasDraft && (
+                <div className="text-center">
+                  <button
+                    type="button"
+                    onClick={handleClearDraft}
+                    className="text-[11px] text-gray-400 hover:text-rose-600 underline font-medium transition-colors cursor-pointer"
+                  >
+                    Discard draft & start fresh
+                  </button>
+                </div>
+              )}
+
+              {error && (
+                <div className="text-xs text-rose-700 bg-rose-50 p-2 rounded-lg border border-rose-200 font-medium">
+                  {error}
+                </div>
+              )}
+
+              {/* Submit & Print Button */}
+              <button
+                onClick={handleSubmit}
+                disabled={isPending || isPrinting || isExpired}
+                className="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold text-sm h-10 px-4 rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-xs cursor-pointer"
+              >
+                {isPending || isPrinting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-amber-400" />
+                    <span>Saving & Printing Bill...</span>
+                  </>
+                ) : isExpired ? (
+                  <>
+                    <AlertCircle className="w-4 h-4 text-rose-400" />
+                    <span>Official Invoicing Locked (Plan Expired)</span>
+                  </>
+                ) : (
+                  <>
+                    <Printer className="w-4 h-4 text-amber-400" />
+                    <span>Save & Print Invoice</span>
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>

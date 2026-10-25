@@ -19,13 +19,24 @@ import {
   Crown,
   Loader2,
   CreditCard,
+  Store,
 } from 'lucide-react';
+
+const FEATURE_LABELS: Record<string, string> = {
+  billing: 'GST & Estimate Billing',
+  gst_reports: 'Tax, Sales & GSTR Reports',
+  custom_branding: 'Custom Logo & Invoice Prefixes',
+  inventory: 'Stock Ledger & Safe Vault Inventory',
+  gold_loans: 'Jewel Loan (Pawn / Girvi)',
+  gold_schemes: 'Gold Savings Schemes & Passbook',
+  dealer_approval: 'Dealer Consignment (Jangat) Memos',
+};
 
 export default function ShopSubscription() {
   const queryClient = useQueryClient();
   const { user, setShop, shop } = useAuthStore();
 
-  const [selectedDuration, setSelectedDuration] = useState<number>(12); // Default to 12 months (Best Value)
+  const [selectedDuration, setSelectedDuration] = useState<number>(1); // Default to 1 month (Active monthly pay: ₹299, ₹699, ₹899)
   const [selectedPlanForUpgrade, setSelectedPlanForUpgrade] = useState<any>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState<boolean>(false);
 
@@ -248,8 +259,8 @@ export default function ShopSubscription() {
             </div>
             <div className="h-4 w-px bg-slate-700" />
             <div>
-              <span className="text-slate-400">Branch: </span>
-              <strong className="text-emerald-400 font-bold">{usage.max_branches} Included</strong>
+              <span className="text-slate-400">License: </span>
+              <strong className="text-emerald-400 font-bold">1 Single Store</strong>
             </div>
           </div>
         )}
@@ -373,24 +384,26 @@ export default function ShopSubscription() {
                     <span><strong className="text-slate-900 font-bold">{plan.max_invoices_per_month ?? 'Unlimited'}</strong> Monthly Bills</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Building2 className="w-4 h-4 text-gold flex-shrink-0" />
-                    <span><strong className="text-slate-900 font-bold">{plan.max_branches}</strong> Branch</span>
+                    <Store className="w-4 h-4 text-gold flex-shrink-0" />
+                    <span><strong className="text-slate-900 font-bold">1</strong> Shop License (Single Store)</span>
                   </div>
 
-                  {Object.entries(plan.features || {}).map(([key, enabled]) => (
-                    <div key={key} className="flex items-center gap-3">
-                      <div
-                        className={`w-4.5 h-4.5 rounded-full flex items-center justify-center flex-shrink-0 ${
-                          enabled ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-300'
-                        }`}
-                      >
-                        {enabled ? <Check className="w-3 h-3 stroke-[3]" /> : <span className="text-[10px]">×</span>}
+                  {Object.entries(plan.features || {})
+                    .filter(([key]) => key !== 'multi_branch')
+                    .map(([key, enabled]) => (
+                      <div key={key} className="flex items-center gap-3">
+                        <div
+                          className={`w-4.5 h-4.5 rounded-full flex items-center justify-center flex-shrink-0 ${
+                            enabled ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-300'
+                          }`}
+                        >
+                          {enabled ? <Check className="w-3 h-3 stroke-[3]" /> : <span className="text-[10px]">×</span>}
+                        </div>
+                        <span className={enabled ? 'text-slate-700' : 'text-slate-300 line-through'}>
+                          {FEATURE_LABELS[key] || key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+                        </span>
                       </div>
-                      <span className={enabled ? 'text-slate-700' : 'text-slate-300 line-through'}>
-                        {key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
-                      </span>
-                    </div>
-                  ))}
+                    ))}
                 </div>
 
                 {/* Upgrade Button */}

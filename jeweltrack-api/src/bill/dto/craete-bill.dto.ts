@@ -159,7 +159,18 @@ export class CreateBillDto{
     @Type(()=>OldGoldEntryDto)
     oldJewelItem !:OldGoldEntryDto[];
 
-    }
+    @ApiPropertyOptional({example:"2026-10-15T12:00:00.000Z"})
+    @IsOptional()
+    @IsString()
+    bill_date?:string;
+}
+
+export class UpdateBillDateDto {
+    @ApiProperty({example:"2026-10-15T12:00:00.000Z"})
+    @IsNotEmpty()
+    @IsString()
+    bill_date!: string;
+}
 
 
     

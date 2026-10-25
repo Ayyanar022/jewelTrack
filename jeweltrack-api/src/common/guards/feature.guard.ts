@@ -7,13 +7,15 @@ export class FeatureGuard implements CanActivate {
   constructor(private reflector: Reflector, private subscriptionService: SubscriptionService) {}
 
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
-    const feature = this.reflector.get<string>('feature', ctx.getHandler());
+    const feature =
+      this.reflector.get<string>('feature', ctx.getHandler()) ||
+      this.reflector.get<string>('feature', ctx.getClass());
     if (!feature) return true;
 
     const req = ctx.switchToHttp().getRequest();
     const shopId = req.user?.shop_id || req.user?.id;
     const has = await this.subscriptionService.hasFeature(shopId, feature);
-    if (!has) throw new ForbiddenException(`Upgrade required for "${feature}"`);
+    if (!has) throw new ForbiddenException(`Upgrade required: "${feature}" is not included in your current subscription plan.`);
     return true;
   }
 }

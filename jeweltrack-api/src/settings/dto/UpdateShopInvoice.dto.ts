@@ -13,6 +13,11 @@ export class UpdateShopInvoiceDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(15)
+  scheme_prefix?: string;
+
+  @IsOptional()
+  @IsString()
   @MaxLength(1000)
   terms_conditions?: string;
 }

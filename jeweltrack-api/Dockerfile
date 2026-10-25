@@ -31,4 +31,4 @@ COPY --from=builder /app/prisma ./prisma
 EXPOSE 3002
 
 # Command to start NestJS backend
-CMD ["sh", "-c", "npx prisma db push && (npx ts-node prisma/seed.ts || true) && node dist/main.js"]
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss && (npx ts-node prisma/seed.ts || true) && node dist/main.js"]

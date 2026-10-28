@@ -57,7 +57,11 @@ export default function LoginPage() {
       }
     },
     onError: (e: any) => {
-      const message = e?.response?.data?.message || 'Invalid phone number or password';
+      const message =
+        e?.response?.data?.message ||
+        (e?.code === 'ERR_NETWORK' || !e?.response
+          ? 'Cannot connect to backend server. Please check network/API status.'
+          : 'Invalid phone number or password');
       setError(message);
       toast.error(message);
     },

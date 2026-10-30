@@ -176,7 +176,9 @@ export default function EstimatePage() {
   }, [handlePrint]);
 
   const inputClass =
-    'h-11 text-base font-black text-slate-900 border-slate-300 focus-visible:border-slate-800 focus-visible:ring-2 focus-visible:ring-slate-200 transition-all';
+    'h-8.5 sm:h-9 text-xs sm:text-sm font-semibold text-slate-900 border-slate-300 rounded-lg focus-visible:border-slate-800 focus-visible:ring-1 focus-visible:ring-slate-200 transition-all';
+  const selectClass =
+    'w-full h-8.5 sm:h-9 px-2.5 rounded-lg border border-slate-300 bg-white text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-200 transition-all cursor-pointer';
 
   return (
     <>
@@ -208,26 +210,32 @@ export default function EstimatePage() {
       `}</style>
 
       {/* Single-Screen Viewport with Responsive Fallback */}
-      <div className="min-h-[calc(100dvh-120px)] lg:h-[calc(100dvh-108px)] flex flex-col max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-10 overflow-y-auto lg:overflow-hidden gap-2.5">
+      <div className="min-h-[calc(100dvh-120px)] lg:h-[calc(100dvh-108px)] flex flex-col max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 overflow-y-auto lg:overflow-hidden gap-2.5 sm:gap-3">
         {/* Compact Header Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-white px-3.5 sm:px-4 py-2 rounded-xl border border-slate-200 shadow-xs flex-shrink-0 gap-2">
-          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-            <span className="text-sm font-black text-slate-900">Quotation Desk (மதிப்பீடு)</span>
+        <div className="flex items-center justify-between bg-white px-3 py-2 sm:px-5 sm:py-2.5 rounded-xl border border-slate-200 shadow-xs flex-shrink-0 gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap min-w-0">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <ReceiptText className="w-4 h-4 text-amber-600 shrink-0" />
+              <h1 className="text-xs sm:text-base font-bold tracking-tight text-slate-900 truncate">
+                Estimate Bill
+                <span className="text-xs font-normal text-slate-400 font-sans ml-1 hidden sm:inline">(மதிப்பீடு)</span>
+              </h1>
+            </div>
             {isExpired && (
-              <span className="bg-emerald-50 text-emerald-800 border border-emerald-300 text-[11px] font-black px-2.5 py-0.5 rounded-full shadow-2xs">
-                🟢 Estimate Mode Active (Free)
+              <span className="bg-emerald-50 text-emerald-800 border border-emerald-300 text-[10px] font-semibold px-2 py-0.2 rounded-full">
+                🟢 Free Estimate
               </span>
             )}
             {rate && (
-              <div className="hidden sm:flex items-center gap-3 text-xs font-semibold pl-3 border-l border-slate-200">
-                <span className="text-amber-950 font-bold">22K: ₹{rate.rate_22k}/g</span>
-                <span className="text-slate-400">•</span>
-                <span className="text-slate-800 font-bold">Silver: ₹{rate.rate_silver}/g</span>
+              <div className="hidden sm:flex items-center gap-3 text-xs font-medium pl-3 border-l border-slate-200">
+                <span className="text-slate-600">22K: <strong className="text-slate-900 font-semibold tabular-nums">₹{rate.rate_22k}/g</strong></span>
+                <span className="text-slate-300">•</span>
+                <span className="text-slate-600">Silver: <strong className="text-slate-900 font-semibold tabular-nums">₹{rate.rate_silver}/g</strong></span>
               </div>
             )}
           </div>
 
-          <div className="flex items-center gap-2 self-end sm:self-auto">
+          <div className="flex items-center gap-1.5 shrink-0">
             <Button
               variant="outline"
               size="sm"
@@ -235,9 +243,9 @@ export default function EstimatePage() {
                 setHistory(getHistory());
                 setShowHistory(true);
               }}
-              className="h-8 px-2.5 sm:px-3 text-xs font-bold text-slate-700 border-slate-300 hover:bg-slate-50 cursor-pointer"
+              className="h-7.5 sm:h-8 px-2 sm:px-2.5 text-[11px] sm:text-xs font-semibold text-slate-700 border-slate-300 hover:bg-slate-50 cursor-pointer rounded-lg"
             >
-              <History className="w-3.5 h-3.5 mr-1 text-slate-600" />
+              <History className="w-3 h-3 mr-1 text-slate-500" />
               <span>History ({history.length})</span>
             </Button>
             <Button
@@ -245,24 +253,24 @@ export default function EstimatePage() {
               size="sm"
               onClick={handleResetHistory}
               title="Reset recent history stored for your account"
-              className="h-8 px-2 sm:px-2.5 text-xs font-semibold text-slate-600 hover:text-rose-600 cursor-pointer"
+              className="h-7.5 sm:h-8 px-1.5 sm:px-2 text-[11px] sm:text-xs font-medium text-slate-500 hover:text-rose-600 cursor-pointer rounded-lg"
             >
-              <RotateCcw className="w-3.5 h-3.5 mr-1" />
-              <span>Reset History</span>
+              <RotateCcw className="w-3 h-3 mr-0.5" />
+              <span>Reset</span>
             </Button>
           </div>
         </div>
 
         {/* 2-Column POS Layout Filling Height */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8 flex-1 min-h-0">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 flex-1 min-h-0">
           {/* Left Form: 7 Cols */}
-          <div className="lg:col-span-7 bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 sm:px-7 shadow-xs flex flex-col justify-between overflow-hidden">
+          <div className="lg:col-span-7 bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 sm:px-6 shadow-xs flex flex-col justify-between overflow-hidden">
             <div className="space-y-3 sm:space-y-3.5">
               {/* Row 1: Category + Item Name */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {categories.length > 0 && (
-                  <div className="space-y-1">
-                    <Label className="text-xs font-bold text-slate-800">Category Preset</Label>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs sm:text-sm font-medium text-slate-700">Category Preset</Label>
                     <select
                       value=""
                       onChange={(e) => {
@@ -280,7 +288,7 @@ export default function EstimatePage() {
                         u.amount = calcAmount(u);
                         setItem(u);
                       }}
-                      className="w-full h-11 px-3 rounded-lg border border-slate-300 bg-slate-50 text-sm font-bold text-slate-900 focus:outline-none focus:border-slate-800 focus:ring-2 focus:ring-slate-200 transition-all cursor-pointer"
+                      className="w-full h-10 px-3 rounded-lg border border-slate-300 bg-slate-50 text-sm font-medium text-slate-900 focus:outline-none focus:border-slate-800 focus:ring-2 focus:ring-slate-200 transition-all cursor-pointer"
                     >
                       <option value="">Quick select category...</option>
                       {categories.map((c: any) => (
@@ -292,8 +300,8 @@ export default function EstimatePage() {
                   </div>
                 )}
 
-                <div className="space-y-1">
-                  <Label className="text-xs font-bold text-slate-800">Item Name</Label>
+                <div className="space-y-1.5">
+                  <Label className="text-xs sm:text-sm font-medium text-slate-700">Item Name</Label>
                   <Input
                     placeholder="e.g. Gold Ring, Necklace"
                     value={item.item_name}
@@ -305,12 +313,12 @@ export default function EstimatePage() {
 
               {/* Row 2: Metal + Purity + Rate */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
-                <div className="space-y-1">
-                  <Label className="text-xs font-bold text-slate-800">Metal</Label>
+                <div className="space-y-1.5">
+                  <Label className="text-xs sm:text-sm font-medium text-slate-700">Metal</Label>
                   <select
                     value={item.metal}
                     onChange={(e) => updateItem('metal', e.target.value)}
-                    className="w-full h-11 px-2.5 rounded-lg border border-slate-300 bg-white text-sm font-black text-slate-900 focus:outline-none focus:border-slate-800 focus:ring-2 focus:ring-slate-200 transition-all cursor-pointer"
+                    className={selectClass}
                   >
                     <option value="GOLD">Gold</option>
                     <option value="SILVER">Silver</option>
@@ -318,12 +326,12 @@ export default function EstimatePage() {
                 </div>
 
                 {item.metal === 'GOLD' ? (
-                  <div className="space-y-1">
-                    <Label className="text-xs font-bold text-slate-800">Purity</Label>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs sm:text-sm font-medium text-slate-700">Purity</Label>
                     <select
                       value={item.purity}
                       onChange={(e) => updateItem('purity', e.target.value)}
-                      className="w-full h-11 px-2.5 rounded-lg border border-slate-300 bg-white text-sm font-black text-slate-900 focus:outline-none focus:border-slate-800 focus:ring-2 focus:ring-slate-200 transition-all cursor-pointer"
+                      className={selectClass}
                     >
                       <option value="K22">22K (916)</option>
                       <option value="K18">18K (750)</option>
@@ -331,16 +339,16 @@ export default function EstimatePage() {
                     </select>
                   </div>
                 ) : (
-                  <div className="space-y-1">
-                    <Label className="text-xs font-bold text-slate-800">Purity</Label>
-                    <div className="h-11 px-2.5 flex items-center rounded-lg bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs sm:text-sm font-medium text-slate-700">Purity</Label>
+                    <div className="h-10 px-2.5 flex items-center rounded-lg bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700">
                       Silver
                     </div>
                   </div>
                 )}
 
-                <div className="space-y-1">
-                  <Label className="text-xs font-bold text-slate-800">Rate (₹/g)</Label>
+                <div className="space-y-1.5">
+                  <Label className="text-xs sm:text-sm font-medium text-slate-700">Rate (₹/g)</Label>
                   <Input
                     type="number"
                     value={item.rate || ''}
@@ -352,8 +360,8 @@ export default function EstimatePage() {
 
               {/* Row 3: Weight + Wastage % + Wastage g */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
-                <div className="space-y-1">
-                  <Label className="text-xs font-bold text-slate-800">Weight (g) *</Label>
+                <div className="space-y-1.5">
+                  <Label className="text-xs sm:text-sm font-medium text-slate-700">Weight (g) *</Label>
                   <Input
                     type="number"
                     step="0.001"
@@ -365,8 +373,8 @@ export default function EstimatePage() {
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <Label className="text-xs font-bold text-slate-800">Wastage %</Label>
+                <div className="space-y-1.5">
+                  <Label className="text-xs sm:text-sm font-medium text-slate-700">Wastage %</Label>
                   <Input
                     type="number"
                     step="0.1"
@@ -377,8 +385,8 @@ export default function EstimatePage() {
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <Label className="text-xs font-bold text-slate-800">Wastage (g)</Label>
+                <div className="space-y-1.5">
+                  <Label className="text-xs sm:text-sm font-medium text-slate-700">Wastage (g)</Label>
                   <Input
                     type="number"
                     step="0.001"
@@ -392,8 +400,8 @@ export default function EstimatePage() {
 
               {/* Row 4: Making Charge */}
               <div className="grid grid-cols-1 gap-3">
-                <div className="space-y-1">
-                  <Label className="text-xs font-bold text-slate-800">Making Charge (செய்கூலி ₹)</Label>
+                <div className="space-y-1.5">
+                  <Label className="text-xs sm:text-sm font-medium text-slate-700">Making Charge (செய்கூலி ₹)</Label>
                   <Input
                     type="number"
                     placeholder="0"
@@ -407,18 +415,18 @@ export default function EstimatePage() {
 
             {/* Error Banner */}
             {printError && (
-              <div className="text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-3 py-1.5 rounded-lg my-1">
+              <div className="text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200 px-3 py-1.5 rounded-lg my-1">
                 ⚠️ {printError}
               </div>
             )}
 
             {/* Action Bar */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 pt-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 pt-3">
               <Button
                 onClick={handlePrint}
-                className="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-black h-11 text-base shadow-md flex items-center justify-center gap-2 cursor-pointer w-full"
+                className="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-semibold h-10 sm:h-11 text-sm sm:text-base shadow-xs flex items-center justify-center gap-2 cursor-pointer w-full transition-colors"
               >
-                <Printer className="w-5 h-5" />
+                <Printer className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
                 <span>Print Estimate Slip (Enter ↵)</span>
               </Button>
 
@@ -426,7 +434,7 @@ export default function EstimatePage() {
                 variant="outline"
                 onClick={handleClearForm}
                 title="Clear current form fields"
-                className="h-11 px-6 text-sm font-bold text-slate-700 hover:text-rose-600 border-slate-300 cursor-pointer w-full sm:w-auto"
+                className="h-10 sm:h-11 px-5 text-sm font-medium text-slate-700 hover:text-rose-600 hover:bg-rose-50 border-slate-300 cursor-pointer w-full sm:w-auto transition-colors"
               >
                 Clear Form
               </Button>
@@ -434,52 +442,52 @@ export default function EstimatePage() {
           </div>
 
           {/* Right Panel: Clean, Simple Estimate Summary (5 Cols) */}
-          <div className="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 lg:p-7 shadow-xs flex flex-col justify-between">
+          <div className="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-xs flex flex-col justify-between">
             <div className="space-y-1">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-                <span className="text-sm font-black text-slate-900">Estimate Calculation</span>
-                <span className="text-xs font-bold text-slate-600">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+                <h2 className="text-base font-bold text-slate-900">Estimate Calculation</h2>
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
                   {item.metal === 'GOLD' ? `Gold · ${item.purity}` : 'Silver'}
                 </span>
               </div>
 
               <div className="divide-y divide-slate-100 text-sm">
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-slate-600 font-medium">Item</span>
-                  <span className="font-bold text-slate-900">{item.item_name || '—'}</span>
+                <div className="flex justify-between items-center py-2.5">
+                  <span className="text-slate-500 font-normal">Item</span>
+                  <span className="font-semibold text-slate-900">{item.item_name || '—'}</span>
                 </div>
 
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-slate-600 font-medium">Rate</span>
-                  <span className="font-bold text-slate-900 font-mono">₹{fmt(item.rate)}/g</span>
+                <div className="flex justify-between items-center py-2.5">
+                  <span className="text-slate-500 font-normal">Rate</span>
+                  <span className="font-semibold text-slate-900 tabular-nums">₹{fmt(item.rate)}/g</span>
                 </div>
 
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-slate-600 font-medium">Weight</span>
-                  <span className="font-bold text-slate-900 font-mono">{item.weight || 0} g</span>
+                <div className="flex justify-between items-center py-2.5">
+                  <span className="text-slate-500 font-normal">Weight</span>
+                  <span className="font-semibold text-slate-900 tabular-nums">{item.weight || 0} g</span>
                 </div>
 
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-slate-600 font-medium">Wastage</span>
-                  <span className="font-bold text-slate-900 font-mono">+{item.wastage_weight || 0} g ({item.wastage_pct || 0}%)</span>
+                <div className="flex justify-between items-center py-2.5">
+                  <span className="text-slate-500 font-normal">Wastage</span>
+                  <span className="font-semibold text-slate-900 tabular-nums">+{item.wastage_weight || 0} g ({item.wastage_pct || 0}%)</span>
                 </div>
 
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-slate-600 font-medium">Making Charge</span>
-                  <span className="font-bold text-slate-900 font-mono">₹{fmt(item.making_charge || 0)}</span>
+                <div className="flex justify-between items-center py-2.5">
+                  <span className="text-slate-500 font-normal">Making Charge</span>
+                  <span className="font-semibold text-slate-900 tabular-nums">₹{fmt(item.making_charge || 0)}</span>
                 </div>
 
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-slate-600 font-medium">GST</span>
-                  <span className="font-bold text-slate-900 font-mono">₹0</span>
+                <div className="flex justify-between items-center py-2.5">
+                  <span className="text-slate-500 font-normal">GST</span>
+                  <span className="font-semibold text-slate-900 tabular-nums">₹0</span>
                 </div>
               </div>
             </div>
 
             {/* Simple, Clean Total Row */}
-            <div className="border-t-2 border-slate-900 pt-3 flex items-center justify-between mt-auto">
-              <span className="text-lg font-black text-slate-900">Total</span>
-              <span className="text-3xl font-black text-slate-900 font-mono">₹{fmt(finalAmount)}</span>
+            <div className="border-t-2 border-slate-900 pt-3.5 flex items-center justify-between mt-4">
+              <span className="text-base font-bold text-slate-900">Total Estimate</span>
+              <span className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight tabular-nums">₹{fmt(finalAmount)}</span>
             </div>
           </div>
         </div>
@@ -498,7 +506,7 @@ export default function EstimatePage() {
         }`}
       >
         <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
-          <span className="text-sm font-black text-slate-900">Recent Estimates</span>
+          <h2 className="text-base font-bold text-slate-900">Recent Estimates</h2>
           <button
             onClick={() => setShowHistory(false)}
             className="text-slate-400 hover:text-slate-700 p-1 rounded-lg cursor-pointer"
@@ -519,13 +527,13 @@ export default function EstimatePage() {
                   setShowHistory(false);
                   setPrintError('');
                 }}
-                className="p-4 hover:bg-slate-50 cursor-pointer transition-colors space-y-1"
+                className="p-3.5 sm:p-4 hover:bg-slate-50 cursor-pointer transition-colors space-y-1"
               >
                 <div className="flex justify-between items-center">
-                  <span className="font-bold text-slate-900 text-sm">{entry.item.item_name || 'Ornament'}</span>
-                  <span className="font-black text-emerald-900 text-sm">₹{fmt(entry.total)}</span>
+                  <span className="font-semibold text-slate-900 text-sm">{entry.item.item_name || 'Ornament'}</span>
+                  <span className="font-bold text-emerald-800 text-sm tabular-nums">₹{fmt(entry.total)}</span>
                 </div>
-                <div className="text-xs text-slate-600 font-medium flex items-center justify-between">
+                <div className="text-xs text-slate-500 font-normal flex items-center justify-between">
                   <span>{entry.item.weight}g · {entry.item.metal === 'GOLD' ? entry.item.purity : 'Silver'}</span>
                   <span>{entry.time}</span>
                 </div>
@@ -540,7 +548,7 @@ export default function EstimatePage() {
               variant="outline"
               size="sm"
               onClick={handleResetHistory}
-              className="w-full text-xs text-rose-600 hover:bg-rose-50 border-rose-200 font-bold cursor-pointer"
+              className="w-full text-xs text-rose-600 hover:bg-rose-50 border-rose-200 font-semibold cursor-pointer"
             >
               Clear All History
             </Button>

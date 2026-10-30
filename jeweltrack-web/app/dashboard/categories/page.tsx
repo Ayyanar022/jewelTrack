@@ -128,43 +128,44 @@ export default function CategoriesPage() {
   };
 
   const inputClass =
-    'h-11 text-base font-bold text-slate-900 border-slate-300 focus-visible:border-slate-800 focus-visible:ring-2 focus-visible:ring-slate-200 transition-all';
+    'h-9 sm:h-10 text-xs sm:text-sm font-bold text-slate-900 border-slate-300 focus-visible:border-slate-800 focus-visible:ring-2 focus-visible:ring-slate-200 transition-all';
 
   return (
-    <div className="flex flex-col gap-5 max-w-7xl mx-auto px-2.5 sm:px-4 lg:px-8 pb-20">
+    <div className="flex flex-col gap-3.5 max-w-7xl mx-auto px-2.5 sm:px-4 lg:px-8 pb-16">
       {/* Subscription Expired Warning Banner */}
       {isExpired && (
-        <div className="bg-rose-50 border border-rose-300 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-rose-950 shadow-xs">
-          <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center font-black shrink-0 shadow-xs">
-              <AlertCircle className="w-5 h-5" />
+        <div className="bg-rose-50 border border-rose-300 rounded-2xl p-3.5 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-rose-950 shadow-xs">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center font-black shrink-0 shadow-xs">
+              <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-rose-800">
+              <div className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-rose-800">
                 Category Modification Locked · Plan Expired
               </div>
-              <p className="text-sm font-medium text-rose-900 mt-0.5">
+              <p className="text-xs sm:text-sm font-medium text-rose-900 mt-0.5">
                 Your subscription has expired. Adding or modifying category presets is locked. Existing category wastage & making charge presets are still available for billing calculations.
               </p>
             </div>
           </div>
           <Link
             href="/dashboard/settings?tab=subscription"
-            className="bg-gradient-to-r from-gold via-amber-400 to-amber-500 text-slate-950 text-xs font-black px-4 py-2.5 rounded-xl shadow-xs hover:brightness-105 transition-all self-start sm:self-auto shrink-0"
+            className="bg-gradient-to-r from-gold via-amber-400 to-amber-500 text-slate-950 text-xs font-black px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl shadow-xs hover:brightness-105 transition-all self-start sm:self-auto shrink-0"
           >
-            ⚡ Renew Plan to Edit Categories
+            ⚡ Renew Plan
           </Link>
         </div>
       )}
 
-      {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-        <div>
-          <h1 className="text-xl font-black text-slate-900 flex items-center gap-2">
-            <Layers className="w-5 h-5 text-amber-700" />
-            <span>Jewellery Categories (நகை பிரிவுகள்)</span>
-          </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+      {/* Header Bar — Slim single row on mobile */}
+      <div className="flex items-center justify-between gap-2 bg-white px-3 py-2 sm:px-5 sm:py-3.5 rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs">
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <Layers className="w-4 h-4 sm:w-5 sm:h-5 text-amber-700 shrink-0" />
+            <h1 className="text-xs sm:text-base font-bold text-slate-900 truncate">Jewellery Categories</h1>
+            <span className="hidden sm:inline text-xs text-slate-400 font-normal">(நகை பிரிவுகள்)</span>
+          </div>
+          <p className="hidden sm:block text-xs text-slate-500 mt-0.5">
             Default wastage % and making charge presets for fast billing & estimations.
           </p>
         </div>
@@ -181,33 +182,33 @@ export default function CategoriesPage() {
               setShowForm(true);
             }}
             disabled={isExpired}
-            className="bg-slate-900 hover:bg-slate-800 text-white font-bold h-10 px-4 text-xs flex items-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50"
+            className="bg-slate-900 hover:bg-slate-800 text-white font-bold h-7.5 sm:h-9 px-2.5 sm:px-4 text-[11px] sm:text-xs flex items-center gap-1 shadow-xs cursor-pointer disabled:opacity-50 shrink-0 rounded-lg sm:rounded-xl"
           >
-            <Plus className="w-4 h-4" />
-            <span className='text-sm'>{isExpired ? 'Add Category (Locked)' : 'Add Category'}</span>
+            <Plus className="w-3.5 h-3.5" />
+            <span>{isExpired ? 'Locked' : 'Add Category'}</span>
           </Button>
         )}
       </div>
 
       {/* Compact Form Card */}
       {showForm && (
-        <div className="bg-white border border-slate-200 shadow-xs rounded-2xl p-6 space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-            <h2 className="text-lg font-black text-slate-900">
+        <div className="bg-white border border-slate-200 shadow-xs rounded-2xl p-3.5 sm:p-5 space-y-3 sm:space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
+            <h2 className="text-sm sm:text-base font-black text-slate-900">
               {editingId ? 'Edit Category' : 'New Category'}
             </h2>
             <button
               onClick={handleCancel}
               className="text-slate-400 hover:text-slate-700 p-1 rounded-lg cursor-pointer"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="space-y-1.5">
-                <Label className="text-sm font-bold text-slate-800">Category Name *</Label>
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+              <div className="space-y-1">
+                <Label className="text-xs sm:text-sm font-bold text-slate-800">Category Name *</Label>
                 <Input
                   placeholder="e.g. Ring, Chain, Bangle"
                   value={form.name}
@@ -218,20 +219,20 @@ export default function CategoriesPage() {
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-sm font-bold text-slate-800">Metal</Label>
+              <div className="space-y-1">
+                <Label className="text-xs sm:text-sm font-bold text-slate-800">Metal</Label>
                 <select
                   value={form.metal}
                   onChange={(e) => setForm({ ...form, metal: e.target.value as 'GOLD' | 'SILVER' })}
-                  className="w-full h-11 px-3 rounded-lg border border-slate-300 bg-white text-sm font-bold text-slate-900 focus:outline-none focus:border-slate-800 focus:ring-2 focus:ring-slate-200 transition-all cursor-pointer"
+                  className="w-full h-9 sm:h-10 px-2.5 sm:px-3 rounded-lg border border-slate-300 bg-white text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:border-slate-800 focus:ring-2 focus:ring-slate-200 transition-all cursor-pointer"
                 >
                   <option value="GOLD">🪙 Gold (தங்கம்)</option>
                   <option value="SILVER">⚪ Silver (வெள்ளி)</option>
                 </select>
               </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-sm font-bold text-slate-800">Wastage %</Label>
+              <div className="space-y-1">
+                <Label className="text-xs sm:text-sm font-bold text-slate-800">Wastage %</Label>
                 <Input
                   type="number"
                   step="0.1"
@@ -242,8 +243,8 @@ export default function CategoriesPage() {
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-sm font-bold text-slate-800">MC</Label>
+              <div className="space-y-1">
+                <Label className="text-xs sm:text-sm font-bold text-slate-800">Making Charge (₹)</Label>
                 <Input
                   type="number"
                   placeholder="e.g. 500"
@@ -256,9 +257,9 @@ export default function CategoriesPage() {
 
             {/* Optional Touch values for Gold */}
             {form.metal === 'GOLD' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-                <div className="space-y-1.5">
-                  <Label className="text-sm font-bold text-slate-800">Touch 22K</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-4 pt-0.5">
+                <div className="space-y-1">
+                  <Label className="text-xs sm:text-sm font-bold text-slate-800">Touch 22K (Optional)</Label>
                   <Input
                     type="number"
                     step="0.1"
@@ -269,8 +270,8 @@ export default function CategoriesPage() {
                   />
                 </div>
 
-                <div className="space-y-1.5">
-                  <Label className="text-sm font-bold text-slate-800">Touch 18K</Label>
+                <div className="space-y-1">
+                  <Label className="text-xs sm:text-sm font-bold text-slate-800">Touch 18K (Optional)</Label>
                   <Input
                     type="number"
                     step="0.1"
@@ -283,11 +284,11 @@ export default function CategoriesPage() {
               </div>
             )}
 
-            <div className="flex items-center gap-3 pt-2">
+            <div className="flex items-center gap-2.5 pt-1">
               <Button
                 type="submit"
                 disabled={saving}
-                className="bg-slate-900 hover:bg-slate-800 text-white font-bold h-11 px-6 text-sm shadow-xs cursor-pointer"
+                className="bg-slate-900 hover:bg-slate-800 text-white font-bold h-9 sm:h-10 px-4 sm:px-6 text-xs sm:text-sm shadow-xs cursor-pointer"
               >
                 {saving ? 'Saving...' : editingId ? 'Update Category' : 'Save Category'}
               </Button>
@@ -295,7 +296,7 @@ export default function CategoriesPage() {
                 type="button"
                 variant="outline"
                 onClick={handleCancel}
-                className="h-11 px-5 text-sm font-bold text-slate-700 border-slate-300 cursor-pointer"
+                className="h-9 sm:h-10 px-3.5 sm:px-5 text-xs sm:text-sm font-bold text-slate-700 border-slate-300 cursor-pointer"
               >
                 Cancel
               </Button>
@@ -304,13 +305,13 @@ export default function CategoriesPage() {
         </div>
       )}
 
-      {/* Categories Master Table with High Visibility */}
+      {/* Categories Master Table with Clean Proportional Rows */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-          <div className="text-base font-bold text-slate-800">
+        <div className="px-3.5 sm:px-5 py-2.5 sm:py-3 border-b border-slate-200 flex items-center justify-between">
+          <div className="text-xs sm:text-sm font-bold text-slate-800">
             Total Categories: <span className="font-black text-slate-900">{categories.length}</span>
           </div>
-          <span className="text-xs text-slate-500 font-medium">Showroom Presets</span>
+          <span className="text-[11px] sm:text-xs text-slate-500 font-medium">Showroom Presets</span>
         </div>
 
         {isLoading ? (
@@ -320,20 +321,21 @@ export default function CategoriesPage() {
         ) : categories.length === 0 ? (
           <div className="text-center py-20 text-slate-400 space-y-2">
             <Layers className="w-10 h-10 mx-auto opacity-30 text-gold" />
-            <p className="text-sm font-bold text-slate-700">No categories found — add your first category</p>
+            <p className="text-xs sm:text-sm font-bold text-slate-700">No categories found — add your first category</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left min-w-[650px]">
-              <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-xs border-b border-slate-200">
+            <table className="w-full text-left min-w-[560px]">
+              <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-[11px] border-b border-slate-200">
                 <tr>
-                  <th className="px-6 py-4 text-left"> Name</th>
-                  <th className="px-6 py-4 text-center">Metal </th>
-                  <th className="px-6 py-4 text-center">Wastage % </th>
-                  <th className="px-6 py-4 text-center">MC</th>
-                  <th className="px-6 py-4 text-center">Touch 22K</th>
-                  <th className="px-6 py-4 text-center">Touch 18K</th>
-                  <th className="px-6 py-4 text-center">Actions</th>
+                  <th className="sticky left-0 bg-slate-50 z-20 px-3.5 sm:px-4 py-2.5 text-left shadow-[2px_0_4px_-2px_rgba(0,0,0,0.08)]">
+                    Name
+                  </th>
+                  <th className="px-3 sm:px-4 py-2.5 text-center">Metal</th>
+                  <th className="px-3 sm:px-4 py-2.5 text-center">Wastage %</th>
+                  <th className="px-3 sm:px-4 py-2.5 text-center">Making Charge</th>
+                  <th className="px-3 sm:px-4 py-2.5 text-center">Touch (22K / 18K)</th>
+                  <th className="px-3 sm:px-4 py-2.5 text-center w-24">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -341,40 +343,43 @@ export default function CategoriesPage() {
                   const isGold = cat.metal === 'GOLD';
 
                   return (
-                    <tr key={cat.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-6 py-4 text-base text-left font-black text-slate-900">{cat.name}</td>
-                      <td className="px-6 py-4 text-center ">
+                    <tr key={cat.id} className="hover:bg-amber-50/30 transition-colors group">
+                      <td className="sticky left-0 bg-white group-hover:bg-slate-50/90 z-10 px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-black text-slate-900 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.08)]">
+                        {cat.name}
+                      </td>
+                      <td className="px-3 sm:px-4 py-2.5 sm:py-3 text-center">
                         <Badge
                           variant="outline"
-                          className={`text-xs font-bold px-3 py-1 rounded-md ${
+                          className={`text-[10px] sm:text-xs font-bold px-2 sm:px-2.5 py-0.5 rounded-md whitespace-nowrap ${
                             isGold
                               ? 'bg-amber-50 text-amber-950 border-amber-200'
                               : 'bg-slate-100 text-slate-800 border-slate-200'
                           }`}
                         >
-                          {isGold ? '🪙 Gold (தங்கம்)' : '⚪ Silver (வெள்ளி)'}
+                          {isGold ? '🪙 Gold' : '⚪ Silver'}
                         </Badge>
                       </td>
-                      <td className="px-6 py-4 text-center font-black text-slate-900 text-base">
+                      <td className="px-3 sm:px-4 py-2.5 sm:py-3 text-center font-bold font-mono text-slate-900 text-xs sm:text-sm whitespace-nowrap">
                         {cat.default_wastage != null ? `${cat.default_wastage}%` : '—'}
                       </td>
-                      <td className="px-6 py-4 text-center font-black text-slate-900 text-base">
+                      <td className="px-3 sm:px-4 py-2.5 sm:py-3 text-center font-bold font-mono text-slate-900 text-xs sm:text-sm whitespace-nowrap">
                         {cat.default_making_charge != null ? `₹${cat.default_making_charge}` : '—'}
                       </td>
-                      <td className="px-6 py-4 text-center font-bold text-slate-700 text-sm">
-                        {cat.touch_22k != null ? cat.touch_22k : '—'}
+                      <td className="px-3 sm:px-4 py-2.5 sm:py-3 text-center font-medium font-mono text-slate-700 text-[11px] sm:text-xs whitespace-nowrap">
+                        {isGold ? (
+                          cat.touch_22k != null || cat.touch_18k != null ? (
+                            <span>{cat.touch_22k ?? '—'} / {cat.touch_18k ?? '—'}</span>
+                          ) : '—'
+                        ) : '—'}
                       </td>
-                      <td className="px-6 py-4 text-center font-bold text-slate-700 text-sm">
-                        {cat.touch_18k != null ? cat.touch_18k : '—'}
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <div className="flex items-center justify-center gap-2.5">
+                      <td className="px-3 sm:px-4 py-2.5 sm:py-3 text-center whitespace-nowrap">
+                        <div className="flex items-center justify-center gap-1.5">
                           <button
                             onClick={() => handleEdit(cat)}
-                            className="p-2 rounded-lg border border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg border border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
                             title="Edit Category"
                           >
-                            <Pencil className="w-4 h-4" />
+                            <Pencil className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => {
@@ -382,10 +387,10 @@ export default function CategoriesPage() {
                                 remove(cat.id);
                               }
                             }}
-                            className="p-2 rounded-lg border border-slate-200 text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg border border-slate-200 text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                             title="Delete Category"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       </td>

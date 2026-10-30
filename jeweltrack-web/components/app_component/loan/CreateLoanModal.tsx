@@ -226,50 +226,50 @@ export default function CreateLoanModal({ open, onOpenChange }: CreateLoanModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-4xl max-w-4xl w-[calc(100vw-2rem)] p-4 sm:p-6 max-h-[90dvh] overflow-y-auto rounded-2xl">
-        <DialogHeader className="border-b border-slate-200 pb-3">
-          <DialogTitle className="text-xl font-black text-slate-900 flex items-center gap-2">
-            <Coins className="w-6 h-6 text-amber-700" />
+      <DialogContent className="sm:max-w-4xl max-w-4xl w-[calc(100vw-2rem)] p-3.5 sm:p-6 max-h-[90dvh] overflow-y-auto rounded-xl sm:rounded-2xl">
+        <DialogHeader className="border-b border-slate-200 pb-2.5 sm:pb-3">
+          <DialogTitle className="text-sm sm:text-xl font-black text-slate-900 flex items-center gap-2">
+            <Coins className="w-4 h-4 sm:w-6 sm:h-6 text-amber-600" />
             <span>New Jewellery Loan Pledge</span>
           </DialogTitle>
-          <DialogDescription className="text-sm text-slate-500 ">
+          <DialogDescription className="text-[11px] sm:text-xs text-slate-500">
             Record customer pledge, ornament weights, interest rate, and loan amount.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 pt-0">
+        <form onSubmit={handleSubmit} className="space-y-3.5 sm:space-y-4 pt-0">
           {/* Section 1: Customer Selection */}
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3" ref={searchContainerRef}>
+          <div className="bg-slate-50 p-3 sm:p-4 rounded-xl border border-slate-200 space-y-2.5 sm:space-y-3" ref={searchContainerRef}>
             <div className="flex items-center justify-between">
-              <Label className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+              <Label className="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wider">
                 1. Customer Details *
               </Label>
               <button
                 type="button"
                 onClick={() => setIsQuickAddCustomerOpen(!isQuickAddCustomerOpen)}
-                className="text-slate-800 hover:text-slate-950 font-bold text-sm flex items-center gap-1.5 cursor-pointer"
+                className="text-amber-800 hover:text-amber-950 font-bold text-xs sm:text-sm flex items-center gap-1.5 cursor-pointer"
               >
-                <UserPlus className="w-4 h-4" />
+                <UserPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>{isQuickAddCustomerOpen ? 'Hide Form' : '+ Quick Add Customer'}</span>
               </button>
             </div>
 
             {selectedCustomer ? (
-              <div className="flex items-center justify-between bg-white border border-slate-300 p-3.5 rounded-xl shadow-2xs">
-                <div className="flex items-center gap-3.5">
-                  <div className="w-10 h-10 rounded-xl bg-slate-900 text-white font-black flex items-center justify-center text-base flex-shrink-0">
+              <div className="flex items-center justify-between bg-white border border-slate-300 p-2.5 sm:p-3.5 rounded-xl shadow-2xs">
+                <div className="flex items-center gap-2.5 sm:gap-3.5">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-600 text-white font-black flex items-center justify-center text-xs sm:text-base flex-shrink-0">
                     {selectedCustomer.name.charAt(0)}
                   </div>
                   <div>
-                    <div className="font-black text-slate-900 text-base">{selectedCustomer.name}</div>
-                    <div className="text-sm text-slate-600 font-medium flex items-center gap-3 mt-0.5">
+                    <div className="font-black text-slate-900 text-xs sm:text-base">{selectedCustomer.name}</div>
+                    <div className="text-[11px] sm:text-sm text-slate-600 font-medium flex items-center gap-2 sm:gap-3 mt-0.5">
                       <span className="inline-flex items-center gap-1 font-mono font-bold text-emerald-800">
-                        <Phone className="w-3.5 h-3.5 text-emerald-700" />
+                        <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-700" />
                         {selectedCustomer.phone}
                       </span>
                       {selectedCustomer.village && (
                         <span className="inline-flex items-center gap-1 text-slate-700 font-semibold">
-                          <MapPin className="w-3.5 h-3.5 text-rose-600" />
+                          <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-rose-600" />
                           {selectedCustomer.village}
                         </span>
                       )}
@@ -284,24 +284,24 @@ export default function CreateLoanModal({ open, onOpenChange }: CreateLoanModalP
                     setSelectedCustomer(null);
                     setCustomerSearchInput('');
                   }}
-                  className="h-9 w-9 p-0 text-slate-400 hover:text-rose-600 rounded-lg cursor-pointer"
+                  className="h-8 w-8 sm:h-9 sm:w-9 p-0 text-slate-400 hover:text-rose-600 rounded-lg cursor-pointer"
                   title="Change customer"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Button>
               </div>
             ) : (
               <div className="relative">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <Input
-                  placeholder="Search customer by name, mobile number, village..."
+                  placeholder="Search customer by name, mobile, village..."
                   value={customerSearchInput}
                   onChange={(e) => {
                     setCustomerSearchInput(e.target.value);
                     setIsCustomerDropdownOpen(true);
                   }}
                   onFocus={() => setIsCustomerDropdownOpen(true)}
-                  className="pl-10 h-11 text-base bg-white font-medium border-slate-300 rounded-xl"
+                  className="pl-8.5 sm:pl-10 h-9 sm:h-10 text-xs sm:text-sm bg-white font-medium border-slate-300 rounded-xl"
                   autoComplete="off"
                 />
 
@@ -437,7 +437,7 @@ export default function CreateLoanModal({ open, onOpenChange }: CreateLoanModalP
           {/* Section 2: Pledged Ornaments */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="font-bold text-slate-900 uppercase tracking-wider text-sm">
+              <span className="font-bold text-slate-900 uppercase tracking-wider text-xs sm:text-sm">
                 2. Pledged Ornaments *
               </span>
               <Button
@@ -445,9 +445,9 @@ export default function CreateLoanModal({ open, onOpenChange }: CreateLoanModalP
                 variant="outline"
                 size="sm"
                 onClick={handleAddItem}
-                className="h-9 text-sm font-bold text-slate-800 border-slate-300 hover:bg-slate-100 px-4 cursor-pointer"
+                className="h-8 sm:h-9 text-xs sm:text-sm font-bold text-slate-800 border-slate-300 hover:bg-slate-100 px-3 sm:px-4 cursor-pointer"
               >
-                <Plus className="w-4 h-4 mr-1" />
+                <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1" />
                 <span>Add Ornament</span>
               </Button>
             </div>
@@ -459,15 +459,15 @@ export default function CreateLoanModal({ open, onOpenChange }: CreateLoanModalP
                 return (
                   <div
                     key={idx}
-                    className="grid grid-cols-12 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200 items-center"
+                    className="grid grid-cols-12 gap-2 sm:gap-3 bg-slate-50 p-2.5 sm:p-3.5 rounded-xl border border-slate-200 items-center"
                   >
                     {/* Metal */}
                     <div className="col-span-6 sm:col-span-2">
-                      <Label className="text-sm text-slate-700 font-bold block mb-1">Metal</Label>
+                      <Label className="text-[11px] sm:text-xs text-slate-700 font-bold block mb-1">Metal</Label>
                       <select
                         value={item.metal}
                         onChange={(e) => handleItemChange(idx, 'metal', e.target.value as 'GOLD' | 'SILVER')}
-                        className="w-full h-10 px-2.5 rounded-lg border border-slate-300 text-sm font-bold bg-white text-slate-900 cursor-pointer"
+                        className="w-full h-8 sm:h-9 px-2 sm:px-2.5 rounded-lg border border-slate-300 text-xs sm:text-sm font-bold bg-white text-slate-900 cursor-pointer"
                       >
                         <option value="GOLD">🪙 Gold</option>
                         <option value="SILVER">⚪ Silver</option>
@@ -476,28 +476,28 @@ export default function CreateLoanModal({ open, onOpenChange }: CreateLoanModalP
 
                     {/* Description */}
                     <div className="col-span-6 sm:col-span-3">
-                      <Label className="text-sm text-slate-700 font-bold block mb-1">Ornament Name *</Label>
+                      <Label className="text-[11px] sm:text-xs text-slate-700 font-bold block mb-1">Ornament Name *</Label>
                       <Input
                         placeholder={isSilver ? 'e.g. Silver Anklet' : 'e.g. Gold Ring / Chain'}
                         value={item.description}
                         onChange={(e) => handleItemChange(idx, 'description', e.target.value)}
-                        className="h-10 text-sm bg-white font-bold text-slate-900 border-slate-300"
+                        className="h-8 sm:h-9 text-xs sm:text-sm bg-white font-bold text-slate-900 border-slate-300"
                         required
                       />
                     </div>
 
                     {/* Purity */}
                     <div className="col-span-4 sm:col-span-2">
-                      <Label className="text-sm text-slate-700 font-bold block mb-1">Purity</Label>
+                      <Label className="text-[11px] sm:text-xs text-slate-700 font-bold block mb-1">Purity</Label>
                       {isSilver ? (
-                        <div className="h-10 px-3 flex items-center rounded-lg bg-slate-100 border border-slate-200 text-slate-700 text-sm font-bold">
+                        <div className="h-8 sm:h-9 px-2.5 flex items-center rounded-lg bg-slate-100 border border-slate-200 text-slate-700 text-xs sm:text-sm font-bold">
                           Silver
                         </div>
                       ) : (
                         <select
                           value={item.purity}
                           onChange={(e) => handleItemChange(idx, 'purity', e.target.value)}
-                          className="w-full h-10 px-2.5 rounded-lg border border-slate-300 text-sm bg-white font-bold text-slate-900 cursor-pointer"
+                          className="w-full h-8 sm:h-9 px-2 sm:px-2.5 rounded-lg border border-slate-300 text-xs sm:text-sm bg-white font-bold text-slate-900 cursor-pointer"
                         >
                           <option value="K22">22K (916)</option>
                           <option value="K18">18K (750)</option>
@@ -508,40 +508,40 @@ export default function CreateLoanModal({ open, onOpenChange }: CreateLoanModalP
 
                     {/* Pieces */}
                     <div className="col-span-4 sm:col-span-1">
-                      <Label className="text-sm text-slate-700 font-bold block mb-1">Pcs</Label>
+                      <Label className="text-[11px] sm:text-xs text-slate-700 font-bold block mb-1">Pcs</Label>
                       <Input
                         type="number"
                         placeholder="1"
                         value={item.pieces}
                         min={1}
                         onChange={(e) => handleItemChange(idx, 'pieces', Number(e.target.value) || 1)}
-                        className="h-10 text-sm bg-white text-center font-bold border-slate-300"
+                        className="h-8 sm:h-9 text-xs sm:text-sm bg-white text-center font-bold border-slate-300"
                       />
                     </div>
 
                     {/* Gross & Net Weights */}
                     <div className="col-span-4 sm:col-span-3 grid grid-cols-2 gap-2">
                       <div>
-                        <Label className="text-sm text-slate-700 font-bold block mb-1">Gross (g) *</Label>
+                        <Label className="text-[11px] sm:text-xs text-slate-700 font-bold block mb-1">Gross (g) *</Label>
                         <Input
                           type="number"
                           step="0.01"
                           placeholder="0.00"
                           value={item.gross_weight || ''}
                           onChange={(e) => handleItemChange(idx, 'gross_weight', Number(e.target.value))}
-                          className="h-10 text-sm bg-white font-bold text-slate-900 border-slate-300"
+                          className="h-8 sm:h-9 text-xs sm:text-sm bg-white font-bold text-slate-900 border-slate-300"
                           required
                         />
                       </div>
                       <div>
-                        <Label className="text-sm text-slate-700 font-bold block mb-1">Net Wt (g) *</Label>
+                        <Label className="text-[11px] sm:text-xs text-slate-700 font-bold block mb-1">Net Wt (g) *</Label>
                         <Input
                           type="number"
                           step="0.01"
                           placeholder="0.00"
                           value={item.net_weight || ''}
                           onChange={(e) => handleItemChange(idx, 'net_weight', Number(e.target.value))}
-                          className="h-10 text-sm bg-white font-black text-slate-900 border-slate-300"
+                          className="h-8 sm:h-9 text-xs sm:text-sm bg-white font-black text-slate-900 border-slate-300"
                           required
                         />
                       </div>
@@ -565,10 +565,10 @@ export default function CreateLoanModal({ open, onOpenChange }: CreateLoanModalP
             </div>
 
             {/* Total Weight Bar */}
-            <div className="flex justify-between items-center text-sm font-bold px-4 py-2.5 bg-slate-100 rounded-xl border border-slate-200 text-slate-800">
-              <span>Total Items: <strong className="text-slate-900 font-black text-base">{items.reduce((s, i) => s + (Number(i.pieces) || 1), 0)} pcs</strong></span>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs sm:text-sm font-bold px-3 sm:px-4 py-2 sm:py-2.5 bg-slate-100 rounded-xl border border-slate-200 text-slate-800 gap-1 sm:gap-0">
+              <span>Total Items: <strong className="text-slate-900 font-black text-xs sm:text-sm">{items.reduce((s, i) => s + (Number(i.pieces) || 1), 0)} pcs</strong></span>
               <span>
-                Gross: <strong className="text-slate-900 font-black text-base">{totalGrossWeight.toFixed(2)}g</strong> · Net Pure Weight: <strong className="text-slate-900 font-black text-lg">{totalNetWeight.toFixed(2)}g</strong>
+                Gross: <strong className="text-slate-900 font-black text-xs sm:text-sm">{totalGrossWeight.toFixed(2)}g</strong> · Net Pure Weight: <strong className="text-slate-900 font-black text-sm sm:text-base font-mono">{totalNetWeight.toFixed(2)}g</strong>
               </span>
             </div>
           </div>
@@ -576,56 +576,56 @@ export default function CreateLoanModal({ open, onOpenChange }: CreateLoanModalP
           {/* Section 3: Loan Amount & Interest Terms */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-2 border-t border-slate-200">
             <div className="space-y-1.5">
-              <Label className="text-sm font-bold text-slate-900">3. Principal Loan Amount (₹) *</Label>
+              <Label className="text-xs sm:text-sm font-bold text-slate-900">3. Principal Loan Amount (₹) *</Label>
               <Input
                 type="number"
                 placeholder="e.g. 50000"
                 value={loanAmount}
                 onChange={(e) => setLoanAmount(e.target.value)}
-                className="h-11 text-lg font-black text-slate-900 border-slate-300 rounded-xl"
+                className="h-9.5 sm:h-11 text-sm sm:text-lg font-black font-mono text-slate-900 border-slate-300 rounded-xl"
                 required
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-sm font-bold text-slate-900">Monthly Interest Rate (% / month) *</Label>
+              <Label className="text-xs sm:text-sm font-bold text-slate-900">Monthly Interest Rate (% / mo) *</Label>
               <Input
                 type="number"
                 step="0.1"
                 placeholder="e.g. 1.5"
                 value={interestRate}
                 onChange={(e) => setInterestRate(e.target.value)}
-                className="h-11 text-base font-black text-slate-900 border-slate-300 rounded-xl"
+                className="h-9.5 sm:h-11 text-xs sm:text-base font-black font-mono text-slate-900 border-slate-300 rounded-xl"
                 required
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-sm font-bold text-slate-900">Safe Packet / Locker Ref (Optional)</Label>
+              <Label className="text-xs sm:text-sm font-bold text-slate-900">Safe Packet / Locker Ref (Optional)</Label>
               <Input
                 placeholder="e.g. Packet #42, Box B"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="h-11 text-sm font-medium border-slate-300 rounded-xl"
+                className="h-9.5 sm:h-11 text-xs sm:text-sm font-medium border-slate-300 rounded-xl"
               />
             </div>
           </div>
 
           {/* Monthly Interest Accrual Banner */}
           {loanAmount && Number(loanAmount) > 0 && (
-            <div className="text-sm bg-slate-50 px-4 py-3 rounded-xl border border-slate-200 flex justify-between items-center font-bold text-slate-700">
-              <span>Estimated Monthly Interest Accrual:</span>
-              <span className="text-slate-900 font-black text-base">
+            <div className="text-xs sm:text-sm bg-slate-50 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-slate-200 flex justify-between items-center font-bold text-slate-700">
+              <span>Estimated Monthly Interest:</span>
+              <span className="text-slate-900 font-black text-xs sm:text-base font-mono">
                 ₹{monthlyInterestVal.toLocaleString('en-IN')} / month
               </span>
             </div>
           )}
 
-          <DialogFooter className="pt-2 border-t border-slate-100 flex items-center justify-end gap-3">
+          <DialogFooter className="pt-2 border-t border-slate-100 flex items-center justify-end gap-2 sm:gap-3">
             <Button
               type="button"
               variant="outline"
-              className="h-11 px-5 text-sm font-bold text-slate-700 border-slate-300 cursor-pointer"
+              className="h-9 sm:h-11 px-4 sm:px-5 text-xs sm:text-sm font-bold text-slate-700 border-slate-300 cursor-pointer"
               onClick={() => onOpenChange(false)}
             >
               Cancel
@@ -633,7 +633,7 @@ export default function CreateLoanModal({ open, onOpenChange }: CreateLoanModalP
             <Button
               type="submit"
               disabled={createMutation.isPending}
-              className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-7 h-11 text-sm rounded-xl shadow-xs cursor-pointer"
+              className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-5 sm:px-7 h-9 sm:h-11 text-xs sm:text-sm rounded-xl shadow-xs cursor-pointer"
             >
               {createMutation.isPending ? 'Creating Pledge...' : 'Create Loan Pledge'}
             </Button>

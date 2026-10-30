@@ -146,10 +146,10 @@ export default function GoldLoanPage() {
       <LoanMetrics stats={stats} period={period} onPeriodChange={(p) => { setPeriod(p); setPage(1); }} />
 
       {/* 2. Compact Control Toolbar (Search, Status Filter & Action) */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white px-3.5 sm:px-5 py-3 rounded-2xl border border-slate-200 shadow-xs">
-        <div className="flex items-center gap-3 flex-1 w-full sm:max-w-md">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 bg-white px-3 py-2 sm:px-5 sm:py-3 rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs">
+        <div className="flex items-center gap-2 sm:gap-3 flex-1 w-full sm:max-w-md">
           <div className="relative w-full">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2" />
             <Input
               placeholder="Search loan #, customer, phone, village..."
               value={search}
@@ -157,14 +157,14 @@ export default function GoldLoanPage() {
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              className="pl-9 h-9 text-xs font-medium border-slate-300 rounded-xl w-full"
+              className="pl-8 sm:pl-9 h-8 sm:h-9 text-xs font-medium border-slate-300 rounded-lg sm:rounded-xl w-full"
             />
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
+        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
           {/* Status Switcher */}
-          <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200 text-xs font-bold overflow-x-auto justify-between sm:justify-start">
+          <div className="inline-flex p-0.5 sm:p-1 bg-slate-100 rounded-lg sm:rounded-xl border border-slate-200 text-[11px] sm:text-xs font-bold overflow-x-auto flex-1 sm:flex-initial justify-between sm:justify-start">
             {(['ACTIVE', 'CLOSED', 'ALL'] as const).map((st) => (
               <button
                 key={st}
@@ -173,13 +173,13 @@ export default function GoldLoanPage() {
                   setStatusFilter(st);
                   setPage(1);
                 }}
-                className={`px-3 sm:px-3.5 py-1 rounded-lg transition-all cursor-pointer whitespace-nowrap text-center ${
+                className={`px-2.5 sm:px-3.5 py-1 rounded-md sm:rounded-lg transition-all cursor-pointer whitespace-nowrap text-center ${
                   statusFilter === st
                     ? 'bg-white text-slate-900 shadow-xs font-black'
                     : 'text-slate-500 hover:text-slate-900'
                 }`}
               >
-                {st === 'ALL' ? 'All Loans' : st === 'ACTIVE' ? 'Active Pledges' : 'Closed'}
+                {st === 'ALL' ? 'All' : st === 'ACTIVE' ? 'Active' : 'Closed'}
               </button>
             ))}
           </div>
@@ -193,42 +193,182 @@ export default function GoldLoanPage() {
               setIsNewOpen(true);
             }}
             disabled={isExpired}
-            className="bg-slate-900 hover:bg-slate-800 text-white font-black text-xs h-9 px-4 rounded-xl shadow-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 w-full sm:w-auto"
+            className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-[11px] sm:text-xs h-7.5 sm:h-9 px-3 rounded-lg sm:rounded-xl shadow-xs flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50 shrink-0"
           >
-            <Plus className="w-4 h-4 stroke-[3]" />
-            <span>{isExpired ? 'New Pledge (Locked)' : 'New Pledge'}</span>
+            <Plus className="w-3.5 h-3.5 stroke-[3]" />
+            <span>{isExpired ? 'Locked' : 'New Pledge'}</span>
           </Button>
         </div>
       </div>
 
-      {/* 3. Grid-Bordered Loans Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+      {/* 3. Grid-Bordered Loans Table + Mobile Cards */}
+      <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-gold" />
+            <Loader2 className="w-8 h-8 animate-spin text-amber-600" />
           </div>
         ) : loans.length === 0 ? (
           <div className="text-center py-16 text-slate-400 space-y-2">
-            <Coins className="w-10 h-10 mx-auto opacity-30 text-gold" />
+            <Coins className="w-10 h-10 mx-auto opacity-30 text-amber-600" />
             <p className="text-sm font-bold text-slate-700">No Gold Loans found</p>
             <p className="text-xs text-slate-400">Click &quot;+ New Pledge&quot; to create your first jewellery loan.</p>
           </div>
         ) : (
           <div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm border-collapse border border-slate-200 min-w-[760px]">
-                <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-xs">
+            {/* Mobile View: Dedicated Loan Cards (md:hidden) */}
+            <div className="block md:hidden divide-y divide-slate-100">
+              {loans.map((loan) => {
+                const isActive = loan.status === 'ACTIVE';
+
+                return (
+                  <div key={loan.id} className="p-3 hover:bg-slate-50/70 transition-colors space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-mono font-black text-xs text-amber-900 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                            {loan.loan_number}
+                          </span>
+                          <Badge
+                            variant="outline"
+                            className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${
+                              isActive
+                                ? 'bg-amber-50 text-amber-900 border-amber-200'
+                                : 'bg-slate-100 text-slate-700 border-slate-200'
+                            }`}
+                          >
+                            {isActive ? 'Active' : 'Closed'}
+                          </Badge>
+                        </div>
+                        <Link
+                          href={`/dashboard/customers/customerView?id=${loan.customer_id}`}
+                          className="font-black text-slate-900 text-xs hover:text-amber-800 transition-colors block mt-1 truncate max-w-[190px]"
+                        >
+                          {loan.customer?.name}
+                        </Link>
+                        <div className="text-[10px] text-slate-500 font-medium">
+                          {loan.customer?.phone} {loan.customer?.village ? `• ${loan.customer?.village}` : ''}
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <div className="text-[10px] uppercase font-bold text-slate-400">Principal</div>
+                        <div className="font-mono font-black text-slate-900 text-sm">
+                          ₹{loan.loan_amount.toLocaleString('en-IN')}
+                        </div>
+                        {loan.current_principal_balance < loan.loan_amount && (
+                          <div className="text-[10px] text-emerald-700 font-bold font-mono">
+                            Bal: ₹{loan.current_principal_balance.toLocaleString('en-IN')}
+                          </div>
+                        )}
+                        <div className="text-[10px] text-slate-400 mt-0.5">
+                          {new Date(loan.loan_date).toLocaleDateString('en-IN', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          })}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Pledged Items */}
+                    {loan.loanCollateralItem?.[0] && (
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span
+                          className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-bold border ${
+                            loan.loanCollateralItem[0].metal === 'SILVER'
+                              ? 'bg-slate-100 text-slate-800 border-slate-200'
+                              : 'bg-amber-50 text-amber-950 border-amber-200'
+                          }`}
+                        >
+                          <span>{loan.loanCollateralItem[0].metal === 'SILVER' ? '⚪' : '🪙'}</span>
+                          <span>
+                            {loan.loanCollateralItem[0].pieces > 1 ? `${loan.loanCollateralItem[0].pieces}x ` : ''}
+                            {loan.loanCollateralItem[0].description}
+                          </span>
+                        </span>
+                        {loan.loanCollateralItem.length > 1 && (
+                          <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
+                            +{loan.loanCollateralItem.length - 1} more
+                          </span>
+                        )}
+                        <span className="text-[11px] font-mono font-bold text-slate-600 ml-auto">
+                          Net: {loan.net_weight}g
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Financial details row */}
+                    <div className="grid grid-cols-2 gap-2 p-2 bg-slate-50/80 rounded-lg border border-slate-100 text-[11px]">
+                      <div>
+                        <span className="text-slate-400 block text-[9px] uppercase font-bold">Rate / Monthly</span>
+                        <span className="font-mono font-bold text-slate-800">
+                          {loan.interest_rate}% (₹{loan.monthly_interest_amount?.toLocaleString('en-IN')})
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 block text-[9px] uppercase font-bold">Pending Interest</span>
+                        {isActive ? (
+                          <span className="font-mono font-black text-rose-700">
+                            ₹{loan.pending_interest?.toLocaleString('en-IN')}{' '}
+                            <span className="text-[9px] text-slate-500 font-sans font-bold">
+                              ({loan.months_elapsed}m)
+                            </span>
+                          </span>
+                        ) : (
+                          <span className="text-emerald-700 font-bold">Settled</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Actions row */}
+                    <div className="flex items-center justify-end gap-1.5 pt-1 border-t border-slate-100/70">
+                      {isActive && (
+                        <Button
+                          size="sm"
+                          onClick={() => setSelectedLoanForRepay(loan)}
+                          className="flex-1 h-7 px-2 text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white cursor-pointer shadow-xs justify-center"
+                        >
+                          <CreditCard className="w-3.5 h-3.5 mr-1" />
+                          <span>Pay</span>
+                        </Button>
+                      )}
+
+                      <button
+                        onClick={() => setSelectedLoanForView(loan)}
+                        className="h-7 w-7 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 flex items-center justify-center cursor-pointer transition-colors shadow-2xs"
+                        title="View Loan History"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                      </button>
+
+                      <button
+                        onClick={() => setSelectedLoanForPrint(loan)}
+                        className="h-7 w-7 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 flex items-center justify-center cursor-pointer transition-colors shadow-2xs"
+                        title="Print Pawn Slip"
+                      >
+                        <Printer className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop View: Full Table (hidden md:block) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse border border-slate-200 min-w-[760px]">
+                <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-[11px]">
                   <tr>
-                    <th className="px-3.5 py-2.5 text-[13px] w-10 text-center border border-slate-200">#</th>
-                    <th className="px-3.5 py-2.5 text-[13px] border border-slate-200">Loan No</th>
-                    <th className="px-3.5 py-2.5 text-[13px] border border-slate-200">Customer</th>
-                    <th className="px-3.5 py-2.5 text-[13px] border border-slate-200">Pledged Items</th>
-                    <th className="px-3.5 py-2.5 text-[13px] text-right border border-slate-200">Net Wt</th>
-                    <th className="px-3.5 py-2.5 text-[13px] text-right border border-slate-200">Principal</th>
-                    <th className="px-3.5 py-2.5 text-[13px] text-right border border-slate-200 bg-emerald-50/40">Rate / Mo</th>
-                    <th className="px-3.5 py-2.5 text-[13px] text-right border border-slate-200 bg-rose-50/40">Pending Interest</th>
-                    <th className="px-3.5 py-2.5 text-[13px] text-center border border-slate-200 w-20">Status</th>
-                    <th className="px-3.5 py-2.5 text-[13px] text-center border border-slate-200 w-36">Actions</th>
+                    <th className="px-3 py-2 w-10 text-center border border-slate-200">#</th>
+                    <th className="px-3.5 py-2 border border-slate-200">Loan No</th>
+                    <th className="px-3.5 py-2 border border-slate-200">Customer</th>
+                    <th className="px-3.5 py-2 border border-slate-200">Pledged Items</th>
+                    <th className="px-3.5 py-2 text-right border border-slate-200">Net Wt</th>
+                    <th className="px-3.5 py-2 text-right border border-slate-200">Principal</th>
+                    <th className="px-3.5 py-2 text-right border border-slate-200 bg-emerald-50/40">Rate / Mo</th>
+                    <th className="px-3.5 py-2 text-right border border-slate-200 bg-rose-50/40">Pending Interest</th>
+                    <th className="px-3.5 py-2 text-center border border-slate-200 w-20">Status</th>
+                    <th className="px-3.5 py-2 text-center border border-slate-200 w-32">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -238,14 +378,14 @@ export default function GoldLoanPage() {
                     return (
                       <tr key={loan.id} className="hover:bg-slate-50/80 transition-colors">
                         {/* # */}
-                        <td className="px-3.5 py-2.5 text-center text-xs font-bold text-slate-500 border border-slate-200">
+                        <td className="px-3 py-2 text-center text-xs font-bold text-slate-500 border border-slate-200 font-mono">
                           {startIndex + i + 1}
                         </td>
 
                         {/* Loan # & Date */}
-                        <td className="px-3.5 py-2.5 w-28 border border-slate-200">
-                          <div className="font-mono text-amber-900 font-black text-sm">{loan.loan_number}</div>
-                          <div className="text-xs text-slate-500 font-medium">
+                        <td className="px-3.5 py-2 w-28 border border-slate-200">
+                          <div className="font-mono text-amber-900 font-black text-xs">{loan.loan_number}</div>
+                          <div className="text-[10px] text-slate-500 font-medium">
                             {new Date(loan.loan_date).toLocaleDateString('en-IN', {
                               day: 'numeric',
                               month: 'short',
@@ -255,25 +395,25 @@ export default function GoldLoanPage() {
                         </td>
 
                         {/* Customer */}
-                        <td className="px-3.5 py-2.5 border border-slate-200">
+                        <td className="px-3.5 py-2 border border-slate-200">
                           <Link
                             href={`/dashboard/customers/customerView?id=${loan.customer_id}`}
-                            className="font-black text-slate-900 text-sm hover:text-amber-800 hover:underline transition-colors block"
+                            className="font-black text-slate-900 text-xs hover:text-amber-800 hover:underline transition-colors block"
                             title="View Customer Profile"
                           >
                             {loan.customer?.name}
                           </Link>
-                          <div className="text-xs text-slate-500 font-medium">
+                          <div className="text-[10px] text-slate-500 font-medium">
                             {loan.customer?.phone} {loan.customer?.village ? `• ${loan.customer?.village}` : ''}
                           </div>
                         </td>
 
-                        {/* Pledged Items (Single Item + Count badge) */}
-                        <td className="px-3.5 py-2.5 border border-slate-200 w-36">
+                        {/* Pledged Items */}
+                        <td className="px-3.5 py-2 border border-slate-200 w-36">
                           {loan.loanCollateralItem?.[0] ? (
                             <div className="flex items-center gap-1.5 flex-wrap">
                               <span
-                                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-bold border ${
+                                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-bold border ${
                                   loan.loanCollateralItem[0].metal === 'SILVER'
                                     ? 'bg-slate-100 text-slate-800 border-slate-200'
                                     : 'bg-amber-50 text-amber-950 border-amber-200'
@@ -300,45 +440,44 @@ export default function GoldLoanPage() {
                         </td>
 
                         {/* Weight */}
-                        <td className="px-3.5 py-2.5 text-right w-24 font-black text-slate-900 text-sm border border-slate-200">
+                        <td className="px-3.5 py-2 text-right w-24 font-bold text-slate-900 text-xs border border-slate-200 font-mono">
                           <div>{loan.net_weight} g</div>
                         </td>
 
                         {/* Principal */}
-                        <td className="px-3.5 py-2.5 text-right font-black text-slate-900 text-sm border border-slate-200">
-                          <div className="text-sm font-black">₹{loan.loan_amount.toLocaleString('en-IN')}</div>
+                        <td className="px-3.5 py-2 text-right font-bold text-slate-900 text-xs border border-slate-200 font-mono">
+                          <div>₹{loan.loan_amount.toLocaleString('en-IN')}</div>
                           {loan.current_principal_balance < loan.loan_amount && (
-                            <div className="text-xs text-emerald-700 font-bold">
+                            <div className="text-[10px] text-emerald-700 font-bold">
                               Bal: ₹{loan.current_principal_balance.toLocaleString('en-IN')}
                             </div>
                           )}
                         </td>
 
                         {/* Interest Rate / Monthly Amount */}
-                        <td className="px-3.5 py-2.5 text-right w-28 border border-slate-200">
-                        <div className="text-sm font-black text-slate-900">
-                            {loan.interest_rate}%  -  ₹{loan.monthly_interest_amount?.toLocaleString('en-IN')}
+                        <td className="px-3.5 py-2 text-right w-28 border border-slate-200 font-mono text-xs">
+                          <div className="font-bold text-slate-900">
+                            {loan.interest_rate}% - ₹{loan.monthly_interest_amount?.toLocaleString('en-IN')}
                           </div>
-                   
                         </td>
 
                         {/* Accrued Interest */}
-                        <td className="px-3.5 py-2.5 text-right w-32 border border-slate-200">
-                          {isActive ? (                           
-                              <div className="text-sm font-black text-rose-700">
-                                ₹{loan.pending_interest?.toLocaleString('en-IN')} - <span className='font-normal text-xs text-black  '> {loan.months_elapsed} Mo</span>
-                              </div>                             
-                            
+                        <td className="px-3.5 py-2 text-right w-32 border border-slate-200 font-mono text-xs">
+                          {isActive ? (
+                            <div className="text-xs font-black text-rose-700">
+                              ₹{loan.pending_interest?.toLocaleString('en-IN')}{' '}
+                              <span className="font-normal text-[10px] text-slate-600">({loan.months_elapsed} Mo)</span>
+                            </div>
                           ) : (
                             <span className="text-emerald-700 font-bold text-xs">Settled</span>
                           )}
                         </td>
 
                         {/* Status */}
-                        <td className="px-3.5 py-2.5 text-center border border-slate-200 w-20">
+                        <td className="px-3.5 py-2 text-center border border-slate-200 w-20">
                           <Badge
                             variant="outline"
-                            className={`text-xs font-bold px-2 py-0.5 rounded-md ${
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
                               isActive
                                 ? 'bg-amber-50 text-amber-900 border-amber-200'
                                 : 'bg-slate-100 text-slate-700 border-slate-200'
@@ -348,27 +487,23 @@ export default function GoldLoanPage() {
                           </Badge>
                         </td>
 
-                        {/* Actions (Clean inline group that never breaks) */}
-                        <td className="px-3.5 py-2.5 border border-slate-200 w-36">
-                          <div className="flex items-center justify-around  gap-1.5 whitespace-nowrap">
+                        {/* Actions */}
+                        <td className="px-3.5 py-2 border border-slate-200 w-32">
+                          <div className="flex items-center justify-around gap-1.5 whitespace-nowrap">
                             {isActive && (
                               <Button
                                 size="sm"
                                 onClick={() => setSelectedLoanForRepay(loan)}
-                                className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold h-7 px-2.5 
-                                text-xs rounded-lg shadow-xs flex items-center gap-1 cursor-pointer"
+                                className="bg-amber-600 hover:bg-amber-700 text-white font-bold h-7 px-2.5 text-[11px] rounded-lg shadow-xs flex items-center gap-1 cursor-pointer"
                                 title="Repay / Settle Loan"
                               >
-                                
                                 <span>Pay</span>
                               </Button>
                             )}
 
                             <button
                               onClick={() => setSelectedLoanForView(loan)}
-                              className="h-7 w-7 rounded-lg border border-slate-200 bg-white
-                               text-slate-700 hover:bg-slate-100 flex items-center justify-center 
-                               cursor-pointer transition-colors shadow-2xs"
+                              className="h-7 w-7 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 flex items-center justify-center cursor-pointer transition-colors shadow-2xs"
                               title="View Loan History"
                             >
                               <Eye className="w-3.5 h-3.5" />
@@ -391,19 +526,32 @@ export default function GoldLoanPage() {
             </div>
 
             {/* Pagination Controls */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-5 py-3 bg-slate-50/50 border-t border-slate-200 text-xs text-slate-600 font-medium">
-              <div className="flex items-center gap-1.5">
-                <span>Showing</span>
-                <strong className="text-slate-900 font-bold">
-                  {totalCount > 0 ? startIndex + 1 : 0} - {Math.min(startIndex + limit, totalCount)}
-                </strong>
-                <span>of</span>
-                <strong className="text-slate-900 font-bold">{totalCount}</strong>
-                <span>loans</span>
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 px-3.5 sm:px-5 py-2.5 sm:py-3 bg-slate-50/50 border-t border-slate-200 text-xs text-slate-600 font-medium">
+              <div className="flex items-center justify-between w-full sm:w-auto gap-2">
+                <span>
+                  Showing <strong className="text-slate-900 font-bold">{totalCount > 0 ? startIndex + 1 : 0}-{Math.min(startIndex + limit, totalCount)}</strong> of <strong className="text-slate-900 font-bold">{totalCount}</strong> loans
+                </span>
+
+                {/* Mobile Rows Selector */}
+                <div className="sm:hidden flex items-center gap-1">
+                  <span className="text-[11px] text-slate-400">Rows:</span>
+                  <select
+                    value={limit}
+                    onChange={(e) => {
+                      setLimit(Number(e.target.value));
+                      setPage(1);
+                    }}
+                    className="h-7 px-1.5 rounded-md border border-slate-300 bg-white font-bold text-slate-900 text-[11px]"
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                  </select>
+                </div>
               </div>
 
               <div className="flex items-center gap-3 self-end sm:self-auto">
-                <div className="flex items-center gap-1.5">
+                <div className="hidden sm:flex items-center gap-1.5">
                   <span className="text-slate-500 font-medium">Rows:</span>
                   <select
                     value={limit}
@@ -425,20 +573,20 @@ export default function GoldLoanPage() {
                   <button
                     disabled={page <= 1}
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    className="h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer font-bold flex items-center gap-0.5 transition-all"
+                    className="h-7 sm:h-8 px-2 sm:px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer font-bold flex items-center gap-0.5 transition-all text-xs"
                   >
                     <ChevronLeft className="w-3.5 h-3.5" />
                     <span>Prev</span>
                   </button>
 
-                  <span className="px-2.5 text-slate-800 font-bold">
+                  <span className="px-2 sm:px-2.5 text-slate-800 font-bold text-xs">
                     {page} / {totalPages}
                   </span>
 
                   <button
                     disabled={page >= totalPages}
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    className="h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer font-bold flex items-center gap-0.5 transition-all"
+                    className="h-7 sm:h-8 px-2 sm:px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer font-bold flex items-center gap-0.5 transition-all text-xs"
                   >
                     <span>Next</span>
                     <ChevronRight className="w-3.5 h-3.5" />

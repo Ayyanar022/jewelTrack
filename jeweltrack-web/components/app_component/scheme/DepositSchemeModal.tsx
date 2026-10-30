@@ -107,17 +107,17 @@ export default function DepositSchemeModal({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-lg w-[calc(100vw-2rem)] max-h-[85dvh] flex flex-col p-0 gap-0 overflow-hidden shadow-2xl border-slate-200">
         {/* Pinned Header */}
-        <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 bg-white shrink-0">
+        <div className="px-3.5 sm:px-6 py-3 sm:py-3.5 border-b border-slate-200 bg-white shrink-0">
           <DialogHeader>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-black shadow-xs">
-                <Coins className="w-5 h-5" />
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-300 text-amber-700 flex items-center justify-center font-black shadow-2xs shrink-0">
+                <Coins className="w-4 h-4" />
               </div>
-              <div>
-                <DialogTitle className="text-lg font-black text-slate-900">
+              <div className="min-w-0">
+                <DialogTitle className="text-sm sm:text-base font-black text-slate-900 truncate">
                   Deposit Cash & Lock Gold
                 </DialogTitle>
-                <DialogDescription className="text-xs text-slate-500">
+                <DialogDescription className="text-[11px] sm:text-xs text-slate-500 truncate">
                   {account?.customer?.name} ({account?.account_number})
                 </DialogDescription>
               </div>
@@ -126,61 +126,61 @@ export default function DepositSchemeModal({
         </div>
 
         {/* Scrollable Form Body with min-h-0 */}
-        <form id="deposit-scheme-form" onSubmit={handleSubmit} className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 py-4 space-y-4">
+        <form id="deposit-scheme-form" onSubmit={handleSubmit} className="flex-1 min-h-0 overflow-y-auto px-3.5 sm:px-6 py-3 sm:py-4 space-y-3 sm:space-y-3.5">
           {/* Account Current Balance Ribbon */}
-          <div className="p-3 bg-amber-50/80 border border-amber-200 rounded-xl flex items-center justify-between text-xs">
+          <div className="p-2.5 sm:p-3 bg-amber-50/70 border border-amber-200/80 rounded-xl flex items-center justify-between text-xs">
             <div>
-              <div className="text-[10px] uppercase font-bold text-slate-500">Current Gold Balance</div>
-              <div className="text-base font-black text-amber-900">{currentGrams.toFixed(3)} g</div>
+              <div className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-500">Current Gold Balance</div>
+              <div className="text-xs sm:text-sm font-black text-amber-950 font-mono">{currentGrams.toFixed(3)} g</div>
             </div>
             <div className="text-right">
-              <div className="text-[10px] uppercase font-bold text-slate-500">Cash Deposited</div>
-              <div className="text-base font-black text-slate-800">
+              <div className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-500">Cash Deposited</div>
+              <div className="text-xs sm:text-sm font-black text-slate-900 font-mono">
                 ₹{currentCash.toLocaleString('en-IN')}
               </div>
             </div>
           </div>
 
           {/* Rate & Amount */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
             <div>
-              <Label className="text-xs font-bold text-slate-700">Cash Deposited (₹) *</Label>
+              <Label className="text-[11px] sm:text-xs font-bold text-slate-700">Cash Deposited (₹) *</Label>
               <Input
                 type="number"
                 placeholder="e.g. 5000"
                 value={cashAmount}
                 onChange={(e) => setCashAmount(e.target.value)}
                 autoFocus
-                className="h-10 text-sm font-black text-slate-900 mt-1"
+                className="h-8.5 sm:h-9 text-xs sm:text-sm font-bold font-mono text-slate-900 mt-1"
               />
             </div>
             <div>
-              <Label className="text-xs font-bold text-slate-700">22K Gold Rate (₹/g) *</Label>
+              <Label className="text-[11px] sm:text-xs font-bold text-slate-700">22K Gold Rate (₹/g) *</Label>
               <Input
                 type="number"
                 placeholder="e.g. 6850"
                 value={goldRate}
                 onChange={(e) => setGoldRate(e.target.value)}
-                className="h-10 text-sm font-black text-amber-800 mt-1"
+                className="h-8.5 sm:h-9 text-xs sm:text-sm font-bold font-mono text-amber-900 mt-1"
               />
             </div>
           </div>
 
           {/* Live Grams Credited Callout */}
           {gramsCredited > 0 && (
-            <div className="p-3.5 bg-gradient-to-r from-amber-500/15 to-amber-50 border border-amber-300 rounded-xl space-y-1.5">
+            <div className="p-2.5 sm:p-3 bg-gradient-to-r from-amber-500/10 via-amber-50 to-white border border-amber-300/80 rounded-xl space-y-1">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-amber-900 flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-amber-600" />
+                <span className="font-bold text-amber-900 flex items-center gap-1.5 text-xs">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600" />
                   Credited 916 Gold:
                 </span>
-                <span className="text-base font-black text-amber-950">
+                <span className="text-xs sm:text-sm font-black text-amber-950 font-mono">
                   +{gramsCredited.toFixed(3)} grams
                 </span>
               </div>
-              <div className="flex items-center justify-between text-[11px] text-amber-800/80 pt-1 border-t border-amber-200">
+              <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-amber-800/80 pt-1 border-t border-amber-200">
                 <span>New Total Gold Balance:</span>
-                <span className="font-black text-amber-900">
+                <span className="font-black text-amber-950 font-mono">
                   {newTotalGrams.toFixed(3)} grams (+₹{amountNum.toLocaleString('en-IN')})
                 </span>
               </div>

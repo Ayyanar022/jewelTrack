@@ -195,18 +195,18 @@ export default function ShopSubscription() {
   const usage = subscription?.usage;
 
   return (
-    <div className="space-y-5 max-w-6xl mx-auto px-4 sm:px-8 mt-5">
+    <div className="space-y-4 w-full">
       {/* 1. Compact Active Subscription Status Bar */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-amber-950 text-white rounded-2xl p-5 shadow-md border border-gold/30 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-3 flex-wrap">
-            <h2 className="text-xl font-black text-white flex items-center gap-2">
-              <Crown className="w-5 h-5 text-gold inline flex-shrink-0" />
+      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-amber-950 text-white rounded-xl p-3 sm:p-4 shadow-xs border border-amber-500/30 flex flex-col md:flex-row md:items-center md:justify-between gap-2.5 sm:gap-3">
+        <div className="space-y-0.5">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h2 className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
+              <Crown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500 inline flex-shrink-0" />
               <span>{subscription?.plan?.name || 'PRO'} Plan</span>
             </h2>
             <Badge
               variant="outline"
-              className={`text-xs font-bold px-2.5 py-0.5 uppercase ${
+              className={`text-[9px] sm:text-[10px] font-bold px-1.5 py-0.2 uppercase ${
                 isTrial
                   ? 'bg-amber-500/20 text-amber-300 border-amber-400/50'
                   : isExpired
@@ -218,13 +218,13 @@ export default function ShopSubscription() {
             </Badge>
           </div>
 
-          <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-300">
-            <Clock className="w-4 h-4 text-gold flex-shrink-0" />
+          <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-slate-300">
+            <Clock className="w-3 h-3 text-amber-500 flex-shrink-0" />
             {isExpired ? (
               <span className="text-rose-300 font-bold">Subscription Expired. Choose a plan below to continue.</span>
             ) : isTrial ? (
               <span>
-                <strong className="text-gold font-bold">{daysLeft} Days</strong> left in free trial (Valid till:{' '}
+                <strong className="text-amber-400 font-bold">{daysLeft} Days</strong> left in trial (Valid till:{' '}
                 {new Date(subscription?.current_period_end).toLocaleDateString('en-IN', {
                   month: 'short',
                   day: 'numeric',
@@ -247,33 +247,33 @@ export default function ShopSubscription() {
 
         {/* Compact Usage Meters */}
         {usage && (
-          <div className="flex items-center gap-4 bg-black/40 px-4 py-2 rounded-xl border border-white/10 text-xs flex-wrap">
+          <div className="flex items-center gap-2 sm:gap-3 bg-black/40 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg border border-white/10 text-[10px] sm:text-[11px] flex-wrap">
             <div>
               <span className="text-slate-400">Staff: </span>
               <strong className="text-white font-bold">{usage.users_count} / {usage.max_users}</strong>
             </div>
-            <div className="h-4 w-px bg-slate-700" />
+            <div className="h-3 w-px bg-slate-700" />
             <div>
               <span className="text-slate-400">Bills/mo: </span>
               <strong className="text-white font-bold">{usage.monthly_bills_count} / {usage.max_invoices_per_month ?? '∞'}</strong>
             </div>
-            <div className="h-4 w-px bg-slate-700" />
+            <div className="h-3 w-px bg-slate-700" />
             <div>
               <span className="text-slate-400">License: </span>
-              <strong className="text-emerald-400 font-bold">1 Single Store</strong>
+              <strong className="text-emerald-400 font-bold">Single Store</strong>
             </div>
           </div>
         )}
       </div>
 
       {/* 2. Compact Billing Duration Switcher */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 bg-white p-2.5 sm:p-3 rounded-xl border border-slate-200 shadow-xs">
         <div>
-          <h3 className="text-sm font-bold text-slate-900">Choose Subscription Tier</h3>
-          <p className="text-xs text-slate-500">Pick a billing cycle to preview duration discounts.</p>
+          <h3 className="text-xs sm:text-sm font-bold text-slate-900">Choose Subscription Tier</h3>
+          <p className="text-[10px] sm:text-[11px] text-slate-400">Pick a billing cycle to preview duration discounts.</p>
         </div>
 
-        <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200 flex-wrap">
+        <div className="inline-flex p-0.5 bg-slate-100 rounded-lg border border-slate-200 flex-wrap gap-0.5">
           {durationButtons.map(({ duration, label, badge }) => {
             const isSelected = selectedDuration === duration;
             return (
@@ -281,7 +281,7 @@ export default function ShopSubscription() {
                 key={duration}
                 type="button"
                 onClick={() => setSelectedDuration(duration)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                className={`px-2 sm:px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer ${
                   isSelected
                     ? 'bg-white text-slate-900 shadow-xs border border-slate-200 font-black'
                     : 'text-slate-600 hover:text-slate-900'
@@ -290,7 +290,7 @@ export default function ShopSubscription() {
                 <span>{label}</span>
                 {badge && (
                   <span
-                    className={`text-[10px] font-black px-1.5 py-0.5 rounded ${
+                    className={`text-[8px] sm:text-[9px] font-black px-1 py-0.2 rounded ${
                       isSelected
                         ? 'bg-amber-100 text-amber-900'
                         : 'bg-emerald-100 text-emerald-800'
@@ -306,7 +306,7 @@ export default function ShopSubscription() {
       </div>
 
       {/* 3. Pricing Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
         {pricingPlans.map((plan) => {
           const pricingOption =
             plan.pricing_options?.find((opt: any) => opt.duration_months === selectedDuration) ||
@@ -318,29 +318,29 @@ export default function ShopSubscription() {
           return (
             <div
               key={plan.id}
-              className={`relative bg-white rounded-3xl flex flex-col justify-between overflow-hidden transition-all duration-200 ${
+              className={`relative bg-white rounded-xl sm:rounded-2xl flex flex-col justify-between overflow-hidden transition-all duration-200 ${
                 isPopular
-                  ? 'border-2 border-gold shadow-lg shadow-gold/10 md:-translate-y-2'
-                  : 'border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300'
+                  ? 'border-2 border-amber-500 shadow-md shadow-amber-500/10 md:-translate-y-1'
+                  : 'border border-slate-200 shadow-xs hover:border-slate-300'
               }`}
             >
               {isPopular && (
-                <div className="absolute top-5 right-5">
-                  <span className="inline-flex items-center gap-1 bg-gold/10 text-amber-800 text-[11px] font-bold uppercase tracking-wide px-3 py-1 rounded-full">
+                <div className="absolute top-3 right-3 sm:top-3.5 sm:right-3.5">
+                  <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-800 text-[9px] sm:text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full border border-amber-200">
                     Most Popular
                   </span>
                 </div>
               )}
 
-              <div className="p-7 space-y-6 flex-1 flex flex-col">
+              <div className="p-3.5 sm:p-5 space-y-3 sm:space-y-4 flex-1 flex flex-col">
                 {/* Header */}
-                <div className="space-y-1">
-                  <span className="text-lg font-extrabold uppercase tracking-wide text-slate-900">
+                <div className="space-y-0.5">
+                  <span className="text-sm sm:text-base font-bold uppercase tracking-wide text-slate-900">
                     {plan.name}
                   </span>
                   {isCurrentPlan && (
                     <div>
-                      <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] font-bold uppercase">
+                      <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[9px] font-bold uppercase px-1.5 py-0.2">
                         Current Plan
                       </Badge>
                     </div>
@@ -348,24 +348,24 @@ export default function ShopSubscription() {
                 </div>
 
                 {/* Price Display */}
-                <div className="space-y-2">
-                  <div className="flex items-baseline gap-2 flex-wrap">
+                <div className="space-y-1">
+                  <div className="flex items-baseline gap-1.5 flex-wrap">
                     {pricingOption?.discount_percent > 0 && (
-                      <span className="text-base text-slate-400 line-through font-medium">
+                      <span className="text-xs text-slate-400 line-through font-medium">
                         ₹{Math.round(plan.base_price_inr).toLocaleString('en-IN')}
                       </span>
                     )}
-                    <span className="text-3xl font-black text-slate-900 tracking-tight">
+                    <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                       ₹{Math.round(pricingOption?.monthly_equivalent_inr ?? plan.base_price_inr).toLocaleString('en-IN')}
                     </span>
-                    <span className="text-sm font-semibold text-slate-500">/ mo</span>
+                    <span className="text-xs font-semibold text-slate-400">/ mo</span>
                   </div>
 
                   {selectedDuration > 1 && (
-                    <div className="text-xs font-semibold text-slate-600 flex items-center gap-2">
-                      <span>₹{Math.round(pricingOption?.offer_price_inr ?? 0).toLocaleString('en-IN')} billed every {selectedDuration} months</span>
+                    <div className="text-[10px] sm:text-[11px] font-semibold text-slate-500 flex items-center gap-1.5 flex-wrap">
+                      <span>₹{Math.round(pricingOption?.offer_price_inr ?? 0).toLocaleString('en-IN')} / {selectedDuration} mos</span>
                       {pricingOption?.savings_inr > 0 && (
-                        <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+                        <span className="text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded font-bold">
                           Save ₹{Math.round(pricingOption.savings_inr).toLocaleString('en-IN')}
                         </span>
                       )}
@@ -374,30 +374,30 @@ export default function ShopSubscription() {
                 </div>
 
                 {/* Specs Checklist */}
-                <div className="space-y-3.5 pt-5 border-t border-slate-100 flex-1 text-sm text-slate-700">
-                  <div className="flex items-center gap-3">
-                    <Users className="w-4 h-4 text-gold flex-shrink-0" />
+                <div className="space-y-2 pt-2.5 border-t border-slate-100 flex-1 text-[11px] sm:text-xs text-slate-600">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
                     <span><strong className="text-slate-900 font-bold">{plan.max_users}</strong> Staff Login {plan.max_users > 1 ? 'Accounts' : 'Account'}</span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-4 h-4 text-gold flex-shrink-0" />
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
                     <span><strong className="text-slate-900 font-bold">{plan.max_invoices_per_month ?? 'Unlimited'}</strong> Monthly Bills</span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Store className="w-4 h-4 text-gold flex-shrink-0" />
-                    <span><strong className="text-slate-900 font-bold">1</strong> Shop License (Single Store)</span>
+                  <div className="flex items-center gap-2">
+                    <Store className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
+                    <span><strong className="text-slate-900 font-bold">1</strong> Shop License</span>
                   </div>
 
                   {Object.entries(plan.features || {})
                     .filter(([key]) => key !== 'multi_branch')
                     .map(([key, enabled]) => (
-                      <div key={key} className="flex items-center gap-3">
+                      <div key={key} className="flex items-center gap-2">
                         <div
-                          className={`w-4.5 h-4.5 rounded-full flex items-center justify-center flex-shrink-0 ${
+                          className={`w-3.5 h-3.5 rounded-full flex items-center justify-center flex-shrink-0 ${
                             enabled ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-300'
                           }`}
                         >
-                          {enabled ? <Check className="w-3 h-3 stroke-[3]" /> : <span className="text-[10px]">×</span>}
+                          {enabled ? <Check className="w-2.5 h-2.5 stroke-[3]" /> : <span className="text-[9px]">×</span>}
                         </div>
                         <span className={enabled ? 'text-slate-700' : 'text-slate-300 line-through'}>
                           {FEATURE_LABELS[key] || key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
@@ -410,14 +410,14 @@ export default function ShopSubscription() {
                 <Button
                   type="button"
                   onClick={() => setSelectedPlanForUpgrade({ ...plan, selectedOption: pricingOption })}
-                  className={`w-full h-12 text-sm font-bold rounded-xl ${
+                  className={`w-full h-8.5 sm:h-9 text-xs font-bold rounded-xl cursor-pointer ${
                     isPopular
-                      ? 'bg-gold hover:bg-gold/90 text-white shadow-md shadow-gold/20'
+                      ? 'bg-amber-600 hover:bg-amber-700 text-white shadow-xs'
                       : 'bg-slate-900 hover:bg-slate-800 text-white'
                   }`}
                 >
-                  <span>{isCurrentPlan ? 'Renew Duration' : `Upgrade to ${plan.name}`}</span>
-                  <ArrowRight className="w-4 h-4 ml-1.5" />
+                  <span>{isCurrentPlan ? 'Renew Plan' : `Upgrade to ${plan.name}`}</span>
+                  <ArrowRight className="w-3.5 h-3.5 ml-1" />
                 </Button>
               </div>
             </div>
@@ -427,20 +427,20 @@ export default function ShopSubscription() {
 
       {/* 4. Secure Payment Confirmation Dialog */}
       <Dialog open={!!selectedPlanForUpgrade} onOpenChange={(open) => !open && !isProcessingPayment && setSelectedPlanForUpgrade(null)}>
-        <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90dvh] overflow-y-auto p-4 sm:p-6">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-gold" />
+        <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90dvh] overflow-y-auto p-3.5 sm:p-5 rounded-2xl">
+          <DialogHeader className="border-b border-slate-100 pb-2">
+            <DialogTitle className="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-amber-600" />
               Secure Payment & Upgrade
             </DialogTitle>
           </DialogHeader>
 
           {selectedPlanForUpgrade && (
-            <div className="space-y-4 pt-2">
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2.5 text-sm">
+            <div className="space-y-3 pt-1">
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2 text-xs">
                 <div className="flex justify-between items-center">
                   <span className="text-slate-500 font-medium">Selected Tier:</span>
-                  <span className="font-extrabold text-slate-900 uppercase text-base">{selectedPlanForUpgrade.name}</span>
+                  <span className="font-extrabold text-slate-900 uppercase text-xs sm:text-sm">{selectedPlanForUpgrade.name}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-slate-500 font-medium">Duration:</span>
@@ -450,27 +450,27 @@ export default function ShopSubscription() {
                 </div>
                 {selectedPlanForUpgrade.selectedOption.discount_percent > 0 && (
                   <div className="flex justify-between items-center text-emerald-700 font-bold">
-                    <span>Duration Discount ({selectedPlanForUpgrade.selectedOption.discount_percent}%):</span>
+                    <span>Discount ({selectedPlanForUpgrade.selectedOption.discount_percent}%):</span>
                     <span>-₹{Math.round(selectedPlanForUpgrade.selectedOption.savings_inr).toLocaleString('en-IN')}</span>
                   </div>
                 )}
-                <div className="pt-2.5 border-t border-slate-200 flex justify-between items-center font-extrabold text-base">
+                <div className="pt-2 border-t border-slate-200 flex justify-between items-center font-extrabold text-xs">
                   <span>Total Amount:</span>
-                  <span className="text-gold text-2xl font-black">
+                  <span className="text-amber-700 text-lg sm:text-xl font-black">
                     ₹{Math.round(selectedPlanForUpgrade.selectedOption.offer_price_inr).toLocaleString('en-IN')}
                   </span>
                 </div>
               </div>
 
-              <div className="text-xs text-slate-500 bg-amber-50 p-3 rounded-lg border border-amber-200 flex items-center gap-2">
-                <CreditCard className="w-4 h-4 text-amber-700 flex-shrink-0" />
-                <span>Supports UPI (GPay/PhonePe), Credit/Debit Cards, NetBanking, & Wallets via Razorpay.</span>
+              <div className="text-[11px] text-slate-500 bg-amber-50 p-2.5 rounded-lg border border-amber-200 flex items-center gap-1.5">
+                <CreditCard className="w-3.5 h-3.5 text-amber-700 flex-shrink-0" />
+                <span>Supports UPI (GPay/PhonePe), Cards, NetBanking, & Wallets via Razorpay.</span>
               </div>
 
-              <DialogFooter className="pt-2 flex gap-2">
+              <DialogFooter className="pt-1 flex gap-2">
                 <Button
                   variant="outline"
-                  size="sm"
+                  className="h-8 text-xs font-semibold rounded-lg flex-1 sm:flex-initial"
                   disabled={isProcessingPayment}
                   onClick={() => setSelectedPlanForUpgrade(null)}
                 >
@@ -478,19 +478,18 @@ export default function ShopSubscription() {
                 </Button>
                 <Button
                   type="button"
-                  size="sm"
                   disabled={isProcessingPayment}
                   onClick={handleRazorpayPayment}
-                  className="bg-gold hover:bg-gold/90 text-white font-bold px-6 h-10 shadow-md flex items-center gap-2"
+                  className="bg-amber-600 hover:bg-amber-700 text-white font-bold h-8 px-4 text-xs rounded-lg shadow-xs flex items-center justify-center gap-1.5 flex-1 sm:flex-initial cursor-pointer"
                 >
                   {isProcessingPayment ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
                       <span>Opening Gateway...</span>
                     </>
                   ) : (
                     <>
-                      <CreditCard className="w-4 h-4" />
+                      <CreditCard className="w-3.5 h-3.5" />
                       <span>Pay ₹{Math.round(selectedPlanForUpgrade.selectedOption.offer_price_inr).toLocaleString('en-IN')}</span>
                     </>
                   )}

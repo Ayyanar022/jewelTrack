@@ -33,34 +33,48 @@ function SettingsContent() {
   });
 
   return (
-    <div className="space-y-4 max-w-6xl mx-auto">
+    <div className="flex flex-col gap-3 sm:gap-4 max-w-7xl mx-auto w-full px-2.5 sm:px-4 lg:px-8 pb-16">
+      {/* Header Bar — Slim single row on mobile */}
+      <div className="flex items-center justify-between gap-2 bg-white px-3 py-2 sm:px-5 sm:py-3.5 rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs">
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <Store className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600 shrink-0" />
+            <h1 className="text-xs sm:text-base font-bold text-slate-900 truncate">Shop Settings</h1>
+            <span className="hidden sm:inline text-xs text-slate-400 font-normal">(கடை அமைப்புகள்)</span>
+          </div>
+          <p className="hidden sm:block text-xs text-slate-500 mt-0.5">
+            Manage showroom profile, tax information, invoice numbering, and subscription plan.
+          </p>
+        </div>
+      </div>
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3">
-        <div className="overflow-x-auto max-w-full pb-1">
-          <TabsList className="bg-slate-100 p-1 rounded-xl h-auto min-h-11 border border-slate-200 shadow-xs inline-flex gap-1">
-            <TabsTrigger className="px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5 whitespace-nowrap cursor-pointer transition-all" value="basic">
+        <div className="overflow-x-auto no-scrollbar scrollbar-none max-w-full pb-0.5">
+          <TabsList className="bg-slate-100 p-0.5 sm:p-1 rounded-xl h-auto min-h-9 sm:min-h-10 border border-slate-200 shadow-xs inline-flex gap-0.5 sm:gap-1">
+            <TabsTrigger className="px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold rounded-lg data-[state=active]:bg-white data-[state=active]:text-amber-900 data-[state=active]:shadow-xs transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer" value="basic">
               <Store className="w-3.5 h-3.5 text-slate-500" />
               <span>Shop Profile</span>
             </TabsTrigger>
 
             <TabsTrigger
-              className="px-3.5 py-2 text-xs sm:text-sm font-bold rounded-lg data-[state=active]:bg-gold data-[state=active]:text-white flex items-center gap-1.5 shadow-xs whitespace-nowrap cursor-pointer transition-all"
+              className="px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold rounded-lg data-[state=active]:bg-white data-[state=active]:text-amber-900 data-[state=active]:shadow-xs transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
               value="subscription"
             >
-              <Crown className="w-3.5 h-3.5" />
+              <Crown className="w-3.5 h-3.5 text-amber-600" />
               <span>Plan & Billing</span>
             </TabsTrigger>
 
-            <TabsTrigger className="px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5 whitespace-nowrap cursor-pointer transition-all" value="tax">
+            <TabsTrigger className="px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold rounded-lg data-[state=active]:bg-white data-[state=active]:text-amber-900 data-[state=active]:shadow-xs transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer" value="tax">
               <Receipt className="w-3.5 h-3.5 text-slate-500" />
               <span>Tax & GST</span>
             </TabsTrigger>
 
-            <TabsTrigger className="px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5 whitespace-nowrap cursor-pointer transition-all" value="invoice">
+            <TabsTrigger className="px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold rounded-lg data-[state=active]:bg-white data-[state=active]:text-amber-900 data-[state=active]:shadow-xs transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer" value="invoice">
               <FileText className="w-3.5 h-3.5 text-slate-500" />
               <span>Invoice & Scheme</span>
             </TabsTrigger>
 
-            <TabsTrigger className="px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5 whitespace-nowrap cursor-pointer transition-all" value="branding">
+            <TabsTrigger className="px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold rounded-lg data-[state=active]:bg-white data-[state=active]:text-amber-900 data-[state=active]:shadow-xs transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer" value="branding">
               <ImageIcon className="w-3.5 h-3.5 text-slate-500" />
               <span>Branding & Logo</span>
             </TabsTrigger>

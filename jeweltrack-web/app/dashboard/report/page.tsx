@@ -14,47 +14,47 @@ export default function ReportsPage() {
     <div className="flex flex-col gap-3.5 max-w-7xl mx-auto px-2.5 sm:px-4 lg:px-8 pb-6">
       <Tabs defaultValue="sales" className="w-full space-y-3.5">
         {/* Unified Compact Toolbar Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 bg-white px-4 sm:px-5 py-3 rounded-2xl border border-slate-200 shadow-xs">
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <BarChart3 className="w-5 h-5 text-amber-700" />
-            <h1 className="text-base sm:text-lg font-black text-slate-900">Analytics & Reports</h1>
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 sm:gap-3 bg-white px-3 py-2 sm:px-5 sm:py-3 rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+            <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-amber-700" />
+            <h1 className="text-xs sm:text-base font-bold text-slate-900">Analytics & Reports</h1>
           </div>
 
           {/* Integrated Horizontal Scrolling TabsList */}
-          <div className="overflow-x-auto max-w-full pb-1 lg:pb-0">
-            <TabsList className="bg-slate-100 p-1 rounded-xl h-auto inline-flex whitespace-nowrap gap-1">
+          <div className="overflow-x-auto no-scrollbar scrollbar-none max-w-full pb-0.5 lg:pb-0">
+            <TabsList className="bg-slate-100 p-0.5 sm:p-1 rounded-xl h-auto inline-flex whitespace-nowrap gap-1">
               <TabsTrigger
-                className="px-3 py-1.5 text-xs font-bold rounded-lg data-[state=active]:bg-white data-[state=active]:text-amber-900 data-[state=active]:shadow-xs transition-all whitespace-nowrap"
+                className="px-2.5 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-bold rounded-lg data-[state=active]:bg-white data-[state=active]:text-amber-900 data-[state=active]:shadow-xs transition-all whitespace-nowrap"
                 value="sales"
               >
                 📊 Daily Sales
               </TabsTrigger>
               <TabsTrigger
-                className="px-3 py-1.5 text-xs font-bold rounded-lg data-[state=active]:bg-white data-[state=active]:text-amber-900 data-[state=active]:shadow-xs transition-all whitespace-nowrap"
+                className="px-2.5 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-bold rounded-lg data-[state=active]:bg-white data-[state=active]:text-amber-900 data-[state=active]:shadow-xs transition-all whitespace-nowrap"
                 value="loans"
               >
                 🪙 Gold Loans
               </TabsTrigger>
               <TabsTrigger
-                className="px-3 py-1.5 text-xs font-bold rounded-lg data-[state=active]:bg-white data-[state=active]:text-amber-900 data-[state=active]:shadow-xs transition-all whitespace-nowrap"
+                className="px-2.5 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-bold rounded-lg data-[state=active]:bg-white data-[state=active]:text-amber-900 data-[state=active]:shadow-xs transition-all whitespace-nowrap"
                 value="gst"
               >
                 🏛️ GST Summary
               </TabsTrigger>
               <TabsTrigger
-                className="px-3 py-1.5 text-xs font-bold rounded-lg data-[state=active]:bg-white data-[state=active]:text-amber-900 data-[state=active]:shadow-xs transition-all whitespace-nowrap"
+                className="px-2.5 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-bold rounded-lg data-[state=active]:bg-white data-[state=active]:text-amber-900 data-[state=active]:shadow-xs transition-all whitespace-nowrap"
                 value="items-wise-sales"
               >
                 🏷️ Item-Wise
               </TabsTrigger>
               <TabsTrigger
-                className="px-3 py-1.5 text-xs font-bold rounded-lg data-[state=active]:bg-white data-[state=active]:text-amber-900 data-[state=active]:shadow-xs transition-all whitespace-nowrap"
+                className="px-2.5 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-bold rounded-lg data-[state=active]:bg-white data-[state=active]:text-amber-900 data-[state=active]:shadow-xs transition-all whitespace-nowrap"
                 value="payments"
               >
                 ⏳ Pending Credit
               </TabsTrigger>
               <TabsTrigger
-                className="px-3 py-1.5 text-xs font-bold rounded-lg data-[state=active]:bg-white data-[state=active]:text-amber-900 data-[state=active]:shadow-xs transition-all whitespace-nowrap"
+                className="px-2.5 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-bold rounded-lg data-[state=active]:bg-white data-[state=active]:text-amber-900 data-[state=active]:shadow-xs transition-all whitespace-nowrap"
                 value="customer-sales"
               >
                 👥 Customer-Wise

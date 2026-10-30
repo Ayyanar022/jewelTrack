@@ -23,75 +23,75 @@ export default function SchemeMetrics({ stats }: SchemeMetricsProps) {
   const redeemedGrams = stats?.totalRedeemedGrams ?? 0;
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-xs px-3.5 sm:px-4 py-2.5 sm:py-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-2 sm:divide-x divide-slate-100">
+    <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-2 sm:p-3.5 grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-0 sm:divide-x sm:divide-slate-200">
       {/* 1. Active Accounts */}
-      <div className="flex items-center gap-3 px-2">
-        <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-          <Coins className="w-4 h-4" />
+      <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-0 sm:px-3 bg-slate-50/70 sm:bg-transparent rounded-lg sm:rounded-none border sm:border-0 border-slate-100">
+        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+          <Coins className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
         </div>
-        <div>
-          <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+        <div className="min-w-0">
+          <div className="text-[9px] sm:text-[10px] text-slate-500 font-bold uppercase tracking-wider truncate">
             Active Accounts
           </div>
-          <div className="text-base font-black text-slate-900 leading-none mt-0.5">
+          <div className="text-xs sm:text-base font-black text-slate-900 leading-none mt-0.5 truncate">
             {stats?.activeAccounts ?? 0}{' '}
-            <span className="text-xs font-semibold text-slate-400">
-              / {stats?.totalAccounts ?? 0} total
+            <span className="text-[10px] sm:text-xs font-semibold text-slate-400">
+              / {stats?.totalAccounts ?? 0}
             </span>
           </div>
         </div>
       </div>
 
       {/* 2. Total 916 Gold Held (Active Liability) */}
-      <div className="flex items-center gap-3 px-2 lg:pl-4">
-        <div className="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
-          <Sparkles className="w-4 h-4" />
+      <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-0 sm:px-3 lg:pl-4 bg-slate-50/70 sm:bg-transparent rounded-lg sm:rounded-none border sm:border-0 border-slate-100">
+        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-50 border border-amber-200/70 text-amber-700 flex items-center justify-center shrink-0">
+          <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
         </div>
-        <div>
-          <div className="text-[10px] text-amber-800 font-bold uppercase tracking-wider">
-            916 Gold Held (Liability)
+        <div className="min-w-0">
+          <div className="text-[9px] sm:text-[10px] text-slate-500 font-bold uppercase tracking-wider truncate">
+            916 Gold Held
           </div>
-          <div className="text-base font-black text-amber-950 leading-none mt-0.5">
+          <div className="text-xs sm:text-base font-black text-slate-900 leading-none mt-0.5 truncate font-mono">
             {activeGrams.toFixed(3)}{' '}
-            <span className="text-xs font-bold text-amber-700">grams</span>
+            <span className="text-[10px] sm:text-xs font-bold text-amber-700">g</span>
           </div>
         </div>
       </div>
 
       {/* 3. Current Valuation @ Live 22K Rate */}
-      <div className="flex items-center gap-3 px-2 lg:pl-4">
-        <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-          <CheckCircle2 className="w-4 h-4" />
+      <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-0 sm:px-3 lg:pl-4 bg-slate-50/70 sm:bg-transparent rounded-lg sm:rounded-none border sm:border-0 border-slate-100">
+        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center shrink-0">
+          <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
         </div>
-        <div>
-          <div className="text-[10px] text-emerald-800 font-bold uppercase tracking-wider flex items-center gap-1.5">
-            <span>Market Valuation</span>
+        <div className="min-w-0">
+          <div className="text-[9px] sm:text-[10px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1 truncate">
+            <span>Valuation</span>
             {currentRate > 0 && (
-              <span className="text-[9px] bg-emerald-100/80 text-emerald-800 px-1 py-0.2 rounded font-black font-mono">
-                @₹{currentRate}/g
+              <span className="text-[8px] sm:text-[9px] bg-emerald-100/80 text-emerald-800 px-1 py-0.2 rounded font-black font-mono">
+                @₹{currentRate}
               </span>
             )}
           </div>
-          <div className="text-base font-black text-emerald-950 leading-none mt-0.5">
+          <div className="text-xs sm:text-base font-black text-slate-900 leading-none mt-0.5 truncate font-mono">
             ₹{marketVal.toLocaleString('en-IN')}
           </div>
         </div>
       </div>
 
       {/* 4. Total Gold Redeemed or Total Cash */}
-      <div className="flex items-center gap-3 px-2 lg:pl-4">
-        <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
-          <Gift className="w-4 h-4" />
+      <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-0 sm:px-3 lg:pl-4 bg-slate-50/70 sm:bg-transparent rounded-lg sm:rounded-none border sm:border-0 border-slate-100">
+        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-indigo-50 border border-indigo-200/70 text-indigo-700 flex items-center justify-center shrink-0">
+          <Gift className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
         </div>
-        <div>
-          <div className="text-[10px] text-purple-800 font-bold uppercase tracking-wider">
-            {redeemedGrams > 0 ? 'Gold Redeemed' : 'Cash Deposited'}
+        <div className="min-w-0">
+          <div className="text-[9px] sm:text-[10px] text-slate-500 font-bold uppercase tracking-wider truncate">
+            {redeemedGrams > 0 ? 'Redeemed' : 'Deposited'}
           </div>
-          <div className="text-base font-black text-purple-950 leading-none mt-0.5">
+          <div className="text-xs sm:text-base font-black text-slate-900 leading-none mt-0.5 truncate font-mono">
             {redeemedGrams > 0 ? (
               <>
                 {redeemedGrams.toFixed(3)}{' '}
-                <span className="text-xs font-bold text-purple-700">grams</span>
+                <span className="text-[10px] sm:text-xs font-bold text-indigo-700">g</span>
               </>
             ) : (
               `₹${activeCash.toLocaleString('en-IN')}`

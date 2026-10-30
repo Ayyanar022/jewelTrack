@@ -88,29 +88,29 @@ const CustomerStats = ({ id }: { id: string }) => {
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-3.5 sm:gap-5">
       {/* Summary cards */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <Card className="p-4 border-slate-200 shadow-none">
+      <section className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
+        <Card className="p-3 sm:p-4 border-slate-200 shadow-xs">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-md bg-amber-50 flex items-center justify-center">
-              <Receipt size={15} className="text-amber-600" />
+            <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-md bg-amber-50 flex items-center justify-center shrink-0">
+              <Receipt size={14} className="text-amber-600" />
             </div>
-            <CardTitle className="text-xs font-medium text-slate-500">Total Bills</CardTitle>
+            <CardTitle className="text-[11px] sm:text-xs font-bold text-slate-500">Total Bills</CardTitle>
           </div>
-          <CardContent className="p-0 mt-2 text-2xl font-semibold text-slate-900 tabular-nums">
+          <CardContent className="p-0 mt-1 sm:mt-2 text-base sm:text-2xl font-black text-slate-900 tabular-nums">
             {stats?.billStats._count.id ?? 0}
           </CardContent>
         </Card>
 
-        <Card className="p-4 border-slate-200 shadow-none">
+        <Card className="p-3 sm:p-4 border-slate-200 shadow-xs">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-md bg-amber-50 flex items-center justify-center">
-              <Wallet size={15} className="text-amber-600" />
+            <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-md bg-amber-50 flex items-center justify-center shrink-0">
+              <Wallet size={14} className="text-amber-600" />
             </div>
-            <CardTitle className="text-xs font-medium text-slate-500">Total Purchase</CardTitle>
+            <CardTitle className="text-[11px] sm:text-xs font-bold text-slate-500">Total Purchase</CardTitle>
           </div>
-          <CardContent className="p-0 mt-2 text-2xl font-semibold text-slate-900 tabular-nums">
+          <CardContent className="p-0 mt-1 sm:mt-2 text-base sm:text-2xl font-black text-slate-900 tabular-nums truncate">
             ₹{stats?.billStats._sum.payableAmount?.toLocaleString('en-IN') ?? 0}
           </CardContent>
         </Card>

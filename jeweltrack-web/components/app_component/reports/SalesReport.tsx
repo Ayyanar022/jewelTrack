@@ -114,16 +114,16 @@ export default function SalesReport() {
       </section>
 
       {/* Compact Stat Cards Grid */}
-      <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
         {billStatsData.map((item, i) => (
           <div
             key={i}
-            className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-xs"
+            className="bg-white border border-slate-200 rounded-xl p-2.5 sm:p-3.5 shadow-xs"
           >
-            <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
+            <div className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider mb-0.5 sm:mb-1">
               {item.title}
             </div>
-            <div className="text-xl font-black text-slate-900">
+            <div className="text-sm sm:text-xl font-black font-mono text-slate-900">
               {item.data}
             </div>
           </div>
@@ -132,25 +132,25 @@ export default function SalesReport() {
         {billStats?.totalGramSaleGoldAndSilver?.map((item: any, i: number) => (
           <div
             key={i}
-            className="bg-amber-50/70 border border-amber-200 rounded-xl p-3.5 shadow-xs"
+            className="bg-amber-50/70 border border-amber-200 rounded-xl p-2.5 sm:p-3.5 shadow-xs"
           >
-            <div className="text-xs font-bold text-amber-900 uppercase tracking-wider mb-1">
+            <div className="text-[10px] sm:text-xs font-bold text-amber-900 uppercase tracking-wider mb-0.5 sm:mb-1">
               {item.metal} ({item.purity}) Sold
             </div>
-            <div className="text-xl font-black text-amber-900">
-              {(item._sum.net_weight || 0).toFixed(2)} <span className="text-xs font-bold">g</span>
+            <div className="text-sm sm:text-xl font-black font-mono text-amber-900">
+              {(item._sum.net_weight || 0).toFixed(2)} <span className="text-[10px] sm:text-xs font-bold">g</span>
             </div>
           </div>
         ))}
       </section>
 
-      {/* Daily Sales Table with High-Visibility Font & Compact Padding */}
+      {/* Daily Sales Table & Mobile Cards */}
       <section className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="px-5 py-3 border-b border-slate-200 flex items-center justify-between">
-          <h2 className="text-sm font-bold text-slate-800">
+        <div className="px-3.5 sm:px-5 py-2.5 sm:py-3 border-b border-slate-200 flex items-center justify-between">
+          <h2 className="text-xs sm:text-sm font-bold text-slate-800">
             Daily Sales Summary
           </h2>
-          <span className="text-xs text-slate-500 font-medium">Date-Wise Revenue & Tax Audit</span>
+          <span className="text-[11px] sm:text-xs text-slate-500 font-medium">Revenue & Tax Audit</span>
         </div>
 
         {isLoading ? (
@@ -158,20 +158,51 @@ export default function SalesReport() {
             <Loader2 className="w-8 h-8 animate-spin text-gold" />
           </div>
         ) : totalItems === 0 ? (
-          <div className="text-center py-16 text-slate-400 text-sm font-bold">
+          <div className="text-center py-16 text-slate-400 text-xs sm:text-sm font-bold">
             No sales data found for the selected period
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto">
+            {/* Mobile Card View (md:hidden) */}
+            <div className="divide-y divide-slate-100 md:hidden">
+              {paginatedData.map((row: any, i: number) => (
+                <div key={(row.date || i) + "mob"} className="p-3 space-y-1.5 bg-white">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-slate-900">
+                      {row.date ? new Date(row.date).toLocaleDateString('en-IN') : '—'}
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">
+                      {row.billcount} bills
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1">
+                    <span className="text-[11px] text-slate-500 font-medium">Total Sales:</span>
+                    <span className="font-mono font-black text-xs sm:text-sm text-slate-900">
+                      {INRFormat(row.totalsaleamount || 0)}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between border-t border-slate-50 pt-1">
+                    <span className="text-[11px] text-slate-500 font-medium">GST Collected:</span>
+                    <span className="font-mono font-bold text-xs text-amber-800">
+                      {INRFormat(row.totalgst || 0)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table View (hidden md:block) */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left min-w-[560px]">
-                <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-xs border-b border-slate-200">
+                <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-[11px] border-b border-slate-200">
                   <tr>
-                    <th className="px-5 py-3 w-12 text-center">#</th>
-                    <th className="px-5 py-3">Date</th>
-                    <th className="px-5 py-3 text-center">Bills Count</th>
-                    <th className="px-5 py-3 text-right">Total Sales (₹)</th>
-                    <th className="px-5 py-3 text-right">GST Collected (₹)</th>
+                    <th className="px-4 py-2.5 w-12 text-center">#</th>
+                    <th className="px-4 py-2.5">Date</th>
+                    <th className="px-4 py-2.5 text-center">Bills Count</th>
+                    <th className="px-4 py-2.5 text-right">Total Sales (₹)</th>
+                    <th className="px-4 py-2.5 text-right">GST Collected (₹)</th>
                   </tr>
                 </thead>
 
@@ -181,19 +212,19 @@ export default function SalesReport() {
                       key={row.date + i}
                       className="hover:bg-slate-50 transition-colors"
                     >
-                      <td className="px-5 py-3 text-sm font-bold text-slate-500 text-center">
+                      <td className="px-4 py-2.5 text-xs font-bold text-slate-500 text-center">
                         {startIndex + i + 1}
                       </td>
-                      <td className="px-5 py-3 text-sm font-bold text-slate-900">
+                      <td className="px-4 py-2.5 text-xs sm:text-sm font-bold text-slate-900">
                         {row.date ? new Date(row.date).toLocaleDateString('en-IN') : '—'}
                       </td>
-                      <td className="px-5 py-3 text-center text-sm font-black text-slate-800">
+                      <td className="px-4 py-2.5 text-center text-xs sm:text-sm font-black text-slate-800">
                         {row.billcount}
                       </td>
-                      <td className="px-5 py-3 text-right text-base font-black text-slate-900">
+                      <td className="px-4 py-2.5 text-right text-xs sm:text-sm font-black font-mono text-slate-900">
                         {INRFormat(row.totalsaleamount || 0)}
                       </td>
-                      <td className="px-5 py-3 text-right text-sm font-black text-amber-800">
+                      <td className="px-4 py-2.5 text-right text-xs sm:text-sm font-bold font-mono text-amber-800">
                         {INRFormat(row.totalgst || 0)}
                       </td>
                     </tr>
@@ -203,7 +234,7 @@ export default function SalesReport() {
             </div>
 
             {/* Pagination Footer */}
-            <div className="px-5 py-3 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-600 bg-slate-50/50">
+            <div className="px-3 sm:px-5 py-2.5 sm:py-3 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 text-[11px] sm:text-xs text-slate-600 bg-slate-50/50">
               <div className="flex items-center gap-1.5">
                 <span>Showing</span>
                 <strong className="text-slate-900 font-bold">
@@ -214,13 +245,13 @@ export default function SalesReport() {
                 <span>records</span>
               </div>
 
-              <div className="flex items-center gap-3 self-end sm:self-auto">
+              <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto">
                 <div className="flex items-center gap-1.5">
                   <span className="text-slate-500 font-medium">Rows:</span>
                   <select
                     value={pageSize}
                     onChange={(e) => setPageSize(Number(e.target.value))}
-                    className="h-8 px-2 rounded-lg border border-slate-300 bg-white font-bold text-slate-900 focus:outline-none cursor-pointer"
+                    className="h-7 sm:h-8 px-1.5 sm:px-2 rounded-lg border border-slate-300 bg-white font-bold text-slate-900 text-xs focus:outline-none cursor-pointer"
                   >
                     <option value={5}>5</option>
                     <option value={10}>10</option>
@@ -233,20 +264,20 @@ export default function SalesReport() {
                   <button
                     disabled={page <= 1}
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    className="h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer font-bold flex items-center gap-0.5 transition-all"
+                    className="h-7 sm:h-8 px-2 sm:px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer font-bold flex items-center gap-0.5 transition-all text-xs"
                   >
                     <ChevronLeft className="w-3.5 h-3.5" />
                     <span>Prev</span>
                   </button>
 
-                  <span className="px-2.5 text-slate-800 font-bold">
+                  <span className="px-2 text-slate-800 font-bold">
                     {page} / {totalPages}
                   </span>
 
                   <button
                     disabled={page >= totalPages}
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    className="h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer font-bold flex items-center gap-0.5 transition-all"
+                    className="h-7 sm:h-8 px-2 sm:px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer font-bold flex items-center gap-0.5 transition-all text-xs"
                   >
                     <span>Next</span>
                     <ChevronRight className="w-3.5 h-3.5" />

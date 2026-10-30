@@ -749,7 +749,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { useDebounce } from "@/hooks/useDebouce";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BillHistory from "@/components/app_component/BillHistory";
-import { Edit2, MapPin, Phone, Search, User, X, Loader2, Printer, Plus, History, AlertCircle, ArrowRight, Calendar } from "lucide-react";
+import { Edit2, MapPin, Phone, Search, User, X, Loader2, Printer, Plus, History, AlertCircle, ArrowRight, Calendar, ReceiptText } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -1252,6 +1252,19 @@ const NewBillPage = () => {
     setOldJewelItem((p) => p.filter((_, index) => i !== index));
   };
 
+  const handleAddOldGold = () => {
+    setOldJewelItem((p) => [
+      ...p,
+      {
+        item_name: 'GOLD',
+        purity: '',
+        weight: 0,
+        rate: 0,
+        amount: 0,
+      },
+    ]);
+  };
+
   if (rateLoading || categoriesLoading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -1268,7 +1281,57 @@ const handleTabChange = (tab: string) => {
 };
 
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-1 ">
+    <div className="flex flex-col gap-3 max-w-7xl mx-auto px-0 pb-12">
+      {/* Header Bar — Slim single row on mobile with History / New Switcher */}
+      <div className="flex items-center justify-between gap-2 bg-white px-3 py-2 sm:px-5 sm:py-2.5 rounded-xl border border-slate-200 shadow-xs">
+        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+          <ReceiptText className="w-4 h-4 text-amber-600 shrink-0" />
+          <h1 className="text-xs sm:text-base font-bold text-slate-900 tracking-tight truncate">
+            {activeTab === 'new' ? 'New Tax Invoice' : 'Bill History'}
+            <span className="hidden sm:inline text-xs text-slate-400 font-normal ml-1">
+              {activeTab === 'new' ? '(விற்பனை ரசீது)' : '(ரசீது வரலாறு)'}
+            </span>
+          </h1>
+          {rate && (
+            <div className="hidden md:flex items-center gap-2 text-xs font-semibold pl-2.5 border-l border-slate-200 text-slate-600">
+              <span>22K: <strong className="text-slate-900">₹{rate.rate_22k}/g</strong></span>
+              <span>•</span>
+              <span>Silver: <strong className="text-slate-900">₹{rate.rate_silver}/g</strong></span>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center gap-1.5 shrink-0">
+          <div className="inline-flex p-0.5 bg-slate-100 rounded-lg border border-slate-200 text-xs font-bold">
+            <button
+              type="button"
+              onClick={() => setActiveTab('new')}
+              className={`px-2.5 sm:px-3 py-1 rounded-md transition-all text-xs cursor-pointer flex items-center gap-1 ${
+                activeTab === 'new'
+                  ? 'bg-white text-slate-900 shadow-xs font-black'
+                  : 'text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              <Plus className="w-3 h-3 text-amber-600" />
+              <span>New</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('history')}
+              className={`px-2.5 sm:px-3 py-1 rounded-md transition-all text-xs cursor-pointer flex items-center gap-1 ${
+                activeTab === 'history'
+                  ? 'bg-white text-slate-900 shadow-xs font-black'
+                  : 'text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              <History className="w-3 h-3 text-slate-600" />
+              <span>History</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-1">
 
 
     
@@ -1308,171 +1371,195 @@ const handleTabChange = (tab: string) => {
           </div>
         )}
 
-        <div className="bg-white p-3 sm:p-3.5 rounded-xl border border-slate-200 shadow-xs">
-          <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
-            {/* Left side - Customer Search */}
-            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 flex-1">
+        <div className="bg-white p-2.5 sm:p-3.5 rounded-xl border border-slate-200 shadow-xs space-y-2">
+          {/* Row 1: Customer Search / Selection (Full width on mobile) */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex-1 min-w-0">
               {selectedCustomer ? (
-                <div className="flex flex-wrap items-center gap-2 sm:gap-3 bg-emerald-50/80 border border-emerald-200 rounded-lg px-3 py-1.5 flex-1 min-w-[260px]">
+                <div className="flex items-center gap-2 bg-emerald-50/90 border border-emerald-200 rounded-lg px-3 py-1.5 min-w-0">
                   <User size={15} className="text-emerald-700 shrink-0" />
-                  <span className="font-semibold text-xs sm:text-sm text-slate-900 truncate max-w-[140px] sm:max-w-none">{selectedCustomer.name}</span>
-                  <span className="flex items-center gap-1 text-slate-600 text-xs sm:text-sm shrink-0">
-                    <Phone size={12} />
+                  <span className="font-semibold text-xs sm:text-sm text-slate-900 truncate">{selectedCustomer.name}</span>
+                  <span className="flex items-center gap-1 text-slate-600 text-xs shrink-0">
+                    <Phone size={11} />
                     {selectedCustomer.phone}
                   </span>
-                  <span className="hidden sm:flex items-center gap-1 text-slate-500 text-xs sm:text-sm">
-                    <MapPin size={12} />
+                  <span className="hidden md:flex items-center gap-1 text-slate-500 text-xs">
+                    <MapPin size={11} />
                     {selectedCustomer.village}
                   </span>
                   <button
                     onClick={() => setSelectedCustomer(null)}
-                    className="ml-auto flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 font-semibold cursor-pointer"
+                    className="ml-auto text-xs text-blue-600 hover:text-blue-700 font-bold cursor-pointer shrink-0"
                   >
-                    <Edit2 size={12} />
                     Change
                   </button>
                 </div>
               ) : (
-                <div className="relative flex-1 min-w-[200px] max-w-sm">
-                  <div className="flex items-center gap-2 border border-gray-300 px-2 py-1.5 rounded bg-white focus-within:ring-2 focus-within:ring-amber-500">
-                  <Search size={15} className="text-gray-400" />
-                  <input
-                    ref={customerRef}
-                    placeholder="Search customer..."
-                    value={customerSearch}
-                    onChange={(e) => {
-                      setCustomerSearch(e.target.value);
-                      setHighlightIndex(0);
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "ArrowDown") {
-                        e.preventDefault();
-                        setHighlightIndex((prev) => prev < (customers?.length || 0) - 1 ? prev + 1 : prev);
-                      }
-                      if (e.key === "ArrowUp") {
-                        e.preventDefault();
-                        setHighlightIndex((prev) => prev > 0 ? prev - 1 : 0);
-                      }
-                      if (e.key === "Enter") {
-                        const selected = customers?.[highlightIndex];
-                        if (selected) {
-                          setSelectedCustomer(selected);
-                          setCustomerSearch('');
-                          setTimeout(() => firstItemRef.current?.focus(), 100);
+                <div className="relative w-full">
+                  <div className="flex items-center gap-2 border border-slate-300 px-3 py-1.5 sm:py-2 rounded-lg bg-white focus-within:ring-2 focus-within:ring-amber-500 focus-within:border-amber-500 transition-all">
+                    <Search size={15} className="text-slate-400 shrink-0" />
+                    <input
+                      ref={customerRef}
+                      placeholder="Search customer by name, phone or village..."
+                      value={customerSearch}
+                      onChange={(e) => {
+                        setCustomerSearch(e.target.value);
+                        setHighlightIndex(0);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "ArrowDown") {
+                          e.preventDefault();
+                          setHighlightIndex((prev) => prev < (customers?.length || 0) - 1 ? prev + 1 : prev);
                         }
-                      }
-                    }}
-                    className="flex-1 outline-none text-sm bg-transparent"
-                  />
-                  {customersLoading && <Loader2 className="w-3 h-3 animate-spin text-gray-400" />}
-                </div>
-
-                {customerSearch.trim().length > 1 && customers && customers.length > 0 && (
-                  <div className="absolute w-full bg-white border rounded-lg mt-1 shadow-lg z-30 max-h-60 overflow-y-auto">
-                    {customers.map((c: any, i: number) => (
-                      <button
-                        className={`w-full px-3 py-1.5 text-left text-sm hover:bg-gray-50 transition-colors ${i === highlightIndex ? 'bg-amber-50' : ''}`}
-                        key={c.id}
-                        onClick={() => {
-                          setSelectedCustomer(c);
-                          setCustomerSearch('');
-                        }}
-                      >
-                        <span className="font-medium">{c.name}</span>
-                        <span className="text-gray-500 ml-2">- {c.phone}</span>
-                        <span className="text-gray-400 ml-2 text-xs">{c.village}</span>
-                      </button>
-                    ))}
+                        if (e.key === "ArrowUp") {
+                          e.preventDefault();
+                          setHighlightIndex((prev) => prev > 0 ? prev - 1 : 0);
+                        }
+                        if (e.key === "Enter") {
+                          const selected = customers?.[highlightIndex];
+                          if (selected) {
+                            setSelectedCustomer(selected);
+                            setCustomerSearch('');
+                            setTimeout(() => firstItemRef.current?.focus(), 100);
+                          }
+                        }
+                      }}
+                      className="w-full border-0 border-none outline-none focus:outline-none focus:ring-0 p-0 text-xs sm:text-sm bg-transparent text-slate-900 placeholder:text-slate-400 shadow-none"
+                    />
+                    {customersLoading && <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400 shrink-0" />}
                   </div>
-                )}
-              </div>
-            )}
 
-            {/* Invoice / Bill Date Picker */}
-            <div className="flex items-center gap-1.5 border border-slate-300 rounded-lg px-2.5 py-1.5 bg-slate-50 focus-within:bg-white focus-within:ring-2 focus-within:ring-amber-500 focus-within:border-amber-500 transition-all shadow-xs">
-              <Calendar className="w-4 h-4 text-amber-600 shrink-0" />
-              <label htmlFor="bill-date-input" className="text-xs font-bold text-slate-600 shrink-0 cursor-pointer">
-                Bill Date:
-              </label>
-              <input
-                id="bill-date-input"
-                type="date"
-                value={invoiceDate}
-                onChange={(e) => setInvoiceDate(e.target.value)}
-                className="text-xs font-black text-slate-900 bg-transparent outline-none cursor-pointer"
-              />
-              {invoiceDate !== getTodayDateStr() && (
-                <div className="flex items-center gap-1">
-                  <span className="text-[10px] font-black bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded uppercase tracking-wide">
-                    Custom Date
-                  </span>
+                  {customerSearch.trim().length > 1 && customers && customers.length > 0 && (
+                    <div className="absolute w-full bg-white border border-slate-200 rounded-lg mt-1 shadow-lg z-30 max-h-60 overflow-y-auto">
+                      {customers.map((c: any, i: number) => (
+                        <button
+                          className={`w-full px-3 py-2 text-left text-xs sm:text-sm hover:bg-amber-50/50 transition-colors border-b border-slate-50 last:border-none ${i === highlightIndex ? 'bg-amber-50' : ''}`}
+                          key={c.id}
+                          onClick={() => {
+                            setSelectedCustomer(c);
+                            setCustomerSearch('');
+                          }}
+                        >
+                          <span className="font-semibold text-slate-900">{c.name}</span>
+                          <span className="text-slate-500 ml-2 font-mono text-xs">- {c.phone}</span>
+                          <span className="text-slate-400 ml-2 text-xs">{c.village}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Desktop Tabs */}
+            <div className="hidden sm:flex items-center gap-0.5 bg-gray-100 p-0.5 rounded-lg shrink-0">
+              <button
+                onClick={() => setActiveTab('new')}
+                className={`flex items-center gap-1 px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all ${
+                  activeTab === 'new' 
+                    ? 'bg-white shadow-xs text-amber-700' 
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                <Plus size={13} className="shrink-0" />
+                <span>New Bill</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('history')}
+                className={`flex items-center gap-1 px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all ${
+                  activeTab === 'history' 
+                    ? 'bg-white shadow-xs text-amber-700' 
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                <History size={13} className="shrink-0" />
+                <span>History</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Row 2: Date Picker, GST Invoice, Draft indicator + Mobile Tabs */}
+          <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-100">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              {/* Invoice / Bill Date Picker */}
+              <div className="flex items-center gap-1.5 border border-slate-300 rounded-lg px-2 py-1 bg-slate-50 focus-within:bg-white focus-within:ring-2 focus-within:ring-amber-500 transition-all shadow-xs">
+                <Calendar className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                <label htmlFor="bill-date-input" className="text-[11px] font-bold text-slate-600 shrink-0 cursor-pointer">
+                  Date:
+                </label>
+                <input
+                  id="bill-date-input"
+                  type="date"
+                  value={invoiceDate}
+                  onChange={(e) => setInvoiceDate(e.target.value)}
+                  className="text-xs font-bold text-slate-900 bg-transparent border-0 outline-none p-0 cursor-pointer"
+                />
+                {invoiceDate !== getTodayDateStr() && (
                   <button
                     type="button"
                     onClick={() => setInvoiceDate(getTodayDateStr())}
-                    className="text-[11px] text-slate-400 hover:text-slate-700 font-semibold underline ml-0.5 cursor-pointer"
+                    className="text-[9px] font-bold bg-amber-100 text-amber-900 px-1 py-0.5 rounded cursor-pointer"
                     title="Reset to today"
                   >
                     Today
+                  </button>
+                )}
+              </div>
+
+              {/* GST Toggle */}
+              <label className="flex items-center gap-1.5 text-xs text-slate-700 cursor-pointer whitespace-nowrap bg-slate-50 border border-slate-300 px-2 py-1 rounded-lg hover:bg-slate-100 transition-colors shadow-xs">
+                <input
+                  type="checkbox"
+                  checked={isGst}
+                  onChange={(e) => setIsGst(e.target.checked)}
+                  className="w-3.5 h-3.5 text-amber-600 border-gray-300 rounded cursor-pointer"
+                />
+                <span className="font-bold text-[11px] sm:text-xs text-slate-800">GST Invoice</span>
+              </label>
+
+              {/* Auto-saved draft indicator */}
+              {hasDraft && (
+                <div className="flex items-center gap-1 bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs font-bold px-2 py-1 rounded-lg shadow-xs">
+                  <span className="text-[11px]">💾 Draft</span>
+                  <button
+                    type="button"
+                    onClick={handleClearDraft}
+                    className="text-emerald-700 hover:text-rose-600 underline font-semibold ml-0.5 cursor-pointer text-[10px]"
+                    title="Discard draft and reset form"
+                  >
+                    Reset
                   </button>
                 </div>
               )}
             </div>
 
-            {/* GST Toggle */}
-            <label className="flex items-center gap-1.5 text-xs text-slate-700 cursor-pointer whitespace-nowrap bg-slate-50 border border-slate-300 px-2.5 py-1.5 rounded-lg hover:bg-slate-100 transition-colors shadow-xs">
-              <input
-                type="checkbox"
-                checked={isGst}
-                onChange={(e) => setIsGst(e.target.checked)}
-                className="w-3.5 h-3.5 text-amber-600 border-gray-300 rounded cursor-pointer"
-              />
-              <span className="font-bold text-xs text-slate-800">GST Invoice</span>
-            </label>
-
-            {/* Auto-saved draft indicator */}
-            {hasDraft && (
-              <div className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs font-bold px-2.5 py-1.5 rounded-lg shadow-xs">
-                <span>💾 Auto-Saved Draft</span>
-                <button
-                  type="button"
-                  onClick={handleClearDraft}
-                  className="text-emerald-700 hover:text-rose-600 underline font-semibold ml-1 cursor-pointer"
-                  title="Discard draft and reset form"
-                >
-                  Reset
-                </button>
-              </div>
-            )}
+            {/* Mobile Tabs */}
+            <div className="flex sm:hidden items-center gap-0.5 bg-gray-100 p-0.5 rounded-lg shrink-0">
+              <button
+                onClick={() => setActiveTab('new')}
+                className={`flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md transition-all ${
+                  activeTab === 'new' 
+                    ? 'bg-white shadow-xs text-amber-700' 
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                <Plus size={12} className="shrink-0" />
+                <span>New</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('history')}
+                className={`flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md transition-all ${
+                  activeTab === 'history' 
+                    ? 'bg-white shadow-xs text-amber-700' 
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                <History size={12} className="shrink-0" />
+                <span>History</span>
+              </button>
+            </div>
           </div>
-
-          {/* Right side - Tabs */}
-          <div className="flex items-center justify-end gap-1 bg-gray-100 p-0.5 rounded-lg self-end xl:self-auto shrink-0">
-            <button
-              onClick={() => setActiveTab('new')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
-                activeTab === 'new' 
-                  ? 'bg-white shadow-sm text-amber-700' 
-                  : 'text-gray-600 hover:text-gray-800'
-              }`}
-            >
-              <Plus size={15} />
-              New Bill
-            </button>
-            <button
-              onClick={() => setActiveTab('history')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
-                activeTab === 'history' 
-                  ? 'bg-white shadow-sm text-amber-700' 
-                  : 'text-gray-600 hover:text-gray-800'
-              }`}
-            >
-              <History size={15} />
-              History
-            </button>
-          </div>
-
         </div>
-      </div>
 
         {/* Bill Items Table - Full Width with Large Font */}
         <div className="bg-white border rounded-lg shadow-sm overflow-hidden">
@@ -1650,6 +1737,23 @@ const handleTabChange = (tab: string) => {
   </tbody>
 </table>
           </div>
+
+          {/* Items Table Footer Actions */}
+          <div className="flex items-center justify-between px-3 py-2 bg-slate-50 border-t border-slate-200">
+            <button
+              type="button"
+              onClick={addItem}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-900 bg-amber-100 hover:bg-amber-200 px-3 py-1.5 rounded-lg transition-colors cursor-pointer active:scale-95 shadow-2xs"
+            >
+              <Plus size={14} />
+              <span>Add Item Row</span>
+            </button>
+            <div className="flex items-center gap-2 text-xs text-slate-600">
+              <span className="hidden sm:inline font-medium">{items.length} {items.length === 1 ? 'item' : 'items'}</span>
+              <span className="sm:hidden font-medium">Subtotal:</span>
+              <span className="font-bold text-slate-900 tabular-nums">₹ {Math.round(total).toLocaleString('en-IN')}</span>
+            </div>
+          </div>
         </div>
 
         {/* Two Column Layout: Left - Old Jewel, Right - Summary */}
@@ -1657,8 +1761,16 @@ const handleTabChange = (tab: string) => {
           {/* Left Section - Old Jewelry (2/3 width) */}
           <div className="lg:col-span-2">
             <div className="bg-white border rounded-lg shadow-sm">
-              <div className="px-4 py-3 border-b bg-gray-50">
-                <h3 className="text-base font-bold text-gray-700">Old Jewelry Exchange</h3>
+              <div className="px-3.5 sm:px-4 py-2.5 border-b bg-gray-50 flex items-center justify-between">
+                <h3 className="text-sm sm:text-base font-bold text-gray-800">Old Jewelry Exchange</h3>
+                <button
+                  type="button"
+                  onClick={handleAddOldGold}
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-amber-900 bg-amber-100 hover:bg-amber-200 px-2.5 py-1 rounded-md transition-colors cursor-pointer active:scale-95 shadow-2xs"
+                >
+                  <Plus size={13} />
+                  <span>Add Exchange Row</span>
+                </button>
               </div>
               <div className="overflow-x-auto p-2">
                 <table className="w-full border-collapse min-w-[665px]">
@@ -1745,15 +1857,15 @@ const handleTabChange = (tab: string) => {
 
           {/* Right Section - Bill Summary Card */}
           <div className="lg:col-span-1">
-            <div className="bg-white border border-gray-300 rounded-xl shadow-xs p-4 sticky top-4 space-y-3">
+            <div className="bg-white border border-slate-200 rounded-xl shadow-xs p-3 sm:p-4 sticky top-4 space-y-2.5 sm:space-y-3">
               {/* Card Header */}
-              <div className="flex items-center justify-between border-b border-gray-200 pb-2.5">
-                <h3 className="text-base font-bold text-gray-900 leading-tight">Bill Summary</h3>
+              <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                <h3 className="text-xs sm:text-sm font-bold text-slate-900 leading-tight">Bill Summary</h3>
                 <span
-                  className={`text-xs font-bold px-2 py-0.5 rounded border ${
+                  className={`text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full border ${
                     isGst
                       ? 'bg-blue-50 text-blue-900 border-blue-200'
-                      : 'bg-gray-100 text-gray-800 border-gray-300'
+                      : 'bg-slate-100 text-slate-800 border-slate-300'
                   }`}
                 >
                   {isGst ? 'GST (3%)' : 'DIRECT BILL'}
@@ -1761,57 +1873,57 @@ const handleTabChange = (tab: string) => {
               </div>
 
               {/* Items Subtotal & Calculations */}
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between items-center text-gray-700">
-                  <span className="font-medium text-xs uppercase tracking-wider text-gray-600">New Items Subtotal</span>
-                  <span className="font-bold font-mono text-gray-900 text-sm">₹ {Math.round(total).toLocaleString('en-IN')}</span>
+              <div className="space-y-1.5 text-xs sm:text-sm">
+                <div className="flex justify-between items-center text-slate-600">
+                  <span className="text-[11px] sm:text-xs font-medium">New Items Subtotal</span>
+                  <span className="font-semibold text-slate-900 text-xs sm:text-sm tabular-nums">₹ {Math.round(total).toLocaleString('en-IN')}</span>
                 </div>
 
                 {/* Discount */}
                 <div className="flex justify-between items-center gap-2">
-                  <span className="text-gray-600 text-xs font-medium">Discount</span>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs text-gray-400 font-medium">₹</span>
+                  <span className="text-slate-600 text-[11px] sm:text-xs font-medium">Discount</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[11px] text-slate-400 font-medium">₹</span>
                     <input
                       type="number"
                       min={0}
-                      className="w-20 h-7 px-1.5 text-right text-xs font-bold font-mono border border-gray-300 rounded focus:border-gray-600 focus:outline-none bg-white"
+                      className="w-16 sm:w-20 h-6 sm:h-7 px-1.5 text-right text-xs font-semibold border border-slate-300 rounded focus:border-slate-600 focus:outline-none bg-white tabular-nums"
                       value={discount || ''}
                       placeholder="0"
                       onChange={(e) => setDiscount(Number(e.target.value))}
                     />
                     {discountAmount > 0 && (
-                      <span className="font-mono text-rose-600 text-xs font-bold">-₹{Math.round(discountAmount).toLocaleString('en-IN')}</span>
+                      <span className="text-rose-600 text-[11px] sm:text-xs font-semibold tabular-nums">-₹{Math.round(discountAmount).toLocaleString('en-IN')}</span>
                     )}
                   </div>
                 </div>
 
                 {discountAmount > 0 && (
-                  <div className="flex justify-between items-center text-gray-500 text-xs">
-                    <span>Subtotal After Discount:</span>
-                    <span className="font-medium font-mono text-gray-800">₹ {Math.round(discountedTotal).toLocaleString('en-IN')}</span>
+                  <div className="flex justify-between items-center text-slate-500 text-[11px]">
+                    <span>After Discount:</span>
+                    <span className="font-medium text-slate-800 tabular-nums">₹ {Math.round(discountedTotal).toLocaleString('en-IN')}</span>
                   </div>
                 )}
 
-                {/* GST Details (Only shown if GST Bill) */}
+                {/* GST Details */}
                 {isGst && (
-                  <div className="flex justify-between items-center text-gray-700 text-xs">
-                    <span>GST (3%):</span>
-                    <span className="font-mono font-bold text-gray-900">+₹ {Math.round(gstAmount).toLocaleString('en-IN')}</span>
+                  <div className="flex justify-between items-center text-slate-600 text-xs">
+                    <span className="text-[11px] sm:text-xs">GST (3%):</span>
+                    <span className="font-semibold text-slate-900 tabular-nums">+₹ {Math.round(gstAmount).toLocaleString('en-IN')}</span>
                   </div>
                 )}
 
                 {/* Total Bill Value (Before Old Gold) */}
-                <div className="flex justify-between items-center text-gray-900 pt-1 border-t border-gray-200 font-bold text-xs">
-                  <span>Total Bill Value:</span>
-                  <span className="font-mono text-sm">₹ {Math.round(grossBillAmount).toLocaleString('en-IN')}</span>
+                <div className="flex justify-between items-center text-slate-900 pt-1 border-t border-slate-100 font-semibold text-xs">
+                  <span className="text-[11px] sm:text-xs">Total Bill Value:</span>
+                  <span className="text-xs sm:text-sm font-bold tabular-nums">₹ {Math.round(grossBillAmount).toLocaleString('en-IN')}</span>
                 </div>
 
                 {/* Old Jewel Credit */}
                 {oldGoldTotalAmount > 0 && (
-                  <div className="flex justify-between items-center text-emerald-700 pt-0.5 text-xs font-bold">
-                    <span>Old Jewel Credit:</span>
-                    <span className="font-mono text-sm">
+                  <div className="flex justify-between items-center text-emerald-700 text-xs font-semibold">
+                    <span className="text-[11px] sm:text-xs">Old Jewel Credit:</span>
+                    <span className="text-xs sm:text-sm font-bold tabular-nums">
                       - ₹ {Math.round(oldGoldTotalAmount).toLocaleString('en-IN')}
                     </span>
                   </div>
@@ -1819,13 +1931,13 @@ const handleTabChange = (tab: string) => {
               </div>
 
               {/* Net Payable Row */}
-              <div className="border-t border-gray-200 pt-2.5">
+              <div className="border-t border-slate-200 pt-2">
                 <div className="flex justify-between items-center">
                   <div>
-                    <span className="text-xs font-bold uppercase tracking-wider text-gray-600">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
                       Net Payable
                     </span>
-                    <div className="text-xl font-black font-mono text-gray-950">
+                    <div className="text-base sm:text-xl font-bold text-slate-950 tabular-nums">
                       ₹ {Math.round(netPayableAmount).toLocaleString('en-IN')}
                     </div>
                   </div>
@@ -1833,7 +1945,7 @@ const handleTabChange = (tab: string) => {
                     <button
                       type="button"
                       onClick={() => setPaidAmount(String(Math.round(netPayableAmount)))}
-                      className="text-xs bg-gray-900 hover:bg-gray-800 text-white px-3 py-1.5 rounded-md font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+                      className="text-[11px] sm:text-xs bg-slate-900 hover:bg-slate-800 text-white px-2.5 py-1 rounded-md font-semibold transition-all cursor-pointer shadow-xs active:scale-95"
                     >
                       Full Pay
                     </button>
@@ -1844,26 +1956,26 @@ const handleTabChange = (tab: string) => {
               {/* Paid Amount Input */}
               <div className="space-y-1">
                 <div className="flex justify-between items-center">
-                  <label htmlFor="paid-amount-input" className="text-gray-700 font-bold text-xs uppercase tracking-wider">
+                  <label htmlFor="paid-amount-input" className="text-slate-600 font-semibold text-[11px] uppercase tracking-wider">
                     Paid Amount (Cash/UPI)
                   </label>
                   {currentPaid > 0 && (
                     <button
                       type="button"
                       onClick={() => setPaidAmount('')}
-                      className="text-[11px] text-gray-400 hover:text-rose-600 underline font-medium cursor-pointer"
+                      className="text-[10px] text-slate-400 hover:text-rose-600 underline font-medium cursor-pointer"
                     >
                       Clear
                     </button>
                   )}
                 </div>
                 <div className="relative">
-                  <span className="absolute left-3 top-1.5 text-gray-400 font-bold text-sm">₹</span>
+                  <span className="absolute left-2.5 top-1.5 text-slate-400 font-bold text-xs">₹</span>
                   <input
                     id="paid-amount-input"
                     type="number"
                     min={0}
-                    className="w-full h-9 pl-7 pr-3 text-right text-base font-black font-mono border border-gray-300 rounded-lg focus:border-gray-500 focus:outline-none bg-white shadow-xs"
+                    className="w-full h-8 sm:h-9 pl-6 pr-2.5 text-right text-sm sm:text-base font-bold border border-slate-300 rounded-lg focus:border-slate-500 focus:outline-none bg-white shadow-2xs tabular-nums"
                     value={paidAmount}
                     onChange={(e) => setPaidAmount(e.target.value)}
                     placeholder="0"
@@ -1874,65 +1986,65 @@ const handleTabChange = (tab: string) => {
               {/* Single Payment Status / Balance Box */}
               <div>
                 {oldGoldExcessAmount > 0 ? (
-                  <div className="p-2.5 rounded-lg border bg-blue-50 border-blue-200 flex justify-between items-center">
+                  <div className="p-2 sm:p-2.5 rounded-lg border bg-blue-50 border-blue-200 flex justify-between items-center">
                     <div>
-                      <div className="text-xs font-bold text-blue-900 uppercase tracking-wide">
+                      <div className="text-[11px] font-bold text-blue-900 uppercase">
                         Refund to Customer
                       </div>
-                      <div className="text-[11px] text-blue-700">
-                        Old gold credit exceeds bill
+                      <div className="text-[10px] text-blue-700">
+                        Credit exceeds bill
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className="font-mono text-base font-black text-blue-900">
+                      <span className="text-sm sm:text-base font-bold text-blue-900 tabular-nums">
                         ₹ {Math.round(oldGoldExcessAmount + currentPaid).toLocaleString('en-IN')}
                       </span>
                     </div>
                   </div>
                 ) : balanceDue > 0 ? (
-                  <div className="p-2.5 rounded-lg border bg-rose-50 border-rose-200 flex justify-between items-center">
+                  <div className="p-2 sm:p-2.5 rounded-lg border bg-rose-50 border-rose-200 flex justify-between items-center">
                     <div>
-                      <div className="text-xs font-bold text-rose-800 uppercase tracking-wide">
+                      <div className="text-[11px] font-bold text-rose-800 uppercase">
                         Balance Due
                       </div>
-                      <div className="text-[11px] text-rose-600">
+                      <div className="text-[10px] text-rose-600">
                         Pending from customer
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className="font-mono text-base font-black text-rose-700">
+                      <span className="text-sm sm:text-base font-bold text-rose-700 tabular-nums">
                         ₹ {Math.round(balanceDue).toLocaleString('en-IN')}
                       </span>
                     </div>
                   </div>
                 ) : changeToReturn > 0 ? (
-                  <div className="p-2.5 rounded-lg border bg-amber-50 border-amber-200 flex justify-between items-center">
+                  <div className="p-2 sm:p-2.5 rounded-lg border bg-amber-50 border-amber-200 flex justify-between items-center">
                     <div>
-                      <div className="text-xs font-bold text-amber-900 uppercase tracking-wide">
+                      <div className="text-[11px] font-bold text-amber-900 uppercase">
                         Change / Return
                       </div>
-                      <div className="text-[11px] text-amber-700">
-                        Return excess cash to customer
+                      <div className="text-[10px] text-amber-700">
+                        Return excess cash
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className="font-mono text-base font-black text-amber-800">
+                      <span className="text-sm sm:text-base font-bold text-amber-800 tabular-nums">
                         ₹ {Math.round(changeToReturn).toLocaleString('en-IN')}
                       </span>
                     </div>
                   </div>
                 ) : (
-                  <div className="p-2.5 rounded-lg border bg-emerald-50 border-emerald-200 flex justify-between items-center">
+                  <div className="p-2 sm:p-2.5 rounded-lg border bg-emerald-50 border-emerald-200 flex justify-between items-center">
                     <div>
-                      <div className="text-xs font-bold text-emerald-800 uppercase tracking-wide">
+                      <div className="text-[11px] font-bold text-emerald-800 uppercase">
                         Payment Status
                       </div>
-                      <div className="text-[11px] text-emerald-700">
+                      <div className="text-[10px] text-emerald-700">
                         Fully Settled
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className="font-mono text-base font-black text-emerald-800">
+                      <span className="text-sm sm:text-base font-bold text-emerald-800 tabular-nums">
                         ₹ 0.00
                       </span>
                     </div>
@@ -1947,7 +2059,7 @@ const handleTabChange = (tab: string) => {
                   placeholder="Note / Payment Mode (Cash, UPI, Card)..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full h-8 px-2.5 text-xs border border-gray-300 rounded-lg focus:border-gray-500 focus:outline-none bg-white placeholder:text-gray-400"
+                  className="w-full h-8 px-2.5 text-xs border border-slate-300 rounded-lg focus:border-slate-500 focus:outline-none bg-white placeholder:text-slate-400"
                 />
               </div>
 
@@ -1957,7 +2069,7 @@ const handleTabChange = (tab: string) => {
                   <button
                     type="button"
                     onClick={handleClearDraft}
-                    className="text-[11px] text-gray-400 hover:text-rose-600 underline font-medium transition-colors cursor-pointer"
+                    className="text-[10px] sm:text-[11px] text-slate-400 hover:text-rose-600 underline font-medium transition-colors cursor-pointer"
                   >
                     Discard draft & start fresh
                   </button>
@@ -1974,7 +2086,7 @@ const handleTabChange = (tab: string) => {
               <button
                 onClick={handleSubmit}
                 disabled={isPending || isPrinting || isExpired}
-                className="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold text-sm h-10 px-4 rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-xs cursor-pointer"
+                className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm h-10 px-4 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-xs cursor-pointer active:scale-[0.99]"
               >
                 {isPending || isPrinting ? (
                   <>
@@ -2027,6 +2139,7 @@ const handleTabChange = (tab: string) => {
         <BillHistory activeTab={activeTab} newBill={()=>setActiveTab('new')}  history={()=>setActiveTab('history')} />
       </TabsContent>
     </Tabs>
+    </div>
   );
 };
 export default function NewBillPageWrapper() {

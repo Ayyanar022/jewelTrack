@@ -105,83 +105,83 @@ export default function RepayLoanModal({ loan, open, onOpenChange }: RepayLoanMo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl max-w-xl w-[calc(100vw-2rem)] p-4 sm:p-6 max-h-[90dvh] overflow-y-auto">
+      <DialogContent className="sm:max-w-xl max-w-xl w-[calc(100vw-2rem)] p-3.5 sm:p-6 max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-black text-slate-900 flex items-center gap-2.5">
-            <CreditCard className="w-6 h-6 text-emerald-600" />
-            Record Repayment ({loan.loan_number})
+          <DialogTitle className="text-sm sm:text-lg font-black text-slate-900 flex items-center gap-2">
+            <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
+            <span>Record Repayment ({loan.loan_number})</span>
           </DialogTitle>
           <DialogDescription className="sr-only">
             Record monthly interest or principal settlement for gold loan
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-5 pt-2">
+        <form onSubmit={handleSubmit} className="space-y-3.5 sm:space-y-4 pt-1">
           {/* Summary Card */}
-          <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2.5 text-sm">
+          <div className="bg-slate-50 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-slate-200 space-y-2 text-xs sm:text-sm">
             <div className="flex justify-between items-center">
               <span className="text-slate-600 font-medium">Customer:</span>
-              <span className="font-black text-slate-900 text-base">{loan.customer?.name}</span>
+              <span className="font-black text-slate-900 text-xs sm:text-sm">{loan.customer?.name}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-slate-600 font-medium">Outstanding Principal (அசல்):</span>
-              <span className="font-black text-slate-900 text-lg">
+              <span className="font-black font-mono text-slate-900 text-xs sm:text-base">
                 ₹{loan.current_principal_balance.toLocaleString('en-IN')}
               </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-slate-600 font-medium">
-                Accrued Interest ({loan.months_elapsed} Months / {loan.days_elapsed}d):
+                Accrued Interest ({loan.months_elapsed} Mo / {loan.days_elapsed}d):
               </span>
-              <span className="font-black text-rose-700 text-lg">
+              <span className="font-black font-mono text-rose-700 text-xs sm:text-base">
                 ₹{loan.pending_interest?.toLocaleString('en-IN')}
               </span>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-bold text-slate-800">Interest Paid (வட்டி ₹)</Label>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3.5">
+            <div className="space-y-1">
+              <Label className="text-[11px] sm:text-xs font-bold text-slate-800">Interest Paid (வட்டி ₹)</Label>
               <Input
                 type="number"
                 value={interestPaid}
                 onChange={(e) => setInterestPaid(e.target.value)}
                 placeholder="e.g. 1500"
-                className="h-11 text-base font-black"
+                className="h-9 sm:h-10 text-xs sm:text-sm font-bold font-mono"
               />
             </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-xs font-bold text-slate-800">Principal Repaid (அசல் ₹)</Label>
+            <div className="space-y-1">
+              <Label className="text-[11px] sm:text-xs font-bold text-slate-800">Principal Repaid (அசல் ₹)</Label>
               <Input
                 type="number"
                 value={principalPaid}
                 max={loan.current_principal_balance}
                 onChange={(e) => setPrincipalPaid(e.target.value)}
                 placeholder="0"
-                className="h-11 text-base font-black"
+                className="h-9 sm:h-10 text-xs sm:text-sm font-bold font-mono"
               />
             </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-xs font-bold text-slate-800">Discount / Waiver (₹)</Label>
+            <div className="space-y-1">
+              <Label className="text-[11px] sm:text-xs font-bold text-slate-800">Discount / Waiver (₹)</Label>
               <Input
                 type="number"
                 value={discountAmount}
                 onChange={(e) => setDiscountAmount(e.target.value)}
                 placeholder="0"
-                className="h-11 text-base font-black text-amber-800"
+                className="h-9 sm:h-10 text-xs sm:text-sm font-bold font-mono text-amber-800"
               />
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label className="text-xs font-bold text-slate-800">Payment Note / Mode</Label>
+          <div className="space-y-1">
+            <Label className="text-[11px] sm:text-xs font-bold text-slate-800">Payment Note / Mode</Label>
             <Input
               value={repayNotes}
               onChange={(e) => setRepayNotes(e.target.value)}
               placeholder="e.g. Cash / GPay / NetBanking"
-              className="h-11 text-sm font-medium"
+              className="h-9 sm:h-10 text-xs sm:text-sm font-medium"
             />
           </div>
 

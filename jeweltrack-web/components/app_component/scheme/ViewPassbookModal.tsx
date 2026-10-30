@@ -562,22 +562,22 @@ export default function ViewPassbookModal({
         {/* ========================================================= */}
         {/* TOP INTERACTIVE MODAL BAR                                 */}
         {/* ========================================================= */}
-        <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 bg-white shrink-0">
-          <DialogHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3.5">
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-400 text-white flex items-center justify-center font-black shadow-md shadow-amber-500/20 shrink-0">
-                <Sparkles className="w-5 h-5" />
+        <div className="px-3.5 sm:px-6 py-2.5 sm:py-4 border-b border-slate-200 bg-white shrink-0">
+          <DialogHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+            <div className="flex items-center gap-2.5 sm:gap-3.5">
+              <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-400 text-white flex items-center justify-center font-black shadow-md shadow-amber-500/20 shrink-0">
+                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div>
-                <div className="flex items-center gap-2.5">
-                  <DialogTitle className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                <div className="flex items-center gap-2 sm:gap-2.5">
+                  <DialogTitle className="text-sm sm:text-2xl font-black text-slate-900 tracking-tight">
                     Gold Scheme Passbook
                   </DialogTitle>
-                  <span className="text-xs sm:text-sm font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md font-mono">
+                  <span className="text-[10px] sm:text-sm font-bold text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-md font-mono">
                     {account?.account_number || 'GS-XXXX'}
                   </span>
                 </div>
-                <div className="text-xs text-slate-500 flex items-center gap-2 mt-0.5">
+                <div className="text-[10px] sm:text-xs text-slate-500 flex items-center gap-1.5 sm:gap-2 mt-0.5">
                   <span className="font-semibold text-amber-800">தங்க சேமிப்பு கணக்கு</span>
                   <span>•</span>
                   <span>{account?.title || 'Flexi 916 Gold Scheme'}</span>
@@ -592,10 +592,10 @@ export default function ViewPassbookModal({
                 type="button"
                 onClick={handleWhatsAppShare}
                 variant="outline"
-                className="h-8.5 sm:h-9 px-2.5 sm:px-3 text-xs font-bold border-emerald-300 text-emerald-800 bg-emerald-50 hover:bg-emerald-100 gap-1.5 shadow-xs cursor-pointer flex-1 sm:flex-initial justify-center"
+                className="h-7 sm:h-9 px-2 sm:px-3 text-[11px] sm:text-xs font-bold border-emerald-300 text-emerald-800 bg-emerald-50 hover:bg-emerald-100 gap-1.5 shadow-xs cursor-pointer flex-1 sm:flex-initial justify-center"
                 title="Send Passbook statement directly to customer via WhatsApp"
               >
-                <Share2 className="w-4 h-4 text-emerald-600" />
+                <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" />
                 <span>WhatsApp</span>
               </Button>
 
@@ -734,32 +734,32 @@ export default function ViewPassbookModal({
           ) : (
             <div className="space-y-6">
               {/* Customer & Account Details */}
-              <div className="p-4 sm:p-5 bg-gradient-to-r from-slate-50 via-amber-50/20 to-slate-50 border border-slate-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+              <div className="p-3 sm:p-5 bg-gradient-to-r from-slate-50 via-amber-50/20 to-slate-50 border border-slate-200 rounded-xl sm:rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 shadow-xs">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight uppercase">
+                    <h2 className="text-sm sm:text-xl font-black text-slate-900 tracking-tight uppercase">
                       {shop?.shop_name || 'Jewellery Store'}
                     </h2>
                     {shop?.gstin && (
-                      <span className="text-[10px] bg-slate-100 font-mono text-slate-600 px-1.5 py-0.5 rounded border border-slate-200">
+                      <span className="text-[9px] sm:text-[10px] bg-slate-100 font-mono text-slate-600 px-1.5 py-0.5 rounded border border-slate-200">
                         GST: {shop.gstin}
                       </span>
                     )}
                   </div>
-                  <div className="text-xs text-slate-500 mt-0.5 flex flex-wrap items-center gap-x-3">
+                  <div className="text-[10px] sm:text-xs text-slate-500 mt-0.5 flex flex-wrap items-center gap-x-2 sm:gap-x-3">
                     {shop?.address && <span>{shop.address}</span>}
                     {shop?.phone && <span>Ph: {shop.phone}</span>}
                   </div>
                 </div>
 
                 <div className="text-left sm:text-right">
-                  <div className="text-xs font-black text-amber-900 uppercase tracking-wider">
+                  <div className="text-[10px] sm:text-xs font-black text-amber-900 uppercase tracking-wider">
                     Gold Savings Passbook
                   </div>
-                  <div className="text-sm font-mono font-bold text-slate-800">
+                  <div className="text-xs sm:text-sm font-mono font-bold text-slate-800">
                     Acc #: {account.account_number}
                   </div>
-                  <div className="text-[11px] text-slate-500">
+                  <div className="text-[10px] sm:text-[11px] text-slate-500">
                     Status:{' '}
                     <strong
                       className={
@@ -775,37 +775,37 @@ export default function ViewPassbookModal({
               </div>
 
               {/* Customer Snapshot Banner */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 bg-slate-50 border border-slate-200 rounded-xl p-2.5 sm:p-3 text-[11px] sm:text-xs">
                 <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block">
+                  <span className="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block">
                     Customer Name
                   </span>
-                  <strong className="text-slate-900 text-sm font-bold capitalize">
+                  <strong className="text-slate-900 text-xs sm:text-sm font-bold capitalize">
                     {account.customer?.name}
                   </strong>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block">
+                  <span className="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block">
                     Phone / Place
                   </span>
-                  <span className="text-slate-700 font-medium">
+                  <span className="text-slate-700 text-xs sm:text-sm font-medium">
                     {account.customer?.phone}
                     {account.customer?.village ? ` (${account.customer.village})` : ''}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block">
+                  <span className="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block">
                     Scheme Plan
                   </span>
-                  <span className="text-slate-800 font-bold">
+                  <span className="text-slate-800 text-xs sm:text-sm font-bold">
                     {account.title || 'Flexi 916 Scheme'}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block">
+                  <span className="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block">
                     Opened Date
                   </span>
-                  <span className="text-slate-700 font-medium">
+                  <span className="text-slate-700 text-xs sm:text-sm font-medium">
                     {new Date(account.created_at).toLocaleDateString('en-IN', {
                       day: '2-digit',
                       month: 'short',
@@ -816,66 +816,66 @@ export default function ViewPassbookModal({
               </div>
 
               {/* 4 SUMMARY KPI CARDS */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3.5">
                 {/* Available Gold */}
-                <div className="p-4 bg-gradient-to-br from-amber-500/10 via-amber-50 to-white border border-amber-300/80 rounded-2xl shadow-xs">
-                  <div className="flex items-center justify-between text-xs font-bold text-amber-800">
+                <div className="p-2.5 sm:p-4 bg-gradient-to-br from-amber-500/10 via-amber-50 to-white border border-amber-300/80 rounded-xl sm:rounded-2xl shadow-xs">
+                  <div className="flex items-center justify-between text-[10px] sm:text-xs font-bold text-amber-800">
                     <span className="uppercase tracking-wider">Available 916 Gold</span>
-                    <Sparkles className="w-4 h-4 text-amber-600" />
+                    <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600" />
                   </div>
-                  <div className="text-2xl sm:text-3xl font-black text-amber-950 mt-1.5">
+                  <div className="text-base sm:text-2xl lg:text-3xl font-black font-mono text-amber-950 mt-1">
                     {totalGrams.toFixed(3)}{' '}
-                    <span className="text-sm font-bold text-amber-700">g</span>
+                    <span className="text-xs sm:text-sm font-bold text-amber-700">g</span>
                   </div>
-                  <div className="text-[11px] text-amber-800 font-semibold mt-1">
+                  <div className="text-[10px] sm:text-[11px] text-amber-800 font-semibold mt-0.5 sm:mt-1">
                     22K Pure Weight
                   </div>
                 </div>
 
                 {/* Cash Deposited */}
-                <div className="p-4 bg-white border border-slate-200 rounded-2xl shadow-xs">
-                  <div className="flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <div className="p-2.5 sm:p-4 bg-white border border-slate-200 rounded-xl sm:rounded-2xl shadow-xs">
+                  <div className="flex items-center justify-between text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider">
                     <span>Total Cash Paid</span>
-                    <Coins className="w-4 h-4 text-slate-400" />
+                    <Coins className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
                   </div>
-                  <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-1.5">
+                  <div className="text-base sm:text-2xl lg:text-3xl font-black font-mono text-slate-900 mt-1">
                     ₹{totalCash.toLocaleString('en-IN')}
                   </div>
-                  <div className="text-[11px] text-slate-500 mt-1">
+                  <div className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 sm:mt-1">
                     {account.payments?.length || 0} deposits
                   </div>
                 </div>
 
                 {/* Valuation */}
-                <div className="p-4 bg-white border border-slate-200 rounded-2xl shadow-xs">
-                  <div className="flex items-center justify-between text-xs font-bold text-slate-600">
+                <div className="p-2.5 sm:p-4 bg-white border border-slate-200 rounded-xl sm:rounded-2xl shadow-xs">
+                  <div className="flex items-center justify-between text-[10px] sm:text-xs font-bold text-slate-600">
                     <span className="uppercase tracking-wider">Current Value</span>
                     {todayRate > 0 && (
-                      <span className="text-[10px] bg-amber-100 text-amber-900 font-black px-1.5 py-0.5 rounded-md">
+                      <span className="text-[9px] sm:text-[10px] bg-amber-100 text-amber-900 font-black px-1.5 py-0.5 rounded-md">
                         @₹{todayRate}/g
                       </span>
                     )}
                   </div>
-                  <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-1.5">
+                  <div className="text-base sm:text-2xl lg:text-3xl font-black font-mono text-slate-900 mt-1">
                     ₹{currentValuation.toLocaleString('en-IN')}
                   </div>
-                  <div className="text-[11px] text-slate-500 mt-1">
+                  <div className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 sm:mt-1">
                     Market worth of {totalGrams.toFixed(3)}g
                   </div>
                 </div>
 
                 {/* Customer Gain */}
-                <div className="p-4 bg-gradient-to-br from-emerald-500/10 via-emerald-50 to-white border border-emerald-300 rounded-2xl shadow-xs">
-                  <div className="flex items-center justify-between text-xs font-bold text-emerald-800 uppercase tracking-wider">
+                <div className="p-2.5 sm:p-4 bg-gradient-to-br from-emerald-500/10 via-emerald-50 to-white border border-emerald-300 rounded-xl sm:rounded-2xl shadow-xs">
+                  <div className="flex items-center justify-between text-[10px] sm:text-xs font-bold text-emerald-800 uppercase tracking-wider">
                     <span>Customer Gain</span>
-                    <TrendingUp className="w-4 h-4 text-emerald-600" />
+                    <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" />
                   </div>
-                  <div className="text-2xl sm:text-3xl font-black text-emerald-950 mt-1.5 flex items-center gap-1">
+                  <div className="text-base sm:text-2xl lg:text-3xl font-black font-mono text-emerald-950 mt-1 flex items-center gap-1">
                     {customerGain >= 0
                       ? `+₹${customerGain.toLocaleString('en-IN')}`
                       : `₹${customerGain.toLocaleString('en-IN')}`}
                   </div>
-                  <div className="text-[11px] text-emerald-800 font-semibold mt-1">
+                  <div className="text-[10px] sm:text-[11px] text-emerald-800 font-semibold mt-0.5 sm:mt-1">
                     Profit vs current rate
                   </div>
                 </div>

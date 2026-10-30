@@ -183,33 +183,33 @@ export default function InventoryPage() {
       )}
 
       <Tabs defaultValue="inventory" className="w-full space-y-3.5">
-        {/* Unified Compact Toolbar Header (Title + Tabs + Action Buttons in 1 Row) */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white px-3.5 sm:px-5 py-3 rounded-2xl border border-slate-200 shadow-xs">
-          <div className="flex items-center gap-4 flex-wrap">
-            <h1 className="text-lg font-black text-slate-900 flex items-center gap-2">
-              <Package className="w-5 h-5 text-amber-700" />
+        {/* Unified Compact Toolbar Header (Title + Tabs + Action Buttons) */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 bg-white px-3 py-2 sm:px-5 sm:py-3 rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs">
+          <div className="flex items-center justify-between sm:justify-start gap-2 sm:gap-4 w-full sm:w-auto">
+            <h1 className="text-xs sm:text-base font-bold text-slate-900 flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <Package className="w-4 h-4 sm:w-5 sm:h-5 text-amber-700" />
               <span>Inventory</span>
             </h1>
 
             {/* Integrated Tabs */}
-            <TabsList className="bg-slate-100 p-1 rounded-xl h-9">
+            <TabsList className="bg-slate-100 p-0.5 sm:p-1 rounded-xl h-7.5 sm:h-9">
               <TabsTrigger
                 value="inventory"
-                className="text-xs font-bold px-3.5 py-1 rounded-lg data-[state=active]:bg-white data-[state=active]:text-amber-900 data-[state=active]:shadow-xs transition-all"
+                className="text-[10px] sm:text-xs font-bold px-2 sm:px-3.5 py-1 rounded-lg data-[state=active]:bg-white data-[state=active]:text-amber-900 data-[state=active]:shadow-xs transition-all"
               >
-                📦 Category Balance
+                📦 Balance
               </TabsTrigger>
               <TabsTrigger
                 value="ledger"
-                className="text-xs font-bold px-3.5 py-1 rounded-lg data-[state=active]:bg-white data-[state=active]:text-amber-900 data-[state=active]:shadow-xs transition-all"
+                className="text-[10px] sm:text-xs font-bold px-2 sm:px-3.5 py-1 rounded-lg data-[state=active]:bg-white data-[state=active]:text-amber-900 data-[state=active]:shadow-xs transition-all"
               >
-                📜 Movement Ledger
+                📜 Ledger
               </TabsTrigger>
             </TabsList>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
             <Button
               onClick={() => {
                 if (isExpired) {
@@ -222,10 +222,10 @@ export default function InventoryPage() {
                 setError('');
               }}
               disabled={isExpired}
-              className="bg-slate-900 hover:bg-slate-800 text-white font-bold h-9 px-3.5 text-xs flex items-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50"
+              className="bg-slate-900 hover:bg-slate-800 text-white font-bold h-7.5 sm:h-9 px-2.5 sm:px-3.5 text-[11px] sm:text-xs flex items-center justify-center gap-1 shadow-xs cursor-pointer disabled:opacity-50 flex-1 sm:flex-initial rounded-lg sm:rounded-xl"
             >
-              <Plus className="w-4 h-4" />
-              <span>{isExpired ? 'Add Stock (Locked)' : 'Add Stock'}</span>
+              <Plus className="w-3.5 h-3.5" />
+              <span>{isExpired ? 'Locked' : 'Add Stock'}</span>
             </Button>
 
             <Button
@@ -241,9 +241,9 @@ export default function InventoryPage() {
               }}
               disabled={isExpired}
               variant="outline"
-              className="h-9 px-3.5 text-xs font-bold text-slate-700 border-slate-300 hover:bg-slate-100 flex items-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50"
+              className="h-7.5 sm:h-9 px-2.5 sm:px-3.5 text-[11px] sm:text-xs font-bold text-slate-700 border-slate-300 hover:bg-slate-100 flex items-center justify-center gap-1 shadow-xs cursor-pointer disabled:opacity-50 flex-1 sm:flex-initial rounded-lg sm:rounded-xl"
             >
-              <SlidersHorizontal className="w-4 h-4" />
+              <SlidersHorizontal className="w-3.5 h-3.5" />
               <span>Adjustment</span>
             </Button>
           </div>
@@ -251,15 +251,46 @@ export default function InventoryPage() {
 
         {/* Tab 1: Category Balance & Vault Summary */}
         <TabsContent value="inventory" className="space-y-3.5 mt-0">
-          <section className="grid grid-cols-1 lg:grid-cols-7 gap-4">
-            {/* Inventory Master Table */}
+          <section className="grid grid-cols-1 lg:grid-cols-7 gap-3 sm:gap-4">
+            {/* Quick Vault Summary Card (order-first on mobile for quick overview) */}
+            <div className="order-first lg:order-last lg:col-span-2">
+              <div className="bg-white border border-slate-200 rounded-2xl p-3.5 sm:p-5 shadow-xs flex flex-col justify-between h-full space-y-3 sm:space-y-4">
+                <h3 className="text-xs sm:text-sm font-black text-slate-900 border-b border-slate-100 pb-2">
+                  Vault Summary (கையிருப்பு)
+                </h3>
+                {summary ? (
+                  <div className="grid grid-cols-2 lg:flex lg:flex-col gap-2 sm:gap-2.5 flex-1 justify-center">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between rounded-xl bg-emerald-50 border border-emerald-100 p-2 sm:px-3.5 sm:py-2.5">
+                      <span className="text-[10px] sm:text-xs font-bold text-emerald-900">Total IN</span>
+                      <span className="font-black text-emerald-950 text-xs sm:text-sm font-mono">+{summary.totalIn.toFixed(2)} g</span>
+                    </div>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between rounded-xl bg-rose-50 border border-rose-100 p-2 sm:px-3.5 sm:py-2.5">
+                      <span className="text-[10px] sm:text-xs font-bold text-rose-900">Total OUT</span>
+                      <span className="font-black text-rose-950 text-xs sm:text-sm font-mono">-{summary.totalOut.toFixed(2)} g</span>
+                    </div>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between rounded-xl bg-amber-50 border border-amber-100 p-2 sm:px-3.5 sm:py-2.5">
+                      <span className="text-[10px] sm:text-xs font-bold text-amber-900">Borrowed</span>
+                      <span className="font-black text-amber-950 text-xs sm:text-sm font-mono">{summary.totalBorrowed.toFixed(2)} g</span>
+                    </div>
+                    <div className="col-span-2 lg:col-span-1 flex items-center justify-between rounded-xl bg-slate-900 p-2.5 sm:px-4 sm:py-3.5 shadow-xs">
+                      <span className="text-[10px] sm:text-xs font-bold text-slate-300 uppercase tracking-wider">Vault Balance</span>
+                      <span className="font-black text-white text-xs sm:text-base font-mono">{summary.totalBalance.toFixed(2)} g</span>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-400">No stock data yet</p>
+                )}
+              </div>
+            </div>
+
+            {/* Inventory Master Table & Mobile Cards */}
             <div className="lg:col-span-5">
               <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
-                <div className="px-5 py-3 border-b border-slate-200 flex items-center justify-between">
-                  <div className="text-sm font-bold text-slate-800">
+                <div className="px-3.5 sm:px-5 py-2.5 sm:py-3 border-b border-slate-200 flex items-center justify-between">
+                  <div className="text-xs sm:text-sm font-bold text-slate-800">
                     Stock by Category: <span className="font-black text-slate-900">{totalInvItems}</span>
                   </div>
-                  <span className="text-xs text-slate-500 font-medium">Net Available Weight</span>
+                  <span className="text-[11px] sm:text-xs text-slate-500 font-medium">Net Available Weight</span>
                 </div>
 
                 {isInvLoading ? (
@@ -269,36 +300,93 @@ export default function InventoryPage() {
                 ) : totalInvItems === 0 ? (
                   <div className="text-center py-16 text-slate-400 space-y-2">
                     <Package className="w-10 h-10 mx-auto opacity-30 text-gold" />
-                    <p className="text-sm font-bold text-slate-700">No inventory data yet — add your first stock</p>
+                    <p className="text-xs sm:text-sm font-bold text-slate-700">No inventory data yet — add your first stock</p>
                   </div>
                 ) : (
                   <>
-                    <div className="overflow-x-auto">
+                    {/* Mobile Card View (md:hidden) */}
+                    <div className="divide-y divide-slate-100 md:hidden">
+                      {paginatedInventory.map((r: any, i: number) => (
+                        <div key={r.category_id + i + "inv_mob"} className="p-3 space-y-2 bg-white">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                              <span className="w-5 h-5 rounded-full bg-slate-100 text-slate-600 font-bold text-[10px] flex items-center justify-center shrink-0">
+                                {invStartIndex + i + 1}
+                              </span>
+                              <span className="text-xs sm:text-sm font-black text-slate-900">
+                                {r?.category_name}
+                              </span>
+                            </div>
+                            <Badge
+                              variant="outline"
+                              className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                                r?.purity === "K22"
+                                  ? "bg-amber-50 text-amber-900 border-amber-200"
+                                  : "bg-slate-100 text-slate-700 border-slate-200"
+                              }`}
+                            >
+                              {r?.purity === "K22" ? "22K (916)" : "18K (750)"}
+                            </Badge>
+                          </div>
+
+                          <div className="grid grid-cols-3 gap-1.5 text-center">
+                            <div className="bg-emerald-50/70 border border-emerald-100 rounded-lg p-1.5">
+                              <div className="text-[10px] font-bold text-emerald-800 uppercase">Total IN</div>
+                              <div className="text-xs font-black font-mono text-emerald-700">
+                                +{(r?.total_in || 0).toFixed(2)}g
+                              </div>
+                            </div>
+                            <div className="bg-rose-50/70 border border-rose-100 rounded-lg p-1.5">
+                              <div className="text-[10px] font-bold text-rose-800 uppercase">Total OUT</div>
+                              <div className="text-xs font-black font-mono text-rose-700">
+                                -{(r?.total_out || 0).toFixed(2)}g
+                              </div>
+                            </div>
+                            <div className="bg-amber-50/70 border border-amber-100 rounded-lg p-1.5">
+                              <div className="text-[10px] font-bold text-amber-800 uppercase">Borrowed</div>
+                              <div className="text-xs font-bold font-mono text-amber-800">
+                                {(r?.total_borrowed || 0).toFixed(2)}g
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between pt-1 border-t border-slate-100 text-xs">
+                            <span className="text-slate-500 font-semibold text-[11px]">Vault Balance:</span>
+                            <span className="font-black font-mono text-slate-900 text-xs sm:text-sm">
+                              {(r?.balance || 0).toFixed(2)} g
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Desktop Table View (hidden md:block) */}
+                    <div className="hidden md:block overflow-x-auto">
                       <table className="w-full text-left min-w-[680px]">
-                        <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-xs border-b border-slate-200">
+                        <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-[11px] border-b border-slate-200">
                           <tr>
-                            <th className="px-5 py-3 w-12 text-center">#</th>
-                            <th className="px-5 py-3">Category</th>
-                            <th className="px-5 py-3 text-center">Purity</th>
-                            <th className="px-5 py-3 text-right text-emerald-800">Total IN (g)</th>
-                            <th className="px-5 py-3 text-right text-rose-800">Total OUT (g)</th>
-                            <th className="px-5 py-3 text-right text-amber-800">Borrowed (g)</th>
-                            <th className="px-5 py-3 text-right">Net Balance (g)</th>
+                            <th className="px-4 py-2.5 w-12 text-center">#</th>
+                            <th className="px-4 py-2.5">Category</th>
+                            <th className="px-4 py-2.5 text-center">Purity</th>
+                            <th className="px-4 py-2.5 text-right text-emerald-800">Total IN (g)</th>
+                            <th className="px-4 py-2.5 text-right text-rose-800">Total OUT (g)</th>
+                            <th className="px-4 py-2.5 text-right text-amber-800">Borrowed (g)</th>
+                            <th className="px-4 py-2.5 text-right">Net Balance (g)</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                           {paginatedInventory.map((r: any, i: number) => (
                             <tr key={r.category_id + i + "inv"} className="hover:bg-slate-50 transition-colors">
-                              <td className="px-5 py-3 text-sm font-bold text-slate-500 text-center">
+                              <td className="px-4 py-2.5 text-xs font-bold text-slate-500 text-center">
                                 {invStartIndex + i + 1}
                               </td>
-                              <td className="px-5 py-3 text-base font-black text-slate-900">
+                              <td className="px-4 py-2.5 text-xs sm:text-sm font-bold text-slate-900">
                                 {r?.category_name}
                               </td>
-                              <td className="px-5 py-3 text-center">
+                              <td className="px-4 py-2.5 text-center">
                                 <Badge
                                   variant="outline"
-                                  className={`text-xs font-bold px-2.5 py-0.5 rounded-md ${
+                                  className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
                                     r?.purity === "K22"
                                       ? "bg-amber-50 text-amber-900 border-amber-200"
                                       : "bg-slate-100 text-slate-700 border-slate-200"
@@ -307,16 +395,16 @@ export default function InventoryPage() {
                                   {r?.purity === "K22" ? "22K (916)" : "18K (750)"}
                                 </Badge>
                               </td>
-                              <td className="px-5 py-3 text-right font-black text-emerald-700 text-sm">
+                              <td className="px-4 py-2.5 text-right font-bold font-mono text-emerald-700 text-xs sm:text-sm">
                                 +{(r?.total_in || 0).toFixed(2)}
                               </td>
-                              <td className="px-5 py-3 text-right font-black text-rose-700 text-sm">
+                              <td className="px-4 py-2.5 text-right font-bold font-mono text-rose-700 text-xs sm:text-sm">
                                 -{(r?.total_out || 0).toFixed(2)}
                               </td>
-                              <td className="px-5 py-3 text-right font-bold text-amber-700 text-sm">
+                              <td className="px-4 py-2.5 text-right font-medium font-mono text-amber-700 text-xs sm:text-sm">
                                 {(r?.total_borrowed || 0).toFixed(2)}
                               </td>
-                              <td className="px-5 py-3 text-right font-black text-slate-900 text-base">
+                              <td className="px-4 py-2.5 text-right font-black font-mono text-slate-900 text-xs sm:text-sm">
                                 {(r?.balance || 0).toFixed(2)} g
                               </td>
                             </tr>
@@ -326,7 +414,7 @@ export default function InventoryPage() {
                     </div>
 
                     {/* Inventory Pagination Footer */}
-                    <div className="px-5 py-3 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-600 bg-slate-50/50">
+                    <div className="px-3 sm:px-5 py-2.5 sm:py-3 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 text-[11px] sm:text-xs text-slate-600 bg-slate-50/50">
                       <div className="flex items-center gap-1.5">
                         <span>Showing</span>
                         <strong className="text-slate-900 font-bold">
@@ -337,7 +425,7 @@ export default function InventoryPage() {
                         <span>items</span>
                       </div>
 
-                      <div className="flex items-center gap-3 self-end sm:self-auto">
+                      <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto">
                         <div className="flex items-center gap-1.5">
                           <span className="text-slate-500 font-medium">Rows:</span>
                           <select
@@ -346,7 +434,7 @@ export default function InventoryPage() {
                               setInvPageSize(Number(e.target.value));
                               setInvPage(1);
                             }}
-                            className="h-8 px-2 rounded-lg border border-slate-300 bg-white font-bold text-slate-900 focus:outline-none cursor-pointer"
+                            className="h-7 sm:h-8 px-1.5 sm:px-2 rounded-lg border border-slate-300 bg-white font-bold text-slate-900 text-xs focus:outline-none cursor-pointer"
                           >
                             <option value={5}>5</option>
                             <option value={7}>7</option>
@@ -359,20 +447,20 @@ export default function InventoryPage() {
                           <button
                             disabled={invPage <= 1}
                             onClick={() => setInvPage((p) => Math.max(1, p - 1))}
-                            className="h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer font-bold flex items-center gap-0.5 transition-all"
+                            className="h-7 sm:h-8 px-2 sm:px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer font-bold flex items-center gap-0.5 transition-all text-xs"
                           >
                             <ChevronLeft className="w-3.5 h-3.5" />
                             <span>Prev</span>
                           </button>
 
-                          <span className="px-2.5 text-slate-800 font-bold">
+                          <span className="px-2 text-slate-800 font-bold">
                             {invPage} / {totalInvPages}
                           </span>
 
                           <button
                             disabled={invPage >= totalInvPages}
                             onClick={() => setInvPage((p) => Math.min(totalInvPages, p + 1))}
-                            className="h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer font-bold flex items-center gap-0.5 transition-all"
+                            className="h-7 sm:h-8 px-2 sm:px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer font-bold flex items-center gap-0.5 transition-all text-xs"
                           >
                             <span>Next</span>
                             <ChevronRight className="w-3.5 h-3.5" />
@@ -384,48 +472,17 @@ export default function InventoryPage() {
                 )}
               </div>
             </div>
-
-            {/* Quick Vault Summary Card */}
-            <div className="lg:col-span-2">
-              <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-col justify-between h-full space-y-4">
-                <h3 className="text-sm font-black text-slate-900 border-b border-slate-100 pb-2.5">
-                  Vault Summary (கையிருப்பு)
-                </h3>
-                {summary ? (
-                  <div className="flex flex-col gap-2.5 flex-1 justify-center">
-                    <div className="flex items-center justify-between rounded-xl bg-emerald-50 border border-emerald-100 px-3.5 py-2.5">
-                      <span className="text-xs font-bold text-emerald-900">Total Stock IN</span>
-                      <span className="font-black text-emerald-950 text-sm">+{summary.totalIn.toFixed(2)} g</span>
-                    </div>
-                    <div className="flex items-center justify-between rounded-xl bg-rose-50 border border-rose-100 px-3.5 py-2.5">
-                      <span className="text-xs font-bold text-rose-900">Total Sold OUT</span>
-                      <span className="font-black text-rose-950 text-sm">-{summary.totalOut.toFixed(2)} g</span>
-                    </div>
-                    <div className="flex items-center justify-between rounded-xl bg-amber-50 border border-amber-100 px-3.5 py-2.5">
-                      <span className="text-xs font-bold text-amber-900">Outside Borrowed</span>
-                      <span className="font-black text-amber-950 text-sm">{summary.totalBorrowed.toFixed(2)} g</span>
-                    </div>
-                    <div className="flex items-center justify-between rounded-xl bg-slate-900 px-4 py-3.5 mt-1 shadow-xs">
-                      <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">Vault Balance</span>
-                      <span className="font-black text-white text-base">{summary.totalBalance.toFixed(2)} g</span>
-                    </div>
-                  </div>
-                ) : (
-                  <p className="text-xs text-slate-400">No stock data yet</p>
-                )}
-              </div>
-            </div>
           </section>
         </TabsContent>
 
         {/* Tab 2: Movement Ledger */}
         <TabsContent value="ledger" className="space-y-3.5 mt-0">
           <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
-            <div className="px-5 py-3 border-b border-slate-200 flex items-center justify-between">
-              <div className="text-sm font-bold text-slate-800">
+            <div className="px-3.5 sm:px-5 py-2.5 sm:py-3 border-b border-slate-200 flex items-center justify-between">
+              <div className="text-xs sm:text-sm font-bold text-slate-800">
                 Ledger Entries: <span className="font-black text-slate-900">{totalLedgerItems}</span>
               </div>
-              <span className="text-xs text-slate-500 font-medium">Audit Trail of In / Out Stock Movements</span>
+              <span className="text-[11px] sm:text-xs text-slate-500 font-medium">Audit Trail of Stock Movements</span>
             </div>
 
             {isLedgerLoading ? (
@@ -435,37 +492,84 @@ export default function InventoryPage() {
             ) : ledgerItems.length === 0 ? (
               <div className="text-center py-16 text-slate-400 space-y-2">
                 <Package className="w-10 h-10 mx-auto opacity-30 text-gold" />
-                <p className="text-sm font-bold text-slate-700">No movement records found</p>
+                <p className="text-xs sm:text-sm font-bold text-slate-700">No movement records found</p>
               </div>
             ) : (
               <>
-                <div className="overflow-x-auto">
+                {/* Mobile Card View (md:hidden) */}
+                <div className="divide-y divide-slate-100 md:hidden">
+                  {ledgerItems.map((r: any, i: number) => (
+                    <div key={i + "his_mob"} className="p-3 space-y-2 bg-white">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5">
+                          <Badge
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                              r?.type === 'IN'
+                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                                : 'bg-rose-50 text-rose-800 border-rose-200'
+                            }`}
+                          >
+                            {r?.type}
+                          </Badge>
+                          <span className="text-xs sm:text-sm font-black text-slate-900">
+                            {r?.category?.name || '—'}
+                          </span>
+                          <span className="text-[10px] font-bold text-slate-500">
+                            ({r?.purity === "K22" ? "22K" : "18K"})
+                          </span>
+                        </div>
+                        <span className={`font-black font-mono text-xs sm:text-sm ${
+                          r?.type === 'IN' ? 'text-emerald-700' : 'text-rose-700'
+                        }`}>
+                          {r?.type === 'IN' ? '+' : '-'}{(r?.weight || 0).toFixed(2)} g
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-50">
+                        <div className="flex items-center gap-2">
+                          <span>{new Date(r?.created_at).toLocaleDateString('en-IN')}</span>
+                          <span>•</span>
+                          <span className="font-medium text-slate-600">{r?.stockType || 'OWN'}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 font-mono">
+                          <span>{r?.reference || '—'}</span>
+                          {r?.reference_id && (
+                            <span className="text-slate-400">#{r.reference_id.slice(-6)}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop Table View (hidden md:block) */}
+                <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-left min-w-[760px]">
-                    <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-xs border-b border-slate-200">
+                    <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-[11px] border-b border-slate-200">
                       <tr>
-                        <th className="px-5 py-3 w-12 text-center">#</th>
-                        <th className="px-5 py-3">Date</th>
-                        <th className="px-5 py-3 text-center">Type</th>
-                        <th className="px-5 py-3">Category</th>
-                        <th className="px-5 py-3 text-center">Purity</th>
-                        <th className="px-5 py-3 text-right">Weight (g)</th>
-                        <th className="px-5 py-3 text-center">Stock Type</th>
-                        <th className="px-5 py-3 text-center">Reference</th>
-                        <th className="px-5 py-3 text-center">Ref ID</th>
+                        <th className="px-4 py-2.5 w-12 text-center">#</th>
+                        <th className="px-4 py-2.5">Date</th>
+                        <th className="px-4 py-2.5 text-center">Type</th>
+                        <th className="px-4 py-2.5">Category</th>
+                        <th className="px-4 py-2.5 text-center">Purity</th>
+                        <th className="px-4 py-2.5 text-right">Weight (g)</th>
+                        <th className="px-4 py-2.5 text-center">Stock Type</th>
+                        <th className="px-4 py-2.5 text-center">Reference</th>
+                        <th className="px-4 py-2.5 text-center">Ref ID</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                       {ledgerItems.map((r: any, i: number) => (
                         <tr key={i + "his"} className="hover:bg-slate-50 transition-colors">
-                          <td className="px-5 py-3 text-sm font-bold text-slate-500 text-center">
+                          <td className="px-4 py-2.5 text-xs font-bold text-slate-500 text-center">
                             {ledgerStartIndex + i + 1}
                           </td>
-                          <td className="px-5 py-3 text-sm text-slate-700 font-medium">
+                          <td className="px-4 py-2.5 text-xs text-slate-700 font-medium">
                             {new Date(r?.created_at).toLocaleDateString('en-IN')}
                           </td>
-                          <td className="px-5 py-3 text-center">
+                          <td className="px-4 py-2.5 text-center">
                             <Badge
-                              className={`text-xs font-bold px-2.5 py-0.5 rounded-md ${
+                              className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
                                 r?.type === 'IN'
                                   ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                                   : 'bg-rose-50 text-rose-800 border-rose-200'
@@ -474,22 +578,22 @@ export default function InventoryPage() {
                               {r?.type}
                             </Badge>
                           </td>
-                          <td className="px-5 py-3 text-base font-black text-slate-900">
+                          <td className="px-4 py-2.5 text-xs sm:text-sm font-bold text-slate-900">
                             {r?.category?.name || '—'}
                           </td>
-                          <td className="px-5 py-3 text-center text-sm font-bold text-slate-700">
+                          <td className="px-4 py-2.5 text-center text-xs font-bold text-slate-700">
                             {r?.purity === "K22" ? "22K" : "18K"}
                           </td>
-                          <td className="px-5 py-3 text-right font-black text-slate-900 text-sm">
+                          <td className="px-4 py-2.5 text-right font-black font-mono text-slate-900 text-xs sm:text-sm">
                             {(r?.weight || 0).toFixed(2)} g
                           </td>
-                          <td className="px-5 py-3 text-center text-sm font-medium text-slate-700">
+                          <td className="px-4 py-2.5 text-center text-xs font-medium text-slate-700">
                             {r?.stockType || 'OWN'}
                           </td>
-                          <td className="px-5 py-3 text-center text-sm font-medium text-slate-700">
+                          <td className="px-4 py-2.5 text-center text-xs font-medium text-slate-700">
                             {r?.reference || '—'}
                           </td>
-                          <td className="px-5 py-3 text-center text-sm font-mono text-slate-600">
+                          <td className="px-4 py-2.5 text-center text-xs font-mono text-slate-600">
                             {r.reference_id || '—'}
                           </td>
                         </tr>
@@ -499,7 +603,7 @@ export default function InventoryPage() {
                 </div>
 
                 {/* Ledger Pagination Footer */}
-                <div className="px-5 py-3 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-600 bg-slate-50/50">
+                <div className="px-3 sm:px-5 py-2.5 sm:py-3 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 text-[11px] sm:text-xs text-slate-600 bg-slate-50/50">
                   <div className="flex items-center gap-1.5">
                     <span>Showing</span>
                     <strong className="text-slate-900 font-bold">
@@ -510,7 +614,7 @@ export default function InventoryPage() {
                     <span>entries</span>
                   </div>
 
-                  <div className="flex items-center gap-3 self-end sm:self-auto">
+                  <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto">
                     <div className="flex items-center gap-1.5">
                       <span className="text-slate-500 font-medium">Rows:</span>
                       <select
@@ -519,7 +623,7 @@ export default function InventoryPage() {
                           setLedgerPageSize(Number(e.target.value));
                           setLedgerPage(1);
                         }}
-                        className="h-8 px-2 rounded-lg border border-slate-300 bg-white font-bold text-slate-900 focus:outline-none cursor-pointer"
+                        className="h-7 sm:h-8 px-1.5 sm:px-2 rounded-lg border border-slate-300 bg-white font-bold text-slate-900 text-xs focus:outline-none cursor-pointer"
                       >
                         <option value={5}>5</option>
                         <option value={7}>7</option>
@@ -533,20 +637,20 @@ export default function InventoryPage() {
                       <button
                         disabled={ledgerPage <= 1}
                         onClick={() => setLedgerPage((p) => Math.max(1, p - 1))}
-                        className="h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer font-bold flex items-center gap-0.5 transition-all"
+                        className="h-7 sm:h-8 px-2 sm:px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer font-bold flex items-center gap-0.5 transition-all text-xs"
                       >
                         <ChevronLeft className="w-3.5 h-3.5" />
                         <span>Prev</span>
                       </button>
 
-                      <span className="px-2.5 text-slate-800 font-bold">
+                      <span className="px-2 text-slate-800 font-bold">
                         {ledgerPage} / {totalLedgerPages}
                       </span>
 
                       <button
                         disabled={ledgerPage >= totalLedgerPages}
                         onClick={() => setLedgerPage((p) => Math.min(totalLedgerPages, p + 1))}
-                        className="h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer font-bold flex items-center gap-0.5 transition-all"
+                        className="h-7 sm:h-8 px-2 sm:px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer font-bold flex items-center gap-0.5 transition-all text-xs"
                       >
                         <span>Next</span>
                         <ChevronRight className="w-3.5 h-3.5" />
@@ -562,18 +666,18 @@ export default function InventoryPage() {
 
       {/* Stock Entry Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[420px] rounded-2xl p-6">
+        <DialogContent className="max-w-[92vw] sm:max-w-[420px] rounded-2xl p-4 sm:p-6">
           <DialogHeader>
-            <DialogTitle className="text-base font-black text-slate-900">{formHeader}</DialogTitle>
+            <DialogTitle className="text-sm sm:text-base font-black text-slate-900">{formHeader}</DialogTitle>
           </DialogHeader>
 
-          <form onSubmit={handleSubmitStock} className="flex flex-col gap-4 pt-2">
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs font-bold text-slate-800">Category *</Label>
+          <form onSubmit={handleSubmitStock} className="flex flex-col gap-3 sm:gap-4 pt-1 sm:pt-2">
+            <div className="flex flex-col gap-1 sm:gap-1.5">
+              <Label className="text-[11px] sm:text-xs font-bold text-slate-800">Category *</Label>
               <select
                 value={entryForm.category}
                 onChange={(e) => setEntryForm(p => ({ ...p, category: e.target.value }))}
-                className="h-10 text-sm border border-slate-300 rounded-xl px-3 font-bold text-slate-900 focus:outline-none focus:border-slate-800 cursor-pointer"
+                className="h-8.5 sm:h-10 text-xs sm:text-sm border border-slate-300 rounded-xl px-2.5 sm:px-3 font-bold text-slate-900 focus:outline-none focus:border-slate-800 cursor-pointer"
                 required
               >
                 <option value=''>Select category</option>
@@ -583,12 +687,12 @@ export default function InventoryPage() {
               </select>
             </div>
 
-            <div className="flex gap-4">
-              <div className="flex flex-col gap-1.5 w-1/2">
-                <Label className="text-xs font-bold text-slate-800">Purity</Label>
+            <div className="flex gap-2.5 sm:gap-4">
+              <div className="flex flex-col gap-1 sm:gap-1.5 w-1/2">
+                <Label className="text-[11px] sm:text-xs font-bold text-slate-800">Purity</Label>
                 <select
                   value={entryForm.purity}
-                  className="h-10 text-sm border border-slate-300 rounded-xl px-3 font-bold text-slate-900 focus:outline-none focus:border-slate-800 cursor-pointer"
+                  className="h-8.5 sm:h-10 text-xs sm:text-sm border border-slate-300 rounded-xl px-2.5 sm:px-3 font-bold text-slate-900 focus:outline-none focus:border-slate-800 cursor-pointer"
                   onChange={(e) => setEntryForm(p => ({ ...p, purity: e.target.value as "K22" | "K18" }))}
                 >
                   <option value="K22">22K (916)</option>
@@ -597,11 +701,11 @@ export default function InventoryPage() {
               </div>
 
               {entryForm.adjustment && (
-                <div className="flex flex-col gap-1.5 w-1/2">
-                  <Label className="text-xs font-bold text-slate-800">Movement Type</Label>
+                <div className="flex flex-col gap-1 sm:gap-1.5 w-1/2">
+                  <Label className="text-[11px] sm:text-xs font-bold text-slate-800">Movement Type</Label>
                   <select
                     value={entryForm.type}
-                    className="h-10 text-sm border border-slate-300 rounded-xl px-3 font-bold text-slate-900 focus:outline-none focus:border-slate-800 cursor-pointer"
+                    className="h-8.5 sm:h-10 text-xs sm:text-sm border border-slate-300 rounded-xl px-2.5 sm:px-3 font-bold text-slate-900 focus:outline-none focus:border-slate-800 cursor-pointer"
                     onChange={(e) => setEntryForm(p => ({ ...p, type: e.target.value as "IN" | "OUT" }))}
                   >
                     <option value="IN">IN (+ Stock)</option>
@@ -611,14 +715,14 @@ export default function InventoryPage() {
               )}
             </div>
 
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs font-bold text-slate-800">Weight (g) *</Label>
+            <div className="flex flex-col gap-1 sm:gap-1.5">
+              <Label className="text-[11px] sm:text-xs font-bold text-slate-800">Weight (g) *</Label>
               <input
                 step="any"
                 value={entryForm.weight}
                 min={0}
                 placeholder="0.00"
-                className="h-10 text-sm border border-slate-300 rounded-xl px-3 font-bold text-slate-900 focus:outline-none focus:border-slate-800"
+                className="h-8.5 sm:h-10 text-xs sm:text-sm font-mono border border-slate-300 rounded-xl px-2.5 sm:px-3 font-bold text-slate-900 focus:outline-none focus:border-slate-800"
                 type="number"
                 onChange={(e) => setEntryForm(p => ({ ...p, weight: e.target.value }))}
                 required
@@ -627,13 +731,13 @@ export default function InventoryPage() {
 
             {error && <span className="text-xs font-bold text-rose-600">{error}</span>}
 
-            <div className="flex gap-3 w-full pt-2">
-              <Button type="submit" className="w-1/2 bg-slate-900 hover:bg-slate-800 font-bold h-10 rounded-xl" disabled={isPending}>
+            <div className="flex gap-2.5 sm:gap-3 w-full pt-1.5 sm:pt-2">
+              <Button type="submit" className="w-1/2 bg-slate-900 hover:bg-slate-800 font-bold h-8.5 sm:h-10 text-xs sm:text-sm rounded-xl" disabled={isPending}>
                 {isPending ? "Saving..." : "Save Stock"}
               </Button>
               <Button
                 type="button"
-                className="w-1/2 font-bold h-10 rounded-xl"
+                className="w-1/2 font-bold h-8.5 sm:h-10 text-xs sm:text-sm rounded-xl"
                 variant="outline"
                 onClick={() => { setEntryForm(defaultEntry()); setOpen(false); setError(''); }}
               >

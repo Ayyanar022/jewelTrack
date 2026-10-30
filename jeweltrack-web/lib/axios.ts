@@ -10,31 +10,23 @@ function getCookie(name:string):string|null{
 }
 
 const getBaseURL = () => {
+    // In browser, always use relative /backend-api so it routes through Next.js reverse proxy
     if (typeof window !== 'undefined') {
-        const envUrl = process.env.NEXT_PUBLIC_API_URL;
-        if (!envUrl || envUrl.includes('localhost') || envUrl.includes('127.0.0.1')) {
-            if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-                return `${window.location.protocol}//${window.location.hostname}:3002`;
-            }
-        }
-        return envUrl || `${window.location.protocol}//${window.location.hostname}:3002`;
+        return '/backend-api';
     }
-    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+    // Server-side SSR in Docker or Node
+    return (
+        process.env.INTERNAL_API_URL ||
+        (process.env.NODE_ENV === 'production' ? 'http://api:3002' : 'http://localhost:3002')
+    );
 };
 
 const api = axios.create({
     baseURL: getBaseURL(),
 });
 
-// automatically added token in every request & ensure baseURL matches host
+// automatically added token in every request
 api.interceptors.request.use((config) => {
-    if (typeof window !== 'undefined') {
-        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-            if (!config.baseURL || config.baseURL.includes('localhost') || config.baseURL.includes('127.0.0.1')) {
-                config.baseURL = `${window.location.protocol}//${window.location.hostname}:3002`;
-            }
-        }
-    }
     const token = getCookie('token');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;

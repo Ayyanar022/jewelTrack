@@ -18,6 +18,20 @@ const nextConfig: NextConfig = {
     ],
     dangerouslyAllowLocalIP: true,
   },
+  async rewrites() {
+    // In Docker, the backend service is reachable at http://api:3002 or http://jeweltrack_api:3002.
+    // In local development, it is http://localhost:3002.
+    const backendTarget =
+      process.env.INTERNAL_API_URL ||
+      (process.env.NODE_ENV === 'production' ? 'http://api:3002' : 'http://localhost:3002');
+
+    return [
+      {
+        source: '/backend-api/:path*',
+        destination: `${backendTarget}/:path*`,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

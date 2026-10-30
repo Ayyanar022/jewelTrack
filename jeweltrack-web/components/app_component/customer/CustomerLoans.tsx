@@ -100,19 +100,19 @@ export default function CustomerLoans({ customerId }: CustomerLoansProps) {
       </div>
 
       {/* Filter Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200 shadow-sm">
         <div className="text-sm font-bold text-slate-900 flex items-center gap-2">
           <Coins className="w-4 h-4 text-amber-700" />
           <span>Customer Gold & Silver Pledges ({loans.length})</span>
         </div>
 
-        <div className="inline-flex p-1 bg-slate-100 rounded-lg border border-slate-200 text-sm font-bold">
+        <div className="inline-flex p-1 bg-slate-100 rounded-lg border border-slate-200 text-xs sm:text-sm font-bold overflow-x-auto justify-between sm:justify-start">
           {(['ALL', 'ACTIVE', 'CLOSED'] as const).map((st) => (
             <button
               key={st}
               type="button"
               onClick={() => setStatusFilter(st)}
-              className={`px-3.5 py-1.5 rounded-md transition-all cursor-pointer ${
+              className={`px-3 sm:px-3.5 py-1.5 rounded-md transition-all cursor-pointer whitespace-nowrap text-center ${
                 statusFilter === st
                   ? 'bg-white text-slate-900 shadow-xs font-bold'
                   : 'text-slate-600 hover:text-slate-900'

@@ -142,7 +142,7 @@ export default function DepositSchemeModal({
           </div>
 
           {/* Rate & Amount */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <Label className="text-xs font-bold text-slate-700">Cash Deposited (₹) *</Label>
               <Input
@@ -188,7 +188,7 @@ export default function DepositSchemeModal({
           )}
 
           {/* Payment Mode & Reference */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <Label className="text-xs text-slate-600 font-semibold">Payment Mode</Label>
               <select
@@ -226,15 +226,15 @@ export default function DepositSchemeModal({
         </form>
 
         {/* Pinned Footer */}
-        <div className="px-4 sm:px-6 py-3 sm:py-3.5 border-t border-slate-200 bg-slate-50 shrink-0 flex items-center justify-end gap-2.5">
-          <Button type="button" variant="outline" onClick={handleClose} className="h-9 text-xs font-semibold">
+        <div className="px-4 sm:px-6 py-3 sm:py-3.5 border-t border-slate-200 bg-slate-50 shrink-0 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-2.5">
+          <Button type="button" variant="outline" onClick={handleClose} className="h-9 text-xs font-semibold w-full sm:w-auto">
             Cancel
           </Button>
           <Button
             type="submit"
             form="deposit-scheme-form"
             disabled={depositMutation.isPending || !amountNum || gramsCredited <= 0}
-            className="h-9 text-xs bg-amber-600 hover:bg-amber-700 text-white font-bold shadow-xs px-4"
+            className="h-9 text-xs bg-amber-600 hover:bg-amber-700 text-white font-bold shadow-xs px-4 w-full sm:w-auto justify-center"
           >
             {depositMutation.isPending ? (
               <>

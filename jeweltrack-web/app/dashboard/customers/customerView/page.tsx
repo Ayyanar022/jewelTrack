@@ -26,7 +26,7 @@ const CustomerView = () => {
   });
 
   return (
-    <div className="flex flex-col gap-3.5 max-w-7xl mx-auto pb-10">
+    <div className="flex flex-col gap-3.5 max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pb-10">
       <Tabs defaultValue="loan" className="w-full space-y-3.5">
         {/* Unified Compact Header: Back Button + Customer Info + Integrated Tabs */}
         <div className="bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">

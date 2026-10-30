@@ -141,7 +141,7 @@ export default function CustomersPage() {
     'h-11 text-base font-bold text-slate-900 border-slate-300 focus-visible:border-slate-800 focus-visible:ring-2 focus-visible:ring-slate-200 transition-all';
 
   return (
-    <div className="flex flex-col gap-4 max-w-7xl mx-auto px-8 pb-6 ">
+    <div className="flex flex-col gap-4 max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 pb-6">
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs">
         <div>
@@ -245,21 +245,21 @@ export default function CustomersPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 pt-2 border-t border-slate-100">
-              <Button
-                type="submit"
-                disabled={creating || updating}
-                className="bg-slate-900 hover:bg-slate-800 text-white font-bold h-10 px-5 text-sm shadow-xs cursor-pointer"
-              >
-                {creating || updating ? 'Saving...' : editingId ? 'Update Customer' : 'Save Customer'}
-              </Button>
+            <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 pt-2 border-t border-slate-100">
               <Button
                 type="button"
                 variant="outline"
                 onClick={resetForm}
-                className="h-10 px-4 text-sm font-bold text-slate-700 border-slate-300 cursor-pointer"
+                className="h-10 px-4 text-sm font-bold text-slate-700 border-slate-300 cursor-pointer w-full sm:w-auto"
               >
                 Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={creating || updating}
+                className="bg-slate-900 hover:bg-slate-800 text-white font-bold h-10 px-5 text-sm shadow-xs cursor-pointer w-full sm:w-auto justify-center"
+              >
+                {creating || updating ? 'Saving...' : editingId ? 'Update Customer' : 'Save Customer'}
               </Button>
             </div>
           </form>

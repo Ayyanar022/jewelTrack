@@ -283,12 +283,12 @@ export default function RedeemSchemeModal({
         </form>
 
         {/* Fixed Footer (Never overflows bottom) */}
-        <div className="px-4 sm:px-6 py-3.5 border-t border-slate-200 bg-slate-50 shrink-0 flex items-center justify-end gap-2.5">
+        <div className="px-4 sm:px-6 py-3.5 border-t border-slate-200 bg-slate-50 shrink-0 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-2.5">
           <Button
             type="button"
             variant="outline"
             onClick={handleClose}
-            className="h-9 text-xs font-semibold"
+            className="h-9 text-xs font-semibold w-full sm:w-auto"
           >
             Cancel
           </Button>
@@ -300,7 +300,7 @@ export default function RedeemSchemeModal({
               redeemGrams <= 0 ||
               redeemGrams > totalGrams
             }
-            className="h-9 text-xs bg-purple-600 hover:bg-purple-700 text-white font-bold shadow-xs px-5"
+            className="h-9 text-xs bg-purple-600 hover:bg-purple-700 text-white font-bold shadow-xs px-5 w-full sm:w-auto justify-center text-center"
           >
             {redeemMutation.isPending ? (
               <>

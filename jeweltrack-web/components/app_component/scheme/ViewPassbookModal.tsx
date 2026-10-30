@@ -586,17 +586,17 @@ export default function ViewPassbookModal({
             </div>
 
             {/* Print & Share Actions */}
-            <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 shrink-0 w-full sm:w-auto">
               {/* WhatsApp Share Button */}
               <Button
                 type="button"
                 onClick={handleWhatsAppShare}
                 variant="outline"
-                className="h-9 px-3 text-xs font-bold border-emerald-300 text-emerald-800 bg-emerald-50 hover:bg-emerald-100 gap-1.5 shadow-xs cursor-pointer"
+                className="h-8.5 sm:h-9 px-2.5 sm:px-3 text-xs font-bold border-emerald-300 text-emerald-800 bg-emerald-50 hover:bg-emerald-100 gap-1.5 shadow-xs cursor-pointer flex-1 sm:flex-initial justify-center"
                 title="Send Passbook statement directly to customer via WhatsApp"
               >
                 <Share2 className="w-4 h-4 text-emerald-600" />
-                WhatsApp Share
+                <span>WhatsApp</span>
               </Button>
 
               {/* Copy Summary Button */}
@@ -605,7 +605,7 @@ export default function ViewPassbookModal({
                 onClick={handleCopyMessage}
                 variant="outline"
                 size="icon"
-                className="h-9 w-9 text-slate-600 hover:text-slate-900 border-slate-200 cursor-pointer"
+                className="h-8.5 sm:h-9 w-8.5 sm:w-9 text-slate-600 hover:text-slate-900 border-slate-200 cursor-pointer shrink-0"
                 title="Copy statement text"
               >
                 <Copy className="w-3.5 h-3.5" />
@@ -616,34 +616,34 @@ export default function ViewPassbookModal({
                 type="button"
                 onClick={() => printPassbook('BOOKLET_ENTRIES_ONLY')}
                 variant="outline"
-                className="h-9 px-3 text-xs font-bold border-amber-300 text-amber-900 bg-amber-50/60 hover:bg-amber-100 gap-1.5 shadow-xs cursor-pointer"
+                className="h-8.5 sm:h-9 px-2.5 sm:px-3 text-xs font-bold border-amber-300 text-amber-900 bg-amber-50/60 hover:bg-amber-100 gap-1.5 shadow-xs cursor-pointer flex-1 sm:flex-initial justify-center"
                 title="Prints clean entry lines specifically formatted for pocket passbook booklets"
               >
                 <BookOpen className="w-3.5 h-3.5 text-amber-700" />
-                Print Booklet
+                <span>Booklet</span>
               </Button>
 
               {/* Print Full Statement (Tops + Entries + Somes) */}
               <Button
                 type="button"
                 onClick={() => printPassbook('STATEMENT')}
-                className="h-9 px-3.5 text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white gap-1.5 shadow-xs cursor-pointer"
+                className="h-8.5 sm:h-9 px-3 sm:px-3.5 text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white gap-1.5 shadow-xs cursor-pointer flex-1 sm:flex-initial justify-center"
                 title="Prints professional A4/A5 statement with Header, Entries, and Summary"
               >
                 <Printer className="w-4 h-4" />
-                Print Statement
+                <span>Statement</span>
               </Button>
             </div>
           </DialogHeader>
 
           {/* Quick Date Range Filter Bar */}
-          <div className="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-slate-500 flex items-center gap-1">
+          <div className="mt-3 sm:mt-4 pt-2.5 sm:pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <span className="font-bold text-slate-500 flex items-center gap-1 shrink-0">
                 <Filter className="w-3.5 h-3.5 text-slate-400" />
-                Date Range:
+                Date:
               </span>
-              <div className="inline-flex rounded-lg bg-slate-100 p-0.5 border border-slate-200">
+              <div className="inline-flex rounded-lg bg-slate-100 p-0.5 border border-slate-200 overflow-x-auto max-w-full">
                 <button
                   type="button"
                   onClick={() => setDateRange('ALL')}

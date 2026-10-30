@@ -226,7 +226,7 @@ export default function CreateLoanModal({ open, onOpenChange }: CreateLoanModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-4xl max-w-4xl w-[95vw] p-6 max-h-[92vh] overflow-y-auto rounded-2xl">
+      <DialogContent className="sm:max-w-4xl max-w-4xl w-[calc(100vw-2rem)] p-4 sm:p-6 max-h-[90dvh] overflow-y-auto rounded-2xl">
         <DialogHeader className="border-b border-slate-200 pb-3">
           <DialogTitle className="text-xl font-black text-slate-900 flex items-center gap-2">
             <Coins className="w-6 h-6 text-amber-700" />

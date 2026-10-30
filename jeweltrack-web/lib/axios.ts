@@ -17,7 +17,7 @@ const getBaseURL = () => {
     // Server-side SSR in Docker or Node
     return (
         process.env.INTERNAL_API_URL ||
-        (process.env.NODE_ENV === 'production' ? 'http://api:3002' : 'http://localhost:3002')
+        (process.env.NODE_ENV === 'production' ? 'http://api:3002' : 'http://127.0.0.1:3002')
     );
 };
 

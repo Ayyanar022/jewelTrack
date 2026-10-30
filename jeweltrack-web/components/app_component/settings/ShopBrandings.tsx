@@ -73,13 +73,13 @@ const ShopBranding = ({ logo }: any) => {
   };
 
   return (
-    <div className="bg-white border rounded-xl mt-5 p-6">
+    <div className="bg-white border rounded-xl mt-5 p-4 sm:p-6">
 
       <h2 className="text-xl font-semibold mb-6">
         Shop Branding
       </h2>
 
-      <div className="flex items-center gap-8">
+      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8">
 
         <div>
 

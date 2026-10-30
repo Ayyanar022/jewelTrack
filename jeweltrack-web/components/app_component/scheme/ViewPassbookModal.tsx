@@ -558,11 +558,11 @@ export default function ViewPassbookModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-4xl lg:max-w-5xl w-full max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden shadow-2xl border-slate-200">
+      <DialogContent className="sm:max-w-4xl lg:max-w-5xl w-[calc(100vw-2rem)] max-h-[90dvh] flex flex-col p-0 gap-0 overflow-hidden shadow-2xl border-slate-200">
         {/* ========================================================= */}
         {/* TOP INTERACTIVE MODAL BAR                                 */}
         {/* ========================================================= */}
-        <div className="px-6 py-4 border-b border-slate-200 bg-white shrink-0">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 bg-white shrink-0">
           <DialogHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3.5">
               <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-400 text-white flex items-center justify-center font-black shadow-md shadow-amber-500/20 shrink-0">
@@ -899,7 +899,7 @@ export default function ViewPassbookModal({
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="w-full text-xs text-left border-collapse">
+                    <table className="w-full text-xs text-left border-collapse min-w-[680px]">
                       <thead>
                         <tr className="bg-slate-100 border-b border-slate-300 text-slate-700 font-bold uppercase tracking-wider text-[10px]">
                           <th className="px-3 py-2 border-r border-slate-200 w-8 text-center">

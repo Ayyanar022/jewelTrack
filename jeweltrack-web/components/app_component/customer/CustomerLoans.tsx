@@ -70,7 +70,7 @@ export default function CustomerLoans({ customerId }: CustomerLoansProps) {
   return (
     <div className="space-y-4">
       {/* Customer Loan Summary Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-3.5">
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
           <div className="text-xs text-slate-500 font-bold uppercase tracking-wider">Active Pledges</div>
           <div className="text-xl font-black font-mono text-slate-900 mt-1">{activeLoans.length} Loans</div>
@@ -138,7 +138,7 @@ export default function CustomerLoans({ customerId }: CustomerLoansProps) {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm border-collapse">
+            <table className="w-full text-left text-sm border-collapse min-w-[760px]">
               <thead className="bg-slate-100 uppercase tracking-wider text-slate-700 font-bold text-xs border-b border-slate-200">
                 <tr>
                   <th className="px-3.5 py-3 w-12 text-center border border-slate-200">#</th>

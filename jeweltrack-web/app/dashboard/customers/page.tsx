@@ -154,15 +154,15 @@ export default function CustomersPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
           {/* Search Box */}
-          <div className="relative w-64">
+          <div className="relative w-full sm:w-72">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <Input
               placeholder="Search name, phone, village..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className={ `pl-9 h-10 text-sm font-medium border-slate-300 ${inputClass}`}
+              className={`pl-9 h-10 text-sm font-medium border-slate-300 w-full ${inputClass}`}
             />
           </div>
 
@@ -173,7 +173,7 @@ export default function CustomersPage() {
                 setForm(emptyForm());
                 setShowForm(true);
               }}
-              className="bg-slate-900 hover:bg-slate-800 text-white font-bold h-10 px-4 text-xs flex items-center gap-1.5 shadow-xs cursor-pointer"
+              className="bg-slate-900 hover:bg-slate-800 text-white font-bold h-10 px-4 text-xs flex items-center justify-center gap-1.5 shadow-xs cursor-pointer w-full sm:w-auto"
             >
               <Plus className="w-4 h-4" />
               <span>Add Customer</span>
@@ -289,7 +289,7 @@ export default function CustomersPage() {
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="w-full text-left">
+              <table className="w-full text-left min-w-[640px]">
                 <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-xs border-b border-slate-200">
                   <tr>
                     <th className="px-5 py-2.5 w-12 text-center">#</th>

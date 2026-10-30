@@ -207,11 +207,11 @@ export default function EstimatePage() {
         }
       `}</style>
 
-      {/* 100% Single-Screen Viewport without Scroll */}
-      <div className="h-[calc(100vh-108px)] flex flex-col max-w-7xl mx-auto px-10 overflow-hidden gap-2.5">
+      {/* Single-Screen Viewport with Responsive Fallback */}
+      <div className="min-h-[calc(100dvh-120px)] lg:h-[calc(100dvh-108px)] flex flex-col max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-10 overflow-y-auto lg:overflow-hidden gap-2.5">
         {/* Compact Header Bar */}
-        <div className="flex items-center justify-between bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-xs flex-shrink-0">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-white px-3.5 sm:px-4 py-2 rounded-xl border border-slate-200 shadow-xs flex-shrink-0 gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             <span className="text-sm font-black text-slate-900">Quotation Desk (மதிப்பீடு)</span>
             {isExpired && (
               <span className="bg-emerald-50 text-emerald-800 border border-emerald-300 text-[11px] font-black px-2.5 py-0.5 rounded-full shadow-2xs">
@@ -227,7 +227,7 @@ export default function EstimatePage() {
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 self-end sm:self-auto">
             <Button
               variant="outline"
               size="sm"
@@ -235,7 +235,7 @@ export default function EstimatePage() {
                 setHistory(getHistory());
                 setShowHistory(true);
               }}
-              className="h-8 px-3 text-xs font-bold text-slate-700 border-slate-300 hover:bg-slate-50 cursor-pointer"
+              className="h-8 px-2.5 sm:px-3 text-xs font-bold text-slate-700 border-slate-300 hover:bg-slate-50 cursor-pointer"
             >
               <History className="w-3.5 h-3.5 mr-1 text-slate-600" />
               <span>History ({history.length})</span>
@@ -245,7 +245,7 @@ export default function EstimatePage() {
               size="sm"
               onClick={handleResetHistory}
               title="Reset recent history stored for your account"
-              className="h-8 px-2.5 text-xs font-semibold text-slate-600 hover:text-rose-600 cursor-pointer"
+              className="h-8 px-2 sm:px-2.5 text-xs font-semibold text-slate-600 hover:text-rose-600 cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5 mr-1" />
               <span>Reset History</span>
@@ -253,11 +253,11 @@ export default function EstimatePage() {
           </div>
         </div>
 
-        {/* 2-Column POS Layout Filling 100% Height */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 flex-1 min-h-0">
+        {/* 2-Column POS Layout Filling Height */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8 flex-1 min-h-0">
           {/* Left Form: 7 Cols */}
-          <div className="lg:col-span-7 bg-white border border-slate-200 rounded-2xl p-5 px-7 shadow-xs flex flex-col justify-between overflow-hidden">
-            <div className="space-y-3.5">
+          <div className="lg:col-span-7 bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 sm:px-7 shadow-xs flex flex-col justify-between overflow-hidden">
+            <div className="space-y-3 sm:space-y-3.5">
               {/* Row 1: Category + Item Name */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {categories.length > 0 && (
@@ -304,7 +304,7 @@ export default function EstimatePage() {
               </div>
 
               {/* Row 2: Metal + Purity + Rate */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
                 <div className="space-y-1">
                   <Label className="text-xs font-bold text-slate-800">Metal</Label>
                   <select
@@ -351,7 +351,7 @@ export default function EstimatePage() {
               </div>
 
               {/* Row 3: Weight + Wastage % + Wastage g */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
                 <div className="space-y-1">
                   <Label className="text-xs font-bold text-slate-800">Weight (g) *</Label>
                   <Input
@@ -413,10 +413,10 @@ export default function EstimatePage() {
             )}
 
             {/* Action Bar */}
-            <div className="flex items-center gap-3 pt-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 pt-2">
               <Button
                 onClick={handlePrint}
-                className="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-black h-11 text-base shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                className="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-black h-11 text-base shadow-md flex items-center justify-center gap-2 cursor-pointer w-full"
               >
                 <Printer className="w-5 h-5" />
                 <span>Print Estimate Slip (Enter ↵)</span>
@@ -426,7 +426,7 @@ export default function EstimatePage() {
                 variant="outline"
                 onClick={handleClearForm}
                 title="Clear current form fields"
-                className="h-11 px-6 text-sm font-bold text-slate-700 hover:text-rose-600 border-slate-300 cursor-pointer"
+                className="h-11 px-6 text-sm font-bold text-slate-700 hover:text-rose-600 border-slate-300 cursor-pointer w-full sm:w-auto"
               >
                 Clear Form
               </Button>
@@ -434,7 +434,7 @@ export default function EstimatePage() {
           </div>
 
           {/* Right Panel: Clean, Simple Estimate Summary (5 Cols) */}
-          <div className="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-7 pb-10 shadow-xs flex flex-col justify-between overflow-hidden">
+          <div className="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 lg:p-7 shadow-xs flex flex-col justify-between">
             <div className="space-y-1">
               <div className="flex items-center justify-between pb-2 border-b border-slate-200">
                 <span className="text-sm font-black text-slate-900">Estimate Calculation</span>

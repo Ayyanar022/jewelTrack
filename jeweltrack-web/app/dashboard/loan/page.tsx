@@ -146,8 +146,8 @@ export default function GoldLoanPage() {
       <LoanMetrics stats={stats} period={period} onPeriodChange={(p) => { setPeriod(p); setPage(1); }} />
 
       {/* 2. Compact Control Toolbar (Search, Status Filter & Action) */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white px-5 py-3 rounded-2xl border border-slate-200 shadow-xs">
-        <div className="flex items-center gap-3 flex-1 max-w-md">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white px-3.5 sm:px-5 py-3 rounded-2xl border border-slate-200 shadow-xs">
+        <div className="flex items-center gap-3 flex-1 w-full sm:max-w-md">
           <div className="relative w-full">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <Input
@@ -157,14 +157,14 @@ export default function GoldLoanPage() {
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              className="pl-9 h-9 text-xs font-medium border-slate-300 rounded-xl"
+              className="pl-9 h-9 text-xs font-medium border-slate-300 rounded-xl w-full"
             />
           </div>
         </div>
 
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
           {/* Status Switcher */}
-          <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200 text-xs font-bold">
+          <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200 text-xs font-bold overflow-x-auto justify-between sm:justify-start">
             {(['ACTIVE', 'CLOSED', 'ALL'] as const).map((st) => (
               <button
                 key={st}
@@ -173,7 +173,7 @@ export default function GoldLoanPage() {
                   setStatusFilter(st);
                   setPage(1);
                 }}
-                className={`px-3.5 py-1 rounded-lg transition-all cursor-pointer ${
+                className={`px-3 sm:px-3.5 py-1 rounded-lg transition-all cursor-pointer whitespace-nowrap text-center ${
                   statusFilter === st
                     ? 'bg-white text-slate-900 shadow-xs font-black'
                     : 'text-slate-500 hover:text-slate-900'
@@ -193,7 +193,7 @@ export default function GoldLoanPage() {
               setIsNewOpen(true);
             }}
             disabled={isExpired}
-            className="bg-slate-900 hover:bg-slate-800 text-white font-black text-xs h-9 px-4 rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+            className="bg-slate-900 hover:bg-slate-800 text-white font-black text-xs h-9 px-4 rounded-xl shadow-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 w-full sm:w-auto"
           >
             <Plus className="w-4 h-4 stroke-[3]" />
             <span>{isExpired ? 'New Pledge (Locked)' : 'New Pledge'}</span>
@@ -216,7 +216,7 @@ export default function GoldLoanPage() {
         ) : (
           <div>
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm border-collapse border border-slate-200">
+              <table className="w-full text-left text-sm border-collapse border border-slate-200 min-w-[760px]">
                 <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-xs">
                   <tr>
                     <th className="px-3.5 py-2.5 text-[13px] w-10 text-center border border-slate-200">#</th>

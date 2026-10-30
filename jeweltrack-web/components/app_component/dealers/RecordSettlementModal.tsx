@@ -61,7 +61,7 @@ export default function RecordSettlementModal({ open, onOpenChange, dealer, onSu
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm sm:max-w-md max-h-[88vh] overflow-y-auto p-4 sm:p-5 rounded-xl bg-white border border-slate-200 shadow-xl">
+      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[88dvh] overflow-y-auto p-4 sm:p-5 rounded-xl bg-white border border-slate-200 shadow-xl">
         {/* Clean Header */}
         <DialogHeader className="border-b border-slate-100 pb-2.5">
           <div className="flex items-center justify-between">

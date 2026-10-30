@@ -78,61 +78,61 @@ export default function RatePage() {
       </div>
 
       {/* 4 Clean Rate Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
         {/* 22K Gold */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">22K Gold (916)</span>
-            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-amber-50 text-amber-900 border border-amber-200">
+        <div className="bg-white p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
+          <div className="flex items-center justify-between gap-1">
+            <span className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider truncate">22K Gold (916)</span>
+            <span className="text-[9px] sm:text-[10px] font-black uppercase px-1.5 sm:px-2 py-0.5 rounded-md bg-amber-50 text-amber-900 border border-amber-200 flex-shrink-0">
               Ornament
             </span>
           </div>
-          <div className="text-2xl font-black text-slate-900 my-2">
+          <div className="text-xl sm:text-2xl font-black text-slate-900 my-1.5 sm:my-2 truncate">
             {latest?.rate_22k ? `₹${Number(latest.rate_22k).toLocaleString('en-IN')}` : '—'}
           </div>
-          <div className="text-xs text-slate-400 font-medium">per gram</div>
+          <div className="text-[11px] sm:text-xs text-slate-400 font-medium">per gram</div>
         </div>
 
         {/* 18K Gold */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">18K Gold (750)</span>
-            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-amber-50/60 text-amber-800 border border-amber-200">
+        <div className="bg-white p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
+          <div className="flex items-center justify-between gap-1">
+            <span className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider truncate">18K Gold (750)</span>
+            <span className="text-[9px] sm:text-[10px] font-black uppercase px-1.5 sm:px-2 py-0.5 rounded-md bg-amber-50/60 text-amber-800 border border-amber-200 flex-shrink-0">
               Stone Set
             </span>
           </div>
-          <div className="text-2xl font-black text-slate-900 my-2">
+          <div className="text-xl sm:text-2xl font-black text-slate-900 my-1.5 sm:my-2 truncate">
             {latest?.rate_18k ? `₹${Number(latest.rate_18k).toLocaleString('en-IN')}` : '—'}
           </div>
-          <div className="text-xs text-slate-400 font-medium">per gram</div>
+          <div className="text-[11px] sm:text-xs text-slate-400 font-medium">per gram</div>
         </div>
 
         {/* Silver */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Silver (வெள்ளி)</span>
-            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200">
+        <div className="bg-white p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
+          <div className="flex items-center justify-between gap-1">
+            <span className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider truncate">Silver (வெள்ளி)</span>
+            <span className="text-[9px] sm:text-[10px] font-black uppercase px-1.5 sm:px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200 flex-shrink-0">
               Bullion
             </span>
           </div>
-          <div className="text-2xl font-black text-slate-900 my-2">
+          <div className="text-xl sm:text-2xl font-black text-slate-900 my-1.5 sm:my-2 truncate">
             {latest?.rate_silver ? `₹${Number(latest.rate_silver).toLocaleString('en-IN')}` : '—'}
           </div>
-          <div className="text-xs text-slate-400 font-medium">per gram</div>
+          <div className="text-[11px] sm:text-xs text-slate-400 font-medium">per gram</div>
         </div>
 
         {/* 24K (999) Pure Gold */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">24K Pure Gold (999)</span>
-            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-yellow-50 text-yellow-900 border border-yellow-200">
+        <div className="bg-white p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
+          <div className="flex items-center justify-between gap-1">
+            <span className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider truncate">24K Pure Gold (999)</span>
+            <span className="text-[9px] sm:text-[10px] font-black uppercase px-1.5 sm:px-2 py-0.5 rounded-md bg-yellow-50 text-yellow-900 border border-yellow-200 flex-shrink-0">
               Coin / Bar
             </span>
           </div>
-          <div className="text-2xl font-black text-slate-900 my-2">
+          <div className="text-xl sm:text-2xl font-black text-slate-900 my-1.5 sm:my-2 truncate">
             {latest?.rate_999 ? `₹${Number(latest.rate_999).toLocaleString('en-IN')}` : '—'}
           </div>
-          <div className="text-xs text-slate-400 font-medium">per gram</div>
+          <div className="text-[11px] sm:text-xs text-slate-400 font-medium">per gram</div>
         </div>
       </div>
 
@@ -225,10 +225,10 @@ export default function RatePage() {
                 No rate history recorded yet.
               </div>
             ) : (
-              <table className="w-full text-left text-sm">
+              <table className="w-full text-left text-sm min-w-[460px]">
                 <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-xs border-b border-slate-200">
                   <tr>
-                    <th className="px-5 py-3.5">Date & Time</th>
+                    <th className="px-4 sm:px-5 py-3 sm:py-3.5">Date & Time</th>
                     <th className="px-5 py-3.5 text-right">22K</th>
                     <th className="px-5 py-3.5 text-right">18K</th>
                     <th className="px-5 py-3.5 text-right">24K</th>

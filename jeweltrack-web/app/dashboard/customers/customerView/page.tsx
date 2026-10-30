@@ -64,26 +64,28 @@ const CustomerView = () => {
           </div>
 
           {/* Right: Integrated Tabs List */}
-          <TabsList className="h-10 bg-slate-100 p-1 rounded-lg border border-slate-200 shrink-0 self-start md:self-auto">
-            <TabsTrigger
-              value="loan"
-              className="px-4 text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-xs rounded-md cursor-pointer transition-all"
-            >
-              🪙 Gold Loans
-            </TabsTrigger>
-            <TabsTrigger
-              value="purchase"
-              className="px-4 text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-xs rounded-md cursor-pointer transition-all"
-            >
-              🧾 Purchase Bills
-            </TabsTrigger>
-            <TabsTrigger
-              value="stats"
-              className="px-4 text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-xs rounded-md cursor-pointer transition-all"
-            >
-              📊 Analytics
-            </TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto max-w-full pb-1 md:pb-0">
+            <TabsList className="h-10 bg-slate-100 p-1 rounded-lg border border-slate-200 shrink-0 inline-flex">
+              <TabsTrigger
+                value="loan"
+                className="px-3 sm:px-4 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-xs rounded-md cursor-pointer transition-all whitespace-nowrap"
+              >
+                🪙 Gold Loans
+              </TabsTrigger>
+              <TabsTrigger
+                value="purchase"
+                className="px-3 sm:px-4 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-xs rounded-md cursor-pointer transition-all whitespace-nowrap"
+              >
+                🧾 Purchase Bills
+              </TabsTrigger>
+              <TabsTrigger
+                value="stats"
+                className="px-3 sm:px-4 text-xs sm:text-sm font-bold data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-xs rounded-md cursor-pointer transition-all whitespace-nowrap"
+              >
+                📊 Analytics
+              </TabsTrigger>
+            </TabsList>
+          </div>
         </div>
 
         {/* Real Content Sections (Full Screen Height Allocation) */}

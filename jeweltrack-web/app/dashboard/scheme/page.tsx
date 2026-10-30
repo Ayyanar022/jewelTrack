@@ -134,7 +134,7 @@ export default function GoldSchemePage() {
 
         <Button
           onClick={() => setIsCreateOpen(true)}
-          className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs h-8.5 px-3.5 rounded-lg shadow-xs cursor-pointer self-start sm:self-auto"
+          className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs h-8.5 px-3.5 rounded-lg shadow-xs cursor-pointer w-full sm:w-auto justify-center"
         >
           <Plus className="w-3.5 h-3.5 mr-1" /> Open New Gold Scheme
         </Button>
@@ -227,7 +227,7 @@ export default function GoldSchemePage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left">
+            <table className="w-full text-xs text-left min-w-[700px]">
               <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[10px]">
                 <tr>
                   <th className="py-2.5 px-3.5 w-28">Account #</th>

@@ -122,26 +122,28 @@ export default function AdminShopsPage() {
         </div>
 
         {/* Status Switcher Tabs */}
-        <div className="inline-flex p-1 bg-slate-100 rounded-lg border border-slate-200 text-sm font-bold self-start sm:self-auto">
-          {[
-            { id: 'ALL', label: 'All Stores' },
-            { id: 'ACTIVE', label: 'Active' },
-            { id: 'TRIAL', label: 'Trial' },
-            { id: 'EXPIRED', label: 'Expired' },
-          ].map((st) => (
-            <button
-              key={st.id}
-              type="button"
-              onClick={() => setStatusFilter(st.id)}
-              className={`px-3.5 py-1.5 rounded-md transition-all cursor-pointer ${
-                statusFilter === st.id
-                  ? 'bg-white text-slate-900 shadow-xs font-bold'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              {st.label}
-            </button>
-          ))}
+        <div className="overflow-x-auto max-w-full pb-1 sm:pb-0">
+          <div className="inline-flex p-1 bg-slate-100 rounded-lg border border-slate-200 text-sm font-bold whitespace-nowrap">
+            {[
+              { id: 'ALL', label: 'All Stores' },
+              { id: 'ACTIVE', label: 'Active' },
+              { id: 'TRIAL', label: 'Trial' },
+              { id: 'EXPIRED', label: 'Expired' },
+            ].map((st) => (
+              <button
+                key={st.id}
+                type="button"
+                onClick={() => setStatusFilter(st.id)}
+                className={`px-3.5 py-1.5 rounded-md transition-all cursor-pointer whitespace-nowrap ${
+                  statusFilter === st.id
+                    ? 'bg-white text-slate-900 shadow-xs font-bold'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {st.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -160,7 +162,7 @@ export default function AdminShopsPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm border-collapse">
+            <table className="w-full text-left text-sm border-collapse min-w-[760px]">
               <thead className="bg-slate-100 uppercase tracking-wider text-slate-700 font-bold text-xs border-b border-slate-200">
                 <tr>
                   <th className="px-4 py-3.5 w-12 text-center border border-slate-200">#</th>

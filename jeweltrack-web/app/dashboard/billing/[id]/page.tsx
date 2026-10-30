@@ -178,9 +178,9 @@ function BillDetailPageContent({ params }: { params: Promise<{ id: string }> }) 
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 pb-12">
+    <div className="max-w-7xl mx-auto space-y-6 pb-12 px-2.5 sm:px-4 lg:px-8">
       {/* Top Header Toolbar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm">
         <div className="flex items-center gap-4">
           <button
             onClick={handleBack}
@@ -362,7 +362,7 @@ function BillDetailPageContent({ params }: { params: Promise<{ id: string }> }) 
           </span>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm border-collapse">
+          <table className="w-full text-left text-sm border-collapse min-w-[800px]">
             <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-xs border-b border-slate-200">
               <tr>
                 <th className="px-4 py-3 w-12 text-center border border-slate-200">#</th>
@@ -442,7 +442,7 @@ function BillDetailPageContent({ params }: { params: Promise<{ id: string }> }) 
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm border-collapse">
+              <table className="w-full text-left text-sm border-collapse min-w-[480px]">
                 <thead className="bg-slate-50 uppercase text-slate-700 font-bold text-xs border-b border-slate-200">
                   <tr>
                     <th className="p-3">Item</th>
@@ -487,7 +487,7 @@ function BillDetailPageContent({ params }: { params: Promise<{ id: string }> }) 
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm border-collapse">
+              <table className="w-full text-left text-sm border-collapse min-w-[360px]">
                 <thead className="bg-slate-50 uppercase text-slate-700 font-bold text-xs border-b border-slate-200">
                   <tr>
                     <th className="p-3">Date</th>
@@ -522,7 +522,7 @@ function BillDetailPageContent({ params }: { params: Promise<{ id: string }> }) 
 
       {/* Add Payment Modal */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-md max-w-md w-[95vw] p-6 text-slate-900">
+        <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90dvh] overflow-y-auto p-4 sm:p-6 text-slate-900">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
               <CreditCard className="w-5 h-5 text-emerald-600" />
@@ -595,7 +595,7 @@ function BillDetailPageContent({ params }: { params: Promise<{ id: string }> }) 
 
       {/* Edit Invoice Date Modal */}
       <Dialog open={dateModalOpen} onOpenChange={setDateModalOpen}>
-        <DialogContent className="max-w-md bg-white p-6 rounded-2xl shadow-xl">
+        <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90dvh] overflow-y-auto bg-white p-4 sm:p-6 rounded-2xl shadow-xl">
           <DialogHeader>
             <DialogTitle className="text-xl font-black text-slate-900 flex items-center gap-2">
               <CalendarDays className="w-5 h-5 text-amber-600" />

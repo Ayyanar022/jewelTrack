@@ -116,9 +116,9 @@ export default function RedeemSchemeModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-xl w-full max-h-[85vh] flex flex-col p-0 gap-0 overflow-hidden shadow-2xl border-slate-200">
+      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-xl max-h-[88dvh] flex flex-col p-0 gap-0 overflow-hidden shadow-2xl border-slate-200">
         {/* Fixed Header (Never overflows top) */}
-        <div className="px-6 py-4 border-b border-slate-200 bg-white shrink-0">
+        <div className="px-4 sm:px-6 py-4 border-b border-slate-200 bg-white shrink-0">
           <DialogHeader>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center font-black shadow-md shadow-purple-500/20 shrink-0">
@@ -141,7 +141,7 @@ export default function RedeemSchemeModal({
         <form
           id="redeem-scheme-form"
           onSubmit={handleSubmit}
-          className="flex-1 min-h-0 overflow-y-auto px-6 py-4 space-y-4"
+          className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 py-4 space-y-4"
         >
           {/* Current Available Account Balance Ribbon */}
           <div className="p-3.5 bg-gradient-to-r from-amber-500/10 via-amber-50 to-white border border-amber-300 rounded-xl flex items-center justify-between text-xs shadow-xs">
@@ -283,7 +283,7 @@ export default function RedeemSchemeModal({
         </form>
 
         {/* Fixed Footer (Never overflows bottom) */}
-        <div className="px-6 py-3.5 border-t border-slate-200 bg-slate-50 shrink-0 flex items-center justify-end gap-2.5">
+        <div className="px-4 sm:px-6 py-3.5 border-t border-slate-200 bg-slate-50 shrink-0 flex items-center justify-end gap-2.5">
           <Button
             type="button"
             variant="outline"

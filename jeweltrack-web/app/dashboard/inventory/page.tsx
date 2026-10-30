@@ -156,7 +156,7 @@ export default function InventoryPage() {
   }
 
   return (
-    <div className="flex flex-col gap-3.5 max-w-7xl mx-auto px-8 pb-6">
+    <div className="flex flex-col gap-3.5 max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 pb-6">
       {/* Subscription Expired Warning Banner */}
       {isExpired && (
         <div className="bg-rose-50 border border-rose-300 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-rose-950 shadow-xs">
@@ -184,7 +184,7 @@ export default function InventoryPage() {
 
       <Tabs defaultValue="inventory" className="w-full space-y-3.5">
         {/* Unified Compact Toolbar Header (Title + Tabs + Action Buttons in 1 Row) */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white px-5 py-3 rounded-2xl border border-slate-200 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white px-3.5 sm:px-5 py-3 rounded-2xl border border-slate-200 shadow-xs">
           <div className="flex items-center gap-4 flex-wrap">
             <h1 className="text-lg font-black text-slate-900 flex items-center gap-2">
               <Package className="w-5 h-5 text-amber-700" />
@@ -274,7 +274,7 @@ export default function InventoryPage() {
                 ) : (
                   <>
                     <div className="overflow-x-auto">
-                      <table className="w-full text-left">
+                      <table className="w-full text-left min-w-[680px]">
                         <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-xs border-b border-slate-200">
                           <tr>
                             <th className="px-5 py-3 w-12 text-center">#</th>
@@ -440,7 +440,7 @@ export default function InventoryPage() {
             ) : (
               <>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left">
+                  <table className="w-full text-left min-w-[760px]">
                     <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-xs border-b border-slate-200">
                       <tr>
                         <th className="px-5 py-3 w-12 text-center">#</th>

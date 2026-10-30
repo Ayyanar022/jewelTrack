@@ -141,7 +141,7 @@ export default function StaffManagementPage() {
         <Button
           onClick={() => setIsAddOpen(true)}
           disabled={isLimitReached}
-          className="bg-gold hover:bg-gold/90 text-white font-semibold text-xs flex items-center gap-1.5 h-9 px-4 shadow-xs"
+          className="bg-gold hover:bg-gold/90 text-white font-semibold text-xs flex items-center justify-center gap-1.5 h-9 px-4 shadow-xs w-full sm:w-auto"
         >
           <UserPlus className="w-4 h-4" />
           <span>+ Add Staff Member</span>
@@ -160,7 +160,8 @@ export default function StaffManagementPage() {
             <p className="text-sm font-medium">No staff members added yet</p>
           </div>
         ) : (
-          <table className="w-full text-left text-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm min-w-[640px]">
             <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-600 border-b border-slate-200">
               <tr>
                 <th className="px-5 py-3 font-bold">Staff Member</th>
@@ -252,12 +253,13 @@ export default function StaffManagementPage() {
               })}
             </tbody>
           </table>
+        </div>
         )}
       </div>
 
       {/* Add Staff Dialog Modal */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <DialogContent className="max-w-md p-6">
+        <DialogContent className="max-w-md w-[calc(100vw-2rem)] p-4 sm:p-6 max-h-[90dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
               <UserPlus className="w-5 h-5 text-gold" />

@@ -427,7 +427,7 @@ export default function ShopSubscription() {
 
       {/* 4. Secure Payment Confirmation Dialog */}
       <Dialog open={!!selectedPlanForUpgrade} onOpenChange={(open) => !open && !isProcessingPayment && setSelectedPlanForUpgrade(null)}>
-        <DialogContent className="max-w-md p-6">
+        <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90dvh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
               <ShieldCheck className="w-5 h-5 text-gold" />

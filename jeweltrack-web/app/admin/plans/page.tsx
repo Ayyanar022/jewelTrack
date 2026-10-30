@@ -206,9 +206,9 @@ export default function AdminPlansPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-10">
+    <div className="space-y-6 max-w-7xl mx-auto pb-10 px-2.5 sm:px-4 lg:px-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm">
         <div>
           <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2.5">
             <span>Subscription Plans</span>
@@ -430,7 +430,7 @@ export default function AdminPlansPage() {
           }
         }}
       >
-        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-xl max-h-[90dvh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-slate-900 flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-slate-800" />
@@ -440,7 +440,7 @@ export default function AdminPlansPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5 pt-2">
             {/* Name & Price */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label htmlFor="name" className="text-sm font-bold text-slate-800">Plan Name *</Label>
                 <Input
@@ -468,7 +468,7 @@ export default function AdminPlansPage() {
             </div>
 
             {/* Quotas */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="max_users" className="text-xs font-bold text-slate-800">Max Users</Label>
                 <Input
@@ -497,7 +497,7 @@ export default function AdminPlansPage() {
             {/* Feature Toggles */}
             <div className="space-y-2.5 pt-2 border-t border-slate-100">
               <Label className="text-sm font-bold text-slate-800">Included Feature Permissions</Label>
-              <div className="grid grid-cols-2 gap-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {[
                   { key: 'billing', label: 'GST & Estimate Billing' },
                   { key: 'gst_reports', label: 'Tax & GST Reports' },

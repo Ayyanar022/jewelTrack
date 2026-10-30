@@ -23,7 +23,7 @@ const nextConfig: NextConfig = {
     // In local development, it is http://localhost:3002.
     const backendTarget =
       process.env.INTERNAL_API_URL ||
-      (process.env.NODE_ENV === 'production' ? 'http://api:3002' : 'http://localhost:3002');
+      (process.env.NODE_ENV === 'production' ? 'http://api:3002' : 'http://127.0.0.1:3002');
 
     return [
       {

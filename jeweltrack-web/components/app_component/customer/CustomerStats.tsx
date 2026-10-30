@@ -90,7 +90,7 @@ const CustomerStats = ({ id }: { id: string }) => {
   return (
     <div className="flex flex-col gap-5">
       {/* Summary cards */}
-      <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         <Card className="p-4 border-slate-200 shadow-none">
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-md bg-amber-50 flex items-center justify-center">
@@ -127,7 +127,8 @@ const CustomerStats = ({ id }: { id: string }) => {
             No purchase data yet.
           </div>
         ) : (
-          <Table>
+          <div className="overflow-x-auto">
+            <Table className="min-w-[620px]">
             <TableHeader>
               <TableRow className="bg-slate-100 hover:bg-slate-100 border-b border-slate-200">
                 <TableHead className="text-[14px] pl-7 uppercase tracking-wide text-slate-500 font-semibold w-10">#</TableHead>
@@ -160,6 +161,7 @@ const CustomerStats = ({ id }: { id: string }) => {
               ))}
             </TableBody>
           </Table>
+        </div>
         )}
       </section>
     </div>

@@ -29,6 +29,8 @@ import {
   Building2,
   Clock,
   Lock,
+  Menu,
+  X,
 } from 'lucide-react';
 
 interface PricingOption {
@@ -331,6 +333,7 @@ export default function LandingPage() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [activeNav, setActiveNav] = useState<'modules' | 'how-it-works' | 'pricing' | 'faq'>('how-it-works');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // 1. Fetch Dynamic Trial Policy from Backend
   const { data: trialPolicy } = useQuery<TrialPolicy>({
@@ -468,22 +471,94 @@ export default function LandingPage() {
             </a>
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link href="/login">
               <Button
                 variant="ghost"
-                className="text-stone-300 hover:text-[#FFD97D] hover:bg-[#3A2800]/50 text-sm font-medium px-4"
+                className="text-stone-300 hover:text-[#FFD97D] hover:bg-[#3A2800]/50 text-xs sm:text-sm font-medium px-2.5 sm:px-4"
               >
                 Login
               </Button>
             </Link>
             <Link href="/register">
-              <Button className="bg-gradient-to-r from-[#C9920A] to-[#B37E00] hover:from-[#B37E00] hover:to-[#996B00] text-white text-sm font-semibold shadow-md shadow-[#C9920A]/25 border border-[#FFD97D]/30 px-5">
+              <Button className="hidden sm:inline-flex bg-gradient-to-r from-[#C9920A] to-[#B37E00] hover:from-[#B37E00] hover:to-[#996B00] text-white text-xs sm:text-sm font-semibold shadow-md shadow-[#C9920A]/25 border border-[#FFD97D]/30 px-3.5 sm:px-5">
                 Start Free Trial
               </Button>
             </Link>
+            {/* Mobile Hamburger Button */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg text-stone-300 hover:text-[#FFD97D] hover:bg-[#3A2800]/60 transition-colors cursor-pointer"
+              aria-label="Toggle navigation menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5 text-[#FFD97D]" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Navigation Dropdown Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-[#140E06] border-b border-[#C9920A]/30 px-4 py-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+            <nav className="flex flex-col space-y-2 text-sm font-medium">
+              <a
+                href="#modules"
+                onClick={(e) => {
+                  handleNavClick(e, 'modules');
+                  setMobileMenuOpen(false);
+                }}
+                className={`px-3 py-2 rounded-lg transition-colors ${
+                  activeNav === 'modules' ? 'bg-[#3A2800] text-[#FFD97D] font-bold' : 'text-stone-300 hover:text-[#FFD97D]'
+                }`}
+              >
+                📦 Modules
+              </a>
+              <a
+                href="#how-it-works"
+                onClick={(e) => {
+                  handleNavClick(e, 'how-it-works');
+                  setMobileMenuOpen(false);
+                }}
+                className={`px-3 py-2 rounded-lg transition-colors ${
+                  activeNav === 'how-it-works' ? 'bg-[#3A2800] text-[#FFD97D] font-bold' : 'text-stone-300 hover:text-[#FFD97D]'
+                }`}
+              >
+                ⚡ How it works
+              </a>
+              <a
+                href="#pricing"
+                onClick={(e) => {
+                  handleNavClick(e, 'pricing');
+                  setMobileMenuOpen(false);
+                }}
+                className={`px-3 py-2 rounded-lg transition-colors ${
+                  activeNav === 'pricing' ? 'bg-[#3A2800] text-[#FFD97D] font-bold' : 'text-stone-300 hover:text-[#FFD97D]'
+                }`}
+              >
+                💎 Pricing Plans
+              </a>
+              <a
+                href="#faq"
+                onClick={(e) => {
+                  handleNavClick(e, 'faq');
+                  setMobileMenuOpen(false);
+                }}
+                className={`px-3 py-2 rounded-lg transition-colors ${
+                  activeNav === 'faq' ? 'bg-[#3A2800] text-[#FFD97D] font-bold' : 'text-stone-300 hover:text-[#FFD97D]'
+                }`}
+              >
+                ❓ FAQ
+              </a>
+            </nav>
+            <div className="pt-2 border-t border-stone-800">
+              <Link href="/register" onClick={() => setMobileMenuOpen(false)} className="block w-full">
+                <Button className="w-full bg-gradient-to-r from-[#C9920A] to-[#B37E00] hover:from-[#B37E00] hover:to-[#996B00] text-white text-sm font-bold shadow-md shadow-[#C9920A]/25 border border-[#FFD97D]/30 py-2.5">
+                  Start {trialDays}-Day Free Trial ✨
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* 2. Hero Section */}

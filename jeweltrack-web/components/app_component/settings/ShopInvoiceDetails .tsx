@@ -114,7 +114,7 @@ const ShopInvoiceDetails = () => {
   return (
     <form
       onSubmit={handleSubmit((formData) => mutation.mutate(formData))}
-      className="bg-white rounded-2xl border border-slate-200 mt-5 p-6 sm:p-8 space-y-8 shadow-xs"
+      className="bg-white rounded-2xl border border-slate-200 mt-5 p-4 sm:p-6 lg:p-8 space-y-8 shadow-xs"
     >
       {/* Header with info & auto-suggest helper */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
@@ -141,7 +141,7 @@ const ShopInvoiceDetails = () => {
       </div>
 
       {/* Grid of Prefix Inputs with live previews */}
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* 1. Invoice Prefix */}
         <div className="space-y-2">
           <label className="font-bold text-xs uppercase tracking-wider text-slate-700 flex items-center justify-between">
@@ -291,7 +291,7 @@ const ShopInvoiceDetails = () => {
         <button
           type="submit"
           disabled={mutation.isPending}
-          className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-6 py-2.5 rounded-xl shadow-xs transition-all cursor-pointer text-sm disabled:opacity-50"
+          className="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-bold px-6 py-2.5 rounded-xl shadow-xs transition-all cursor-pointer text-sm disabled:opacity-50"
         >
           {mutation.isPending ? "Saving..." : "Save Numbering & Settings"}
         </button>

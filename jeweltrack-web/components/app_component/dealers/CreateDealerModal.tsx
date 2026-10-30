@@ -65,8 +65,8 @@ export default function CreateDealerModal({ open, onOpenChange, dealerToEdit, on
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md w-full max-h-[85vh] flex flex-col p-0 gap-0 overflow-hidden rounded-2xl bg-white border border-slate-200 shadow-xl">
-        <div className="px-6 py-4 border-b border-slate-100 shrink-0">
+      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[88dvh] flex flex-col p-0 gap-0 overflow-hidden rounded-2xl bg-white border border-slate-200 shadow-xl">
+        <div className="px-4 sm:px-6 py-4 border-b border-slate-100 shrink-0">
           <DialogHeader>
             <DialogTitle className="text-lg font-black text-slate-900 flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-amber-500/15 text-gold flex items-center justify-center">
@@ -77,7 +77,7 @@ export default function CreateDealerModal({ open, onOpenChange, dealerToEdit, on
           </DialogHeader>
         </div>
 
-        <form id="create-dealer-form" onSubmit={handleSubmit} className="flex-1 min-h-0 overflow-y-auto px-6 py-4 space-y-4">
+        <form id="create-dealer-form" onSubmit={handleSubmit} className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 py-4 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label className="text-xs font-bold text-slate-700">Contact / Owner Name *</Label>
@@ -176,7 +176,7 @@ export default function CreateDealerModal({ open, onOpenChange, dealerToEdit, on
 
         </form>
 
-        <div className="px-6 py-3 border-t border-slate-100 bg-slate-50/50 shrink-0 flex items-center justify-end gap-2">
+        <div className="px-4 sm:px-6 py-3 border-t border-slate-100 bg-slate-50/50 shrink-0 flex items-center justify-end gap-2">
           <Button
             type="button"
             variant="outline"

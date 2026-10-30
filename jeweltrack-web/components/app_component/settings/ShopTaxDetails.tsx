@@ -67,9 +67,9 @@ const ShopTaxDetails = () => {
   return (
     <form
       onSubmit={handleSubmit((data) => mutation.mutate(data))}
-      className="bg-white border rounded-xl p-6 space-y-5 mt-5"
+      className="bg-white border rounded-xl p-4 sm:p-6 space-y-5 mt-5"
     >
-     <div className="grid md:grid-cols-2 gap-5">
+     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
 
   <div>
     <label className="block mb-2 text-sm font-medium">
@@ -124,7 +124,7 @@ const ShopTaxDetails = () => {
 
       <div className="flex justify-end">
         <button
-          className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-6 py-2.5 rounded-xl shadow-xs transition-all cursor-pointer text-sm"
+          className="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-bold px-6 py-2.5 rounded-xl shadow-xs transition-all cursor-pointer text-sm"
           disabled={mutation.isPending}
         >
           {mutation.isPending ? "Saving..." : "Save Tax Details"}

@@ -28,7 +28,7 @@ export default function PrintLoanSlipModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md max-w-md w-[95vw] p-6 text-slate-900">
+      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90dvh] overflow-y-auto p-4 sm:p-6 text-slate-900">
         <DialogHeader>
           <DialogTitle className="text-base font-bold text-slate-900 flex items-center gap-2">
             <Printer className="w-5 h-5 text-gold" />

@@ -210,7 +210,7 @@ export default function LoanReport() {
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="w-full text-left">
+              <table className="w-full text-left min-w-[760px]">
                 <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-xs border-b border-slate-200">
                   <tr>
                     <th className="px-4 py-3 w-10 text-center">#</th>

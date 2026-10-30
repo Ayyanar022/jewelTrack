@@ -1308,33 +1308,33 @@ const handleTabChange = (tab: string) => {
           </div>
         )}
 
-          <div className="bg-white p-3 rounded-lg border shadow-sm">
-        <div className="flex items-center justify-between gap-4">
-          {/* Left side - Customer Search */}
-         <div className="flex items-center gap-4 flex-1">
-            {selectedCustomer ? (
-              <div className="flex items-center gap-4 bg-green-50 border border-green-200 rounded-lg px-3 py-1.5 flex-1">
-                <User size={16} className="text-green-600" />
-                <span className="font-semibold text-sm">{selectedCustomer.name}</span>
-                <span className="flex items-center gap-1 text-gray-600 text-sm">
-                  <Phone size={13} />
-                  {selectedCustomer.phone}
-                </span>
-                <span className="flex items-center gap-1 text-gray-600 text-sm">
-                  <MapPin size={13} />
-                  {selectedCustomer.village}
-                </span>
-                <button
-                  onClick={() => setSelectedCustomer(null)}
-                  className="ml-auto flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700"
-                >
-                  <Edit2 size={13} />
-                  Change
-                </button>
-              </div>
-            ) : (
-              <div className="relative flex-1 max-w-sm">
-                <div className="flex items-center gap-2 border border-gray-300 px-2 py-1.5 rounded bg-white focus-within:ring-2 focus-within:ring-amber-500">
+        <div className="bg-white p-3 sm:p-3.5 rounded-xl border border-slate-200 shadow-xs">
+          <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+            {/* Left side - Customer Search */}
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 flex-1">
+              {selectedCustomer ? (
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 bg-emerald-50/80 border border-emerald-200 rounded-lg px-3 py-1.5 flex-1 min-w-[260px]">
+                  <User size={15} className="text-emerald-700 shrink-0" />
+                  <span className="font-semibold text-xs sm:text-sm text-slate-900 truncate max-w-[140px] sm:max-w-none">{selectedCustomer.name}</span>
+                  <span className="flex items-center gap-1 text-slate-600 text-xs sm:text-sm shrink-0">
+                    <Phone size={12} />
+                    {selectedCustomer.phone}
+                  </span>
+                  <span className="hidden sm:flex items-center gap-1 text-slate-500 text-xs sm:text-sm">
+                    <MapPin size={12} />
+                    {selectedCustomer.village}
+                  </span>
+                  <button
+                    onClick={() => setSelectedCustomer(null)}
+                    className="ml-auto flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 font-semibold cursor-pointer"
+                  >
+                    <Edit2 size={12} />
+                    Change
+                  </button>
+                </div>
+              ) : (
+                <div className="relative flex-1 min-w-[200px] max-w-sm">
+                  <div className="flex items-center gap-2 border border-gray-300 px-2 py-1.5 rounded bg-white focus-within:ring-2 focus-within:ring-amber-500">
                   <Search size={15} className="text-gray-400" />
                   <input
                     ref={customerRef}
@@ -1446,7 +1446,7 @@ const handleTabChange = (tab: string) => {
           </div>
 
           {/* Right side - Tabs */}
-          <div className="flex items-center gap-1 bg-gray-100 p-0.5 rounded-lg">
+          <div className="flex items-center justify-end gap-1 bg-gray-100 p-0.5 rounded-lg self-end xl:self-auto shrink-0">
             <button
               onClick={() => setActiveTab('new')}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
@@ -1471,14 +1471,13 @@ const handleTabChange = (tab: string) => {
             </button>
           </div>
 
-        
         </div>
       </div>
 
         {/* Bill Items Table - Full Width with Large Font */}
         <div className="bg-white border rounded-lg shadow-sm overflow-hidden">
           <div className="overflow-x-auto" ref={tableContainerRef}>
-            <table className="w-full border-collapse">
+            <table className="w-full border-collapse min-w-[1075px]">
             <thead className="bg-gray-100">
               <tr>
                 <th className="px-2 py-2.5 text-center text-xs font-bold text-gray-700 border border-gray-200 w-[30px]">#</th>
@@ -1662,7 +1661,7 @@ const handleTabChange = (tab: string) => {
                 <h3 className="text-base font-bold text-gray-700">Old Jewelry Exchange</h3>
               </div>
               <div className="overflow-x-auto p-2">
-                <table className="w-full border-collapse">
+                <table className="w-full border-collapse min-w-[665px]">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-2 py-2 text-center text-xs font-bold text-gray-700 border border-gray-300 w-[35px]">#</th>

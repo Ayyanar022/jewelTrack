@@ -131,7 +131,7 @@ export default function CategoriesPage() {
     'h-11 text-base font-bold text-slate-900 border-slate-300 focus-visible:border-slate-800 focus-visible:ring-2 focus-visible:ring-slate-200 transition-all';
 
   return (
-    <div className="flex flex-col gap-5 max-w-7xl mx-auto px-8 pb-20">
+    <div className="flex flex-col gap-5 max-w-7xl mx-auto px-2.5 sm:px-4 lg:px-8 pb-20">
       {/* Subscription Expired Warning Banner */}
       {isExpired && (
         <div className="bg-rose-50 border border-rose-300 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-rose-950 shadow-xs">
@@ -324,7 +324,7 @@ export default function CategoriesPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left table-fixed">
+            <table className="w-full text-left min-w-[650px]">
               <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-xs border-b border-slate-200">
                 <tr>
                   <th className="px-6 py-4 text-left"> Name</th>

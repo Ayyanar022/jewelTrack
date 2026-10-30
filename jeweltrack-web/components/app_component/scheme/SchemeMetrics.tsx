@@ -23,7 +23,7 @@ export default function SchemeMetrics({ stats }: SchemeMetricsProps) {
   const redeemedGrams = stats?.totalRedeemedGrams ?? 0;
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-xs px-4 py-2.5 grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-slate-100 gap-y-2 lg:gap-y-0">
+    <div className="bg-white rounded-xl border border-slate-200 shadow-xs px-3.5 sm:px-4 py-2.5 sm:py-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-2 sm:divide-x divide-slate-100">
       {/* 1. Active Accounts */}
       <div className="flex items-center gap-3 px-2">
         <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">

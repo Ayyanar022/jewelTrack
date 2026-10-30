@@ -97,9 +97,9 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-12 bg-slate-50">
-      {/* Left Column — Trial Value & Features (5 cols) */}
-      <div className="lg:col-span-5 bg-slate-950 text-white flex flex-col justify-between p-8 sm:p-12 lg:p-14 relative overflow-hidden">
+    <div className="min-h-dvh grid grid-cols-1 lg:grid-cols-12 bg-slate-50">
+      {/* Left Column — Trial Value & Features (5 cols, Desktop only) */}
+      <div className="hidden lg:flex lg:col-span-5 bg-slate-950 text-white flex-col justify-between p-8 sm:p-12 lg:p-14 relative overflow-hidden">
         {/* Glow */}
         <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-amber-600/10 rounded-full blur-3xl pointer-events-none" />
@@ -171,14 +171,29 @@ export default function RegisterPage() {
       </div>
 
       {/* Right Column — Registration Form (7 cols) */}
-      <div className="lg:col-span-7 flex flex-col justify-center items-center px-6 py-12 sm:px-12 lg:px-20 bg-white">
-        <div className="w-full max-w-md space-y-6">
+      <div className="lg:col-span-7 flex flex-col justify-center items-center px-4 py-8 sm:px-12 lg:px-20 bg-slate-50 sm:bg-white min-h-dvh lg:min-h-0">
+        <div className="w-full max-w-lg bg-white sm:bg-transparent p-5 sm:p-0 rounded-2xl sm:rounded-none border sm:border-0 border-slate-200 shadow-xs sm:shadow-none space-y-5 sm:space-y-6">
+          {/* Mobile Branding Header (< 1024px) */}
+          <div className="lg:hidden flex items-center gap-3 pb-3 border-b border-slate-100 mb-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-b from-slate-900 to-black border border-amber-400/50 flex items-center justify-center text-amber-400 shadow-md">
+              <Sparkles className="w-5 h-5 text-amber-400" />
+            </div>
+            <div>
+              <div className="font-black text-lg tracking-[0.15em] uppercase text-slate-900">
+                JEWEL<span className="text-amber-600">TRACK</span>
+              </div>
+              <div className="text-[9px] tracking-wider uppercase font-bold text-amber-700">
+                {trialDays}-Day Free Trial ({trialPlan} Tier)
+              </div>
+            </div>
+          </div>
+
           {/* Header */}
-          <div className="space-y-2">
+          <div className="space-y-1 sm:space-y-2">
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
               Register Your Jewellery Shop
             </h1>
-            <p className="text-sm text-slate-600 font-medium">
+            <p className="text-xs sm:text-sm text-slate-600 font-medium">
               Create your store account to start your free {trialDays}-day trial ({trialPlan} tier).
             </p>
           </div>

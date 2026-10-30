@@ -141,7 +141,7 @@ export default function BillHistory({ newBill, history, activeTab }: Params) {
 
       {/* Bill Records Table */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <Table>
+        <Table className="min-w-[820px]">
           <TableHeader>
             <TableRow className="bg-slate-100 hover:bg-slate-100 border-b border-slate-200">
               <TableHead className="w-14 text-xs uppercase tracking-wider text-slate-700 font-bold text-center py-3.5">#</TableHead>

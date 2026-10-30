@@ -32,15 +32,15 @@ export default function Purchase({ id }: { id: string }) {
 
   return (
     <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
-      <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-        <div className="text-base font-bold text-slate-800">
+      <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 flex items-center justify-between">
+        <div className="text-sm sm:text-base font-bold text-slate-800">
           Purchase History: <span className="font-black text-slate-900">{bills.length} Bills</span>
         </div>
         <span className="text-xs text-slate-500 font-medium">Billed Tax Invoices</span>
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-left">
+        <table className="w-full text-left min-w-[700px]">
           <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-xs border-b border-slate-200">
             <tr>
               <th className="px-6 py-4">#</th>

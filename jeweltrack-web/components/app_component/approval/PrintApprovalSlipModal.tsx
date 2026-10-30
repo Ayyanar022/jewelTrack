@@ -23,7 +23,7 @@ export default function PrintApprovalSlipModal({ open, onOpenChange, memo }: Pro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[96vw] sm:max-w-2xl max-h-[92vh] p-6 rounded-2xl bg-white border border-slate-200 shadow-2xl flex flex-col overflow-hidden">
+      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-2xl max-h-[92dvh] p-4 sm:p-6 rounded-2xl bg-white border border-slate-200 shadow-2xl flex flex-col overflow-hidden">
         <DialogHeader className="border-b border-slate-100 pb-3 flex-shrink-0 print:hidden">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-base font-black text-slate-900 flex items-center gap-2">
@@ -79,49 +79,51 @@ export default function PrintApprovalSlipModal({ open, onOpenChange, memo }: Pro
           </div>
 
           {/* Items Table */}
-          <table className="w-full text-left text-xs border-collapse border border-slate-200">
-            <thead className="bg-slate-100 uppercase text-[10px] font-bold">
-              <tr>
-                <th className="p-2 border border-slate-200 text-center w-8">#</th>
-                <th className="p-2 border border-slate-200">Item Description</th>
-                <th className="p-2 border border-slate-200 text-center">Touch %</th>
-                <th className="p-2 border border-slate-200 text-center w-14">Pcs</th>
-                <th className="p-2 border border-slate-200 text-right">Weight (g)</th>
-                <th className="p-2 border border-slate-200 text-right">Hallmark (g)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {memo.items?.map((it: any, i: number) => {
-                const pLabel = it.purity === 'K18' ? 'K18' : it.purity === 'K24' ? 'K24' : 'K22';
-                return (
-                  <tr key={i} className="border-b border-slate-200">
-                    <td className="p-2 border border-slate-200 text-center font-bold">{i + 1}</td>
-                    <td className="p-2 border border-slate-200 font-bold text-slate-900">{it.item_name}</td>
-                    <td className="p-2 border border-slate-200 text-center font-bold font-mono">
-                      {pLabel} - {it.touch}%
-                    </td>
-                    <td className="p-2 border border-slate-200 text-center font-bold">{it.pieces_out}</td>
-                    <td className="p-2 border border-slate-200 text-right font-mono font-bold text-slate-900">
-                      {(it.net_weight_out || it.gross_weight_out || 0).toFixed(3)} g
-                    </td>
-                    <td className="p-2 border border-slate-200 text-right font-mono font-medium">
-                      {it.hallmark_charge > 0 ? `+${Number(it.hallmark_charge).toFixed(3)} g` : '—'}
-                    </td>
-                  </tr>
-                );
-              })}
-              <tr className="bg-slate-50 font-black border-t-2 border-slate-300">
-                <td colSpan={3} className="p-2 text-right">TOTAL:</td>
-                <td className="p-2 text-center">{totalPieces}</td>
-                <td className="p-2 text-right font-mono">{totalNet.toFixed(3)} g</td>
-                <td className="p-2 text-right font-mono">
-                  {memo.items?.some((i: any) => i.hallmark_charge > 0)
-                    ? `+${memo.items.reduce((s: number, i: any) => s + (Number(i.hallmark_charge) || 0), 0).toFixed(3)} g`
-                    : '—'}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs border-collapse border border-slate-200 min-w-[480px]">
+              <thead className="bg-slate-100 uppercase text-[10px] font-bold">
+                <tr>
+                  <th className="p-2 border border-slate-200 text-center w-8">#</th>
+                  <th className="p-2 border border-slate-200">Item Description</th>
+                  <th className="p-2 border border-slate-200 text-center">Touch %</th>
+                  <th className="p-2 border border-slate-200 text-center w-14">Pcs</th>
+                  <th className="p-2 border border-slate-200 text-right">Weight (g)</th>
+                  <th className="p-2 border border-slate-200 text-right">Hallmark (g)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {memo.items?.map((it: any, i: number) => {
+                  const pLabel = it.purity === 'K18' ? 'K18' : it.purity === 'K24' ? 'K24' : 'K22';
+                  return (
+                    <tr key={i} className="border-b border-slate-200">
+                      <td className="p-2 border border-slate-200 text-center font-bold">{i + 1}</td>
+                      <td className="p-2 border border-slate-200 font-bold text-slate-900">{it.item_name}</td>
+                      <td className="p-2 border border-slate-200 text-center font-bold font-mono">
+                        {pLabel} - {it.touch}%
+                      </td>
+                      <td className="p-2 border border-slate-200 text-center font-bold">{it.pieces_out}</td>
+                      <td className="p-2 border border-slate-200 text-right font-mono font-bold text-slate-900">
+                        {(it.net_weight_out || it.gross_weight_out || 0).toFixed(3)} g
+                      </td>
+                      <td className="p-2 border border-slate-200 text-right font-mono font-medium">
+                        {it.hallmark_charge > 0 ? `+${Number(it.hallmark_charge).toFixed(3)} g` : '—'}
+                      </td>
+                    </tr>
+                  );
+                })}
+                <tr className="bg-slate-50 font-black border-t-2 border-slate-300">
+                  <td colSpan={3} className="p-2 text-right">TOTAL:</td>
+                  <td className="p-2 text-center">{totalPieces}</td>
+                  <td className="p-2 text-right font-mono">{totalNet.toFixed(3)} g</td>
+                  <td className="p-2 text-right font-mono">
+                    {memo.items?.some((i: any) => i.hallmark_charge > 0)
+                      ? `+${memo.items.reduce((s: number, i: any) => s + (Number(i.hallmark_charge) || 0), 0).toFixed(3)} g`
+                      : '—'}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
           {memo.notes && (
             <div className="text-xs text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-200">

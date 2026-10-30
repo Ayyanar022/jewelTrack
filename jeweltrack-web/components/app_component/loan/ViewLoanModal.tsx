@@ -20,7 +20,7 @@ export default function ViewLoanModal({ loan, open, onOpenChange }: ViewLoanModa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl max-w-3xl w-[95vw] p-7 max-h-[88vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-3xl max-w-3xl w-[calc(100vw-2rem)] p-4 sm:p-7 max-h-[88dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-black text-slate-900 flex items-center justify-between">
             <span>Loan Pledge Details: {loan.loan_number}</span>
@@ -72,8 +72,8 @@ export default function ViewLoanModal({ loan, open, onOpenChange }: ViewLoanModa
           {/* Ornaments List */}
           <div className="space-y-2.5">
             <span className="font-bold text-slate-900 uppercase text-xs tracking-wider">Collateral Ornaments (அடகு விவரம்):</span>
-            <div className="border border-slate-200 rounded-xl overflow-hidden shadow-xs">
-              <table className="w-full text-left text-sm">
+            <div className="border border-slate-200 rounded-xl overflow-hidden shadow-xs overflow-x-auto">
+              <table className="w-full text-left text-sm min-w-[500px]">
                 <thead className="bg-slate-100 uppercase font-bold text-slate-700 text-xs">
                   <tr>
                     <th className="p-3.5">Metal</th>
@@ -112,8 +112,8 @@ export default function ViewLoanModal({ loan, open, onOpenChange }: ViewLoanModa
                 No payments recorded yet.
               </div>
             ) : (
-              <div className="border border-slate-200 rounded-xl overflow-hidden shadow-xs">
-                <table className="w-full text-left text-sm">
+              <div className="border border-slate-200 rounded-xl overflow-hidden shadow-xs overflow-x-auto">
+                <table className="w-full text-left text-sm min-w-[500px]">
                   <thead className="bg-slate-100 uppercase font-bold text-slate-700 text-xs">
                     <tr>
                       <th className="p-3.5">Payment Date</th>

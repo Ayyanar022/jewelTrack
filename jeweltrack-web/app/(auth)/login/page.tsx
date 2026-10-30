@@ -90,9 +90,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-12 bg-slate-50">
-      {/* Left Column — Branding & Key Features (5 cols) */}
-      <div className="lg:col-span-5 bg-slate-950 text-white flex flex-col justify-between p-8 sm:p-12 lg:p-14 relative overflow-hidden">
+    <div className="min-h-dvh grid grid-cols-1 lg:grid-cols-12 bg-slate-50">
+      {/* Left Column — Branding & Key Features (5 cols, Desktop only) */}
+      <div className="hidden lg:flex lg:col-span-5 bg-slate-950 text-white flex-col justify-between p-8 sm:p-12 lg:p-14 relative overflow-hidden">
         {/* Subtle Background Glow */}
         <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-amber-600/10 rounded-full blur-3xl pointer-events-none" />
@@ -179,14 +179,29 @@ export default function LoginPage() {
       </div>
 
       {/* Right Column — Login Form (7 cols) */}
-      <div className="lg:col-span-7 flex flex-col justify-center items-center px-6 py-12 sm:px-12 lg:px-20 bg-white">
-        <div className="w-full max-w-md space-y-7">
+      <div className="lg:col-span-7 flex flex-col justify-center items-center px-4 py-8 sm:px-12 lg:px-20 bg-slate-50 sm:bg-white min-h-dvh lg:min-h-0">
+        <div className="w-full max-w-md bg-white sm:bg-transparent p-6 sm:p-0 rounded-2xl sm:rounded-none border sm:border-0 border-slate-200 shadow-sm sm:shadow-none space-y-6 sm:space-y-7">
+          {/* Mobile Branding Header (< 1024px) */}
+          <div className="lg:hidden flex items-center gap-3 pb-2 border-b border-slate-100">
+            <div className="relative w-10 h-10 rounded-xl bg-slate-900 border border-amber-400/60 flex items-center justify-center text-amber-400 shadow-md">
+              <Sparkles className="w-5 h-5 text-amber-400" />
+            </div>
+            <div>
+              <div className="font-black text-xl tracking-[0.18em] uppercase text-slate-950">
+                JEWEL<span className="text-amber-600">TRACK</span>
+              </div>
+              <div className="text-[9px] tracking-wider uppercase font-bold text-amber-700">
+                JEWELLERY CLOUD ERP
+              </div>
+            </div>
+          </div>
+
           {/* Header */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
               Sign In to Your Store
             </h1>
-            <p className="text-sm text-slate-600 font-medium">
+            <p className="text-xs sm:text-sm text-slate-600 font-medium">
               Enter your registered mobile number and password to continue.
             </p>
           </div>

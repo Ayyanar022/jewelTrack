@@ -233,7 +233,7 @@ export default function WeeklyStatementModal({ open, onOpenChange, dealer }: Pro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[96vw] sm:max-w-3xl lg:max-w-4xl max-h-[90vh] p-4 sm:p-5 rounded-xl bg-white border border-slate-200 shadow-xl flex flex-col overflow-hidden">
+      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-3xl lg:max-w-4xl max-h-[90dvh] p-4 sm:p-5 rounded-xl bg-white border border-slate-200 shadow-xl flex flex-col overflow-hidden">
         {/* Top Header Toolbar */}
         <DialogHeader className="border-b border-slate-100 pb-2.5 flex-shrink-0">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -352,8 +352,8 @@ export default function WeeklyStatementModal({ open, onOpenChange, dealer }: Pro
               </div>
 
               {/* Table */}
-              <div className="border border-slate-200 rounded-lg overflow-hidden">
-                <table className="w-full text-left text-xs border-collapse">
+              <div className="border border-slate-200 rounded-lg overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse min-w-[640px]">
                   <thead className="bg-slate-50 text-slate-700 font-bold uppercase text-[10px] tracking-wider border-b border-slate-200">
                     <tr>
                       <th className="px-2.5 py-2 text-center w-8 border-r border-slate-200">#</th>

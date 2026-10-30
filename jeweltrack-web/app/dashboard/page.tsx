@@ -117,36 +117,36 @@ export default function DashboardPage() {
       )}
 
       {/* Top Stat Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         {stats.map((s) => (
-          <div key={s.label} className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
-            <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{s.label}</div>
-            <div className="text-2xl font-black text-slate-900 mb-1">{s.value}</div>
-            <div className="text-xs text-slate-400 font-medium">{s.sub}</div>
+          <div key={s.label} className="bg-white border border-slate-200 rounded-xl p-3.5 sm:p-5 shadow-xs">
+            <div className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 truncate">{s.label}</div>
+            <div className="text-lg sm:text-2xl font-black text-slate-900 mb-0.5 sm:mb-1 truncate">{s.value}</div>
+            <div className="text-[11px] sm:text-xs text-slate-400 font-medium">{s.sub}</div>
           </div>
         ))}
       </div>
 
       {/* Today's Gold Loan Overview Tile */}
-      <div className="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-300/80 rounded-2xl p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-amber-500/20 text-gold flex items-center justify-center font-black">
-            <Coins className="w-6 h-6" />
+      <div className="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-300/80 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-start sm:items-center gap-3.5 sm:gap-4">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-500/20 text-gold flex items-center justify-center font-black flex-shrink-0">
+            <Coins className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
-          <div>
-            <div className="text-xs font-bold text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
+          <div className="min-w-0">
+            <div className="text-xs font-bold text-amber-900 uppercase tracking-wider flex items-center gap-1.5 flex-wrap">
               <span>Today&apos;s Gold / Silver Loans (இன்றைய அடகு)</span>
               <span className="bg-amber-500/20 text-amber-900 text-[10px] px-2 py-0.5 rounded-full font-extrabold">
                 Live
               </span>
             </div>
-            <div className="text-lg font-black text-slate-900 mt-0.5 flex items-center gap-3">
+            <div className="text-sm sm:text-base font-black text-slate-900 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
               <span>{todayLoanStats?.active_loans_count ?? 0} Pledges</span>
-              <span className="text-sm font-semibold text-slate-500">•</span>
+              <span className="text-sm font-semibold text-slate-400">•</span>
               <span className="text-emerald-800">
                 ₹{(todayLoanStats?.total_principal_lent ?? 0).toLocaleString('en-IN')} Lent
               </span>
-              <span className="text-sm font-semibold text-slate-500">•</span>
+              <span className="text-sm font-semibold text-slate-400">•</span>
               <span className="text-xs font-bold text-amber-900">
                 🪙 {(todayLoanStats?.total_gold_weight_grams ?? 0).toFixed(2)}g Pure Gold
               </span>
@@ -156,7 +156,7 @@ export default function DashboardPage() {
 
         <Link
           href="/dashboard/loan"
-          className="inline-flex items-center gap-1.5 text-xs font-black text-amber-900 hover:text-amber-950 bg-white border border-amber-300 px-4 py-2 rounded-xl shadow-2xs transition-all hover:bg-amber-50 self-start sm:self-auto"
+          className="inline-flex items-center gap-1.5 text-xs font-black text-amber-900 hover:text-amber-950 bg-white border border-amber-300 px-3.5 py-2 rounded-xl shadow-2xs transition-all hover:bg-amber-50 self-start sm:self-auto flex-shrink-0"
         >
           <span>Open Loan Desk</span>
           <ArrowRight className="w-4 h-4" />
@@ -165,7 +165,7 @@ export default function DashboardPage() {
 
       {/* Recent Bills */}
       <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
-        <div className="px-5 py-4 border-b border-slate-200 flex justify-between items-center">
+        <div className="px-4 sm:px-5 py-3.5 sm:py-4 border-b border-slate-200 flex justify-between items-center">
           <h2 className="text-sm font-bold text-foreground">Recent Bills</h2>
           <Link href="/dashboard/billing/estimate" className="text-xs font-bold text-gold hover:underline">
             View All Bills
@@ -176,34 +176,36 @@ export default function DashboardPage() {
             No bills yet — create your first bill
           </div>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50 border-b border-slate-100 text-xs font-bold text-slate-600 uppercase">
-              <tr>
-                <th className="text-left px-5 py-3">Bill Number</th>
-                <th className="text-left px-5 py-3">Date</th>
-                <th className="text-left px-5 py-3">Total Amount</th>
-                <th className="text-left px-5 py-3">Payable</th>
-                <th className="text-left px-5 py-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {billList.slice(0, 5).map((b: any) => (
-                <tr key={b.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50">
-                  <td className="px-5 py-3 font-medium text-foreground">{b.bill_number}</td>
-                  <td className="px-5 py-3 text-muted-foreground">
-                    {new Date(b.created_at).toLocaleDateString('en-IN')}
-                  </td>
-                  <td className="px-5 py-3 text-muted-foreground">₹{Number(b.total_amount || 0).toLocaleString('en-IN')}</td>
-                  <td className="px-5 py-3 font-semibold text-foreground">₹{Number(b.payableAmount || 0).toLocaleString('en-IN')}</td>
-                  <td className="px-5 py-3">
-                    <Link href={`/dashboard/billing/${b.id}`} className="text-xs font-bold text-gold hover:underline">
-                      View
-                    </Link>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[500px]">
+              <thead className="bg-slate-50 border-b border-slate-100 text-xs font-bold text-slate-600 uppercase">
+                <tr>
+                  <th className="text-left px-4 sm:px-5 py-3">Bill Number</th>
+                  <th className="text-left px-4 sm:px-5 py-3">Date</th>
+                  <th className="text-left px-4 sm:px-5 py-3">Total Amount</th>
+                  <th className="text-left px-4 sm:px-5 py-3">Payable</th>
+                  <th className="text-left px-4 sm:px-5 py-3">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {billList.slice(0, 5).map((b: any) => (
+                  <tr key={b.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50">
+                    <td className="px-4 sm:px-5 py-3 font-medium text-foreground">{b.bill_number}</td>
+                    <td className="px-4 sm:px-5 py-3 text-muted-foreground">
+                      {new Date(b.created_at).toLocaleDateString('en-IN')}
+                    </td>
+                    <td className="px-4 sm:px-5 py-3 text-muted-foreground">₹{Number(b.total_amount || 0).toLocaleString('en-IN')}</td>
+                    <td className="px-4 sm:px-5 py-3 font-semibold text-foreground">₹{Number(b.payableAmount || 0).toLocaleString('en-IN')}</td>
+                    <td className="px-4 sm:px-5 py-3">
+                      <Link href={`/dashboard/billing/${b.id}`} className="text-xs font-bold text-gold hover:underline">
+                        View
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

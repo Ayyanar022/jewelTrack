@@ -34,36 +34,38 @@ function SettingsContent() {
 
   return (
     <div className="space-y-4 max-w-6xl mx-auto">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-1">
-        <TabsList className="bg-slate-100 p-1 rounded-xl h-16 border border-slate-200 shadow-xs flex-wrap">
-          <TabsTrigger className="p-4 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5" value="basic">
-            <Store className="w-3.5 h-3.5 text-slate-500" />
-            <span>Shop Profile</span>
-          </TabsTrigger>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3">
+        <div className="overflow-x-auto max-w-full pb-1">
+          <TabsList className="bg-slate-100 p-1 rounded-xl h-auto min-h-11 border border-slate-200 shadow-xs inline-flex gap-1">
+            <TabsTrigger className="px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5 whitespace-nowrap cursor-pointer transition-all" value="basic">
+              <Store className="w-3.5 h-3.5 text-slate-500" />
+              <span>Shop Profile</span>
+            </TabsTrigger>
 
-          <TabsTrigger
-            className="p-4 text-xs sm:text-sm font-bold rounded-lg data-[state=active]:bg-gold data-[state=active]:text-white flex items-center gap-1.5 shadow-xs"
-            value="subscription"
-          >
-            <Crown className="w-3.5 h-3.5" />
-            <span>Plan & Billing</span>
-          </TabsTrigger>
+            <TabsTrigger
+              className="px-3.5 py-2 text-xs sm:text-sm font-bold rounded-lg data-[state=active]:bg-gold data-[state=active]:text-white flex items-center gap-1.5 shadow-xs whitespace-nowrap cursor-pointer transition-all"
+              value="subscription"
+            >
+              <Crown className="w-3.5 h-3.5" />
+              <span>Plan & Billing</span>
+            </TabsTrigger>
 
-          <TabsTrigger className="p-4 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5" value="tax">
-            <Receipt className="w-3.5 h-3.5 text-slate-500" />
-            <span>Tax & GST</span>
-          </TabsTrigger>
+            <TabsTrigger className="px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5 whitespace-nowrap cursor-pointer transition-all" value="tax">
+              <Receipt className="w-3.5 h-3.5 text-slate-500" />
+              <span>Tax & GST</span>
+            </TabsTrigger>
 
-          <TabsTrigger className="p-4 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5" value="invoice">
-            <FileText className="w-3.5 h-3.5 text-slate-500" />
-            <span>Invoice & Scheme</span>
-          </TabsTrigger>
+            <TabsTrigger className="px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5 whitespace-nowrap cursor-pointer transition-all" value="invoice">
+              <FileText className="w-3.5 h-3.5 text-slate-500" />
+              <span>Invoice & Scheme</span>
+            </TabsTrigger>
 
-          <TabsTrigger className="p-4 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5" value="branding">
-            <ImageIcon className="w-3.5 h-3.5 text-slate-500" />
-            <span>Branding & Logo</span>
-          </TabsTrigger>
-        </TabsList>
+            <TabsTrigger className="px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-lg flex items-center gap-1.5 whitespace-nowrap cursor-pointer transition-all" value="branding">
+              <ImageIcon className="w-3.5 h-3.5 text-slate-500" />
+              <span>Branding & Logo</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="basic">
           <ShopBasicDetails />

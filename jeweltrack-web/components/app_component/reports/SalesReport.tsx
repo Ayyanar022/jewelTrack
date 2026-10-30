@@ -164,7 +164,7 @@ export default function SalesReport() {
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="w-full text-left">
+              <table className="w-full text-left min-w-[560px]">
                 <thead className="bg-slate-50 uppercase tracking-wider text-slate-700 font-bold text-xs border-b border-slate-200">
                   <tr>
                     <th className="px-5 py-3 w-12 text-center">#</th>

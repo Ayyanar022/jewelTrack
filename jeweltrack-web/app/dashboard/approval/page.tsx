@@ -185,45 +185,47 @@ export default function ApprovalPage() {
         </div>
 
         {/* Top Navigation Tabs */}
-        <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200/80 self-start md:self-auto gap-1">
-          <button
-            type="button"
-            onClick={() => setActiveTab('APPROVALS')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 flex items-center gap-1.5 cursor-pointer active:scale-95 ${
-              activeTab === 'APPROVALS'
-                ? 'bg-white text-slate-950 shadow-xs font-black'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-            }`}
-          >
-            <ClipboardList className="w-3.5 h-3.5 text-amber-700" />
-            <span>1. Outward & Returns</span>
-          </button>
+        <div className="overflow-x-auto max-w-full pb-1">
+          <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200/80 gap-1 whitespace-nowrap">
+            <button
+              type="button"
+              onClick={() => setActiveTab('APPROVALS')}
+              className={`px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 flex items-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap ${
+                activeTab === 'APPROVALS'
+                  ? 'bg-white text-slate-950 shadow-xs font-black'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              }`}
+            >
+              <ClipboardList className="w-3.5 h-3.5 text-amber-700" />
+              <span>1. Outward & Returns</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab('DEALERS')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 flex items-center gap-1.5 cursor-pointer active:scale-95 ${
-              activeTab === 'DEALERS'
-                ? 'bg-white text-slate-950 shadow-xs font-black'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-            }`}
-          >
-            <Store className="w-3.5 h-3.5 text-amber-700" />
-            <span>2. Partner Shops / Ledger</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('DEALERS')}
+              className={`px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 flex items-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap ${
+                activeTab === 'DEALERS'
+                  ? 'bg-white text-slate-950 shadow-xs font-black'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              }`}
+            >
+              <Store className="w-3.5 h-3.5 text-amber-700" />
+              <span>2. Partner Shops / Ledger</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab('STATS')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 flex items-center gap-1.5 cursor-pointer active:scale-95 ${
-              activeTab === 'STATS'
-                ? 'bg-white text-slate-950 shadow-xs font-black'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-            }`}
-          >
-            <Coins className="w-3.5 h-3.5 text-amber-700" />
-            <span>3. Metal Payments (வரவு விபரம்)</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('STATS')}
+              className={`px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 flex items-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap ${
+                activeTab === 'STATS'
+                  ? 'bg-white text-slate-950 shadow-xs font-black'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              }`}
+            >
+              <Coins className="w-3.5 h-3.5 text-amber-700" />
+              <span>3. Metal Payments (வரவு விபரம்)</span>
+            </button>
+          </div>
         </div>
       </div>
 

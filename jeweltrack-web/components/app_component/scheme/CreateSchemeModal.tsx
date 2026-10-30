@@ -182,9 +182,9 @@ export default function CreateSchemeModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-2xl lg:max-w-3xl w-full max-h-[85vh] flex flex-col p-0 gap-0 overflow-hidden shadow-2xl border-slate-200">
+      <DialogContent className="sm:max-w-2xl lg:max-w-3xl w-[calc(100vw-2rem)] max-h-[85dvh] flex flex-col p-0 gap-0 overflow-hidden shadow-2xl border-slate-200">
         {/* Pinned Header */}
-        <div className="px-6 py-4 border-b border-slate-200 bg-white shrink-0">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 bg-white shrink-0">
           <DialogHeader>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-black shadow-xs">
@@ -203,7 +203,7 @@ export default function CreateSchemeModal({
         </div>
 
         {/* Scrollable Form Body with min-h-0 */}
-        <form id="create-scheme-form" onSubmit={handleSubmit} className="flex-1 min-h-0 overflow-y-auto px-6 py-5 space-y-5">
+        <form id="create-scheme-form" onSubmit={handleSubmit} className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 py-4 sm:py-5 space-y-4 sm:space-y-5">
           {/* 1. Customer Selection */}
           <div className="space-y-2">
             <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
@@ -476,7 +476,7 @@ export default function CreateSchemeModal({
         </form>
 
         {/* Pinned Footer */}
-        <div className="px-6 py-3.5 border-t border-slate-200 bg-slate-50 shrink-0 flex items-center justify-end gap-2.5">
+        <div className="px-4 sm:px-6 py-3 sm:py-3.5 border-t border-slate-200 bg-slate-50 shrink-0 flex items-center justify-end gap-2.5">
           <Button type="button" variant="outline" onClick={handleClose} className="h-9 text-xs font-semibold">
             Cancel
           </Button>
